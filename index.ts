@@ -15,7 +15,9 @@ interface PrimaryScope extends IScope {
     greeting : string;
     hand : Card[];
     battlefield: Permanent[];
+    phasedOut: Permanent[];
     drawBear : () => void;
+    drawArtifact : () => void;
     abilityCreatorCard : Card;
     abilityCreatorCardName : string;
     abilityCreatorScript : string;
@@ -26,10 +28,8 @@ interface PrimaryScope extends IScope {
 let mainscope : PrimaryScope;
 
 function reevaluateValues() {
-    for (let i = 0; i < mainscope.battlefield.length; i++) {
-        let p = mainscope.battlefield[i];
-        p.name = p.originalCard.name;
-    }
+    const stateCheck = new StateCheck();
+    stateCheck.perform(mainscope.battlefield);
 }
 angular.module('PrimaryApp', [])
 
@@ -38,6 +38,7 @@ angular.module('PrimaryApp', [])
    $scope.greeting = "Hello";
    $scope.battlefield = [];
    $scope.hand  = [ Card.createBear() ];
+
    mainscope = $scope;
    $scope.abilityCreatorToString = function () {
        if (!$scope.abilityCreatorScript) {
@@ -49,6 +50,12 @@ angular.module('PrimaryApp', [])
        console.log('add');
         let ab = parseAsAbility($scope.abilityCreatorScript);
         $scope.abilityCreatorCard.abilities.push(ab);
+        console.log($scope.abilityCreatorCard.abilities);
+        reevaluateValues();
+   };
+   $scope.drawArtifact = function () {
+       $scope.hand.push(Card.createArtifact());
+       reevaluateValues();
    };
    $scope.drawBear = function () {
         $scope.hand.push(Card.createBear());
@@ -57,10 +64,20 @@ angular.module('PrimaryApp', [])
 })
     .directive('displayPermanent', function () {
         return {
-            //template: '<div>Hello, {{obj.name}}</div>',
             templateUrl: 'dperm.html',
             scope: {
                 obj: '=',
+            },
+            link: function (scope : any, element, attrs) {
+                scope.sacrifice = function () {
+                    removeFromArray(mainscope.battlefield, scope.obj);
+                    reevaluateValues();
+                };
+                scope.phasing = function () {
+                    let crd : Permanent = scope.obj;
+                    crd.phasedOut = !(scope.obj).phasedOut;
+                    reevaluateValues();
+                }
             }
         };
     })
@@ -86,7 +103,7 @@ angular.module('PrimaryApp', [])
             scope.openAbilityCreator = function () {
                 mainscope.abilityCreatorCard = scope.obj;
                 mainscope.abilityCreatorCardName = scope.obj.name;
-                mainscope.abilityCreatorScript = "This gets +1/+1.";
+                mainscope.abilityCreatorScript = "This\ngets\n+1/+1";
                 $("#abilityCreator").modal();
             }
         }
@@ -98,6 +115,6 @@ angular.module('PrimaryApp', [])
        scope: {
            caption: '@'
        },
-       transclude: true
+       transclude: true,
    };
 });

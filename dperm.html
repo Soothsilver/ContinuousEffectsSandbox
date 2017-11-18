@@ -1,11 +1,15 @@
-<div class="panel panel-primary">
-    <div class="panel-heading">Permanent: {{ obj.name}}</div>
+<div class="panel panel-primary card {{obj.cssColor()}} {{ obj.phasedOut ? 'phasedout' : ''}}">
+    <div class="panel-heading">{{ obj.name}}</div>
     <div class="panel-body">
+        <div class="cardcontents">
         {{ obj.typeline.asString() }}
         <hr style="border-color: black;">
+        <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
         {{ obj.power}} / {{obj.toughness}}
+        </div>
         <hr style="border-color: black;">
-        <button class="btn btn-default">Why?</button>
-        <button class="btn btn-danger">Sacrifice</button>
+        <button class="btn btn-default">View printed</button>
+        <button class="btn btn-default" ng-click="phasing()">{{obj.phasedOut ? "Phase in" : "Phase out" }}</button>
+        <button class="btn btn-danger" ng-click="sacrifice()">Sacrifice</button>
     </div>
 </div>

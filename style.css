@@ -10,3 +10,32 @@
 .zone {
     margin: 5px;
 }
+.card {
+    margin: 5px;
+    background: lightgray;
+    max-width: 240px;
+}
+.green {
+    background-color: #96ffb8;
+}
+.blue {
+    background-color: #63bdff;
+}
+.red {
+    background-color: #ff7b4c;
+}
+.white {
+    background-color: #f1ffcb;
+}
+.black {
+    background-color: #606250;
+}
+.gold {
+    background: #faef65;
+}
+.grayscale {
+    filter: grayscale(100%);
+}
+.phasedout .cardcontents {
+    filter: blur(3px) grayscale(100%);
+}

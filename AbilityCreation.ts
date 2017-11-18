@@ -3,15 +3,15 @@ class AbilityCreator {
     ability : Ability = new Ability();
     effect: Effect = new Effect();
     parsingModifications: boolean = false;
-
     parseScript(script : string): void {
-        console.log('a');
         let lines = script.split("\n");
-        console.log(this.effect);
+        if (script.trim() == "flying") {
+            this.ability.primitiveName = "Flying";
+            return;
+        }
         for (let i = 0; i < lines.length; i++) {
             this.parseLine(lines[i].trim().toLowerCase());
         }
-        console.log(this.effect);
         this.ability.effect = this.effect;
     }
 
@@ -20,14 +20,20 @@ class AbilityCreator {
         if (line.substr(0,2) == "//") return;
         if (this.checkForMiddleLine(line)) return;
         if (["flying"].includes(line)) {
-            this.ability.primitiveName = "Flying";
+            this.effect.modification.addGrantPrimitiveAbility(Ability.flying());
         }
-        if (["this", "cardname"].includes(line) && !this.parsingModifications) {
+        else if (["this", "cardname"].includes(line)) {
             this.effect.acquisition.addSubjectThis();
         }
-        if (line.includes("/")) {
+        else if (["switch"].includes(line)) {
+            this.effect.modification.parts.push(new SwitchPTModification());
+        }
+        else if (line.includes("/") && !isNaN(this.parsePT(line)[0]) && !isNaN(this.parsePT(line)[1])) {
             let [power, toughness] = this.parsePT(line);
             this.effect.modification.addPTModification(power, toughness);
+        }
+        else {
+            this.ability.parseError = "unrecognized: " + line;
         }
     }
 
