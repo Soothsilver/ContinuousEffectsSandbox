@@ -1,0 +1,11 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">Permanent: {{ obj.name}}</div>
+    <div class="panel-body">
+        {{ obj.typeline.asString() }}
+        <hr style="border-color: black;">
+        {{ obj.power}} / {{obj.toughness}}
+        <hr style="border-color: black;">
+        <button class="btn btn-default">Why?</button>
+        <button class="btn btn-danger">Sacrifice</button>
+    </div>
+</div>

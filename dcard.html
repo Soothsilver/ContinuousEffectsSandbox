@@ -1,0 +1,14 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">{{ obj.name}}</div>
+    <div class="panel-body">
+        {{ obj.typeline.asString() }}
+        <hr style="border-color: black;">
+        <p ng-repeat="ab in obj.abilities">{{ab.toString()}}</p>
+        {{ obj.power}} / {{obj.toughness}}
+        <hr style="border-color: black;">
+        <button class="btn btn-default" style="margin-bottom: 5px;" ng-click="openAbilityCreator()">Add ability...</button>
+        <br>
+        <button class="btn btn-primary" ng-click="castSelf()">Cast</button>
+        <button class="btn btn-danger" ng-click="discardSelf()">Discard</button>
+    </div>
+</div>

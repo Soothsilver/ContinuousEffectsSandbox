@@ -1,0 +1,12 @@
+.flexcontainer {
+    display: flex;
+  /*  border: 1px solid black;
+
+   */
+    margin: 5px;
+    padding: 5px;
+    flex-flow: wrap;
+}
+.zone {
+    margin: 5px;
+}

@@ -1,10 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="PrimaryApp">
 <head>
     <meta charset="UTF-8">
     <title>Continuous Effects Sandbox (Magic: the Gathering)</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script
+            src="https://code.jquery.com/jquery-1.12.4.js"
+            integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.js"></script>
+    <script>var exports = {};</script>
+    <script src="Card.js"></script>
+    <script src="Ability.js"></script>
+    <script src="AbilityCreation.js"></script>
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div ng-controller="PrimaryController">
+        <div class="panel panel-default">
+            <div class="panel-body">{{greeting}} Continuous Effects Sandbox</div>
+        </div>
+        <div class="flexcontainer">
+            <zone caption="Hand">
+                <div class="flexcontainer">
+                <display-card ng-repeat="crd in hand" obj="crd" hand="hand" battlefield="battlefield"></display-card>
+                </div>
+                <button class="btn btn-default" ng-click="drawBear()" >Add 2/2 Bear</button>
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Draw card...</button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item"><a href="#" ng-click="drawBear()">2/2 Bear</a></li>
+                        <li class="dropdown-item"><a href="#" ng-click="drawArtifact()">An artifact</a></li>
+                        <li class="dropdown-item" ><a href="#">Humility (TBD)</a></li>
+                        <li class="dropdown-item"><a href="#">Custom... (TBD)</a></li>
+                    </ul>
+                </div>
+            </zone>
+            <zone caption="Battlefield">
+                <div class="flexcontainer">
+                    <display-permanent ng-repeat="crd in battlefield" obj="crd"></display-permanent>
+                </div>
+                <button class="btn btn-success" disabled>Create permanent...</button>
+            </zone>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">This is a footer.</div>
+        </div>
+        <!-- Modal -->
+        <div id="abilityCreator" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Ability creator</h4>
+                    </div>
+                    <div class="modal-body">
+                        You are adding a new ability to <b>{{ abilityCreatorCardName }}</b><br>
+                        <textarea ng-model="abilityCreatorScript" cols="50" rows="6"></textarea>
+                        <hr>
+                        <p>{{ abilityCreatorToString() }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="abilityCreatorAdd()" data-dismiss="modal">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
 
+            </div>
+        </div>
+    </div>
 </body>
 </html>
