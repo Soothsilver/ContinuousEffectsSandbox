@@ -5,7 +5,7 @@
         {{ obj.typeline.asString() }}
         <hr style="border-color: black;">
         <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
-        {{ obj.power}} / {{obj.toughness}}
+            <p ng-if="obj.typeline.isCreature()">{{ obj.power}} / {{obj.toughness}}</p>
         </div>
         <hr style="border-color: black;">
         <button class="btn btn-default" style="margin-bottom: 5px;" ng-click="openAbilityCreator()">Add ability...</button>

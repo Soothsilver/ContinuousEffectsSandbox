@@ -1,8 +1,8 @@
-class AcquireOneOrMoreObjects {
+class SingleAcquisition {
     private keyword : string = null;
     plural: boolean = false;
 
-    private constructor(key : string, plural: boolean) {
+    protected constructor(key : string, plural: boolean) {
         this.keyword = key;
         this.plural = plural;
     }
@@ -14,8 +14,8 @@ class AcquireOneOrMoreObjects {
         }
     }
 
-    static acquireSelf() : AcquireOneOrMoreObjects {
-        return new AcquireOneOrMoreObjects("self", false);
+    static acquireSelf() : SingleAcquisition {
+        return new SingleAcquisition("self", false);
     }
 
     getAcquiredObjects(battlefield: Permanent[], source : Permanent) : Permanent[] {
@@ -25,9 +25,66 @@ class AcquireOneOrMoreObjects {
         return [];
     }
 }
+class AcquisitionCondition {
+    mustBeThisColor : Color = null;
+    mustBeThisType : Type = null;
+    suppressTypePlural: boolean = false;
+
+    static color(clr : Color) {
+        let ac = new AcquisitionCondition();
+        ac.mustBeThisColor = clr;
+        return ac;
+    }
+
+    toString() : String {
+        if (this.mustBeThisColor != null) {
+            return Color[this.mustBeThisColor].toLowerCase();
+        }
+        if (this.mustBeThisType != null) {
+            return Type[this.mustBeThisType].toLowerCase() + (this.suppressTypePlural ? "" : "s");
+        }
+    }
+
+    satisfiedBy(target: Permanent, source: Permanent, battlefield: Permanent[]) {
+        if (this.mustBeThisColor != null) {
+            if (!target.color.includes(this.mustBeThisColor)) {
+                return false;
+            }
+        }
+        if (this.mustBeThisType != null) {
+            if (!target.typeline.types.includes(this.mustBeThisType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static type(theType: Type) {
+        let ac = new AcquisitionCondition();
+        ac.mustBeThisType = theType;
+        return ac;
+    }
+}
+class ComplexAcquisition extends SingleAcquisition {
+    conditions : AcquisitionCondition[] = [];
+
+    constructor() {
+        super(null, true);
+    }
+    toString() : string {
+        return (this.conditions.join(" "));
+    }
+    getAcquiredObjects(battlefield: Permanent[], source : Permanent) : Permanent[] {
+        let filtered = shallowCopy(battlefield);
+        for (let condition of this.conditions) {
+            filtered = filtered.filter((target) => condition.satisfiedBy(target, source, battlefield));
+        }
+        return filtered;
+    }
+}
 class Acquisition {
     multipleTargets: boolean = true;
-    parts: AcquireOneOrMoreObjects[] = [];
+    parts: SingleAcquisition[] = [];
 
 
     toString() : string {
@@ -42,7 +99,11 @@ class Acquisition {
     }
 
     addSubjectThis() {
-        this.parts.push(AcquireOneOrMoreObjects.acquireSelf())
+        this.parts.push(SingleAcquisition.acquireSelf())
+        this.reevaluatePlural();
+    }
+    addComplexAcquisition(complex: SingleAcquisition) {
+        this.parts.push(complex);
         this.reevaluatePlural();
     }
 
@@ -68,4 +129,6 @@ class Acquisition {
         objs = removeDuplicates(objs);
         return objs;
     }
+
+
 }

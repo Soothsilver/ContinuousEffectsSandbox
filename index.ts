@@ -23,9 +23,16 @@ interface PrimaryScope extends IScope {
     abilityCreatorScript : string;
     abilityCreatorToString :  () => string;
     abilityCreatorAdd :  () => void;
+    cardCreatorScript: string;
+    cardCreatorToCard: () => Card;
+    cardCreatorTempCard: Card;
+    cardCreatorCreate : () => void;
+    detailsViewerCard : Card;
+    openCustomCardEditor : ()=>void;
+    createExample: (identifier : string) => void;
 }
 
-let mainscope : PrimaryScope;
+var mainscope : PrimaryScope;
 
 function reevaluateValues() {
     const stateCheck = new StateCheck();
@@ -46,12 +53,37 @@ angular.module('PrimaryApp', [])
        }
         return parseAsAbility($scope.abilityCreatorScript).toString();
    };
+   $scope.createExample = (id) =>{
+       Examples.createExample(id, $scope.battlefield, $scope.hand);
+       reevaluateValues();
+   };
    $scope.abilityCreatorAdd = function () {
        console.log('add');
         let ab = parseAsAbility($scope.abilityCreatorScript);
         $scope.abilityCreatorCard.abilities.push(ab);
         console.log($scope.abilityCreatorCard.abilities);
         reevaluateValues();
+   };
+
+    function recalculateCardCreatorTempCard() {
+        $scope.cardCreatorTempCard = CardCreator.parse($scope.cardCreatorScript);
+    }
+
+    $scope.$watch('cardCreatorScript', function () {
+       recalculateCardCreatorTempCard();
+    });
+    $scope.openCustomCardEditor = function () {
+        $scope.cardCreatorTempCard = null;
+        $scope.cardCreatorScript = "Elf\n1/1 green creature";
+        recalculateCardCreatorTempCard();
+        $("#cardCreator").modal();
+   };
+
+   $scope.cardCreatorToCard = function () : Card {
+       return $scope.cardCreatorTempCard;
+   };
+   $scope.cardCreatorCreate = function () {
+       $scope.hand.push( CardCreator.parse($scope.cardCreatorScript) );
    };
    $scope.drawArtifact = function () {
        $scope.hand.push(Card.createArtifact());
@@ -77,7 +109,11 @@ angular.module('PrimaryApp', [])
                     let crd : Permanent = scope.obj;
                     crd.phasedOut = !(scope.obj).phasedOut;
                     reevaluateValues();
-                }
+                };
+                scope.viewAsPrinted = function () {
+                   mainscope.detailsViewerCard = scope.obj.originalCard;
+                   $("#detailsViewer").modal();
+                };
             }
         };
     })

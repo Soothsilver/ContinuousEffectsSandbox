@@ -28,27 +28,34 @@ class AbilityCreator {
         else if (["switch"].includes(line)) {
             this.effect.modification.parts.push(new SwitchPTModification());
         }
-        else if (line.includes("/") && !isNaN(this.parsePT(line)[0]) && !isNaN(this.parsePT(line)[1])) {
-            let [power, toughness] = this.parsePT(line);
+        else if (line.includes("/") && !isNaN(parsePT(line)[0]) && !isNaN(parsePT(line)[1])) {
+            let [power, toughness] = parsePT(line);
             this.effect.modification.addPTModification(power, toughness);
+        }
+        else if (!this.parsingModifications && this.wordForWordParse(line) != null) {
+            this.effect.acquisition.addComplexAcquisition(this.wordForWordParse(line));
         }
         else {
             this.ability.parseError = "unrecognized: " + line;
         }
     }
 
-    private parsePT(line: string) : [number, number] {
-        let split = line.split("/");
-        let power = split[0].trim();
-        if (power[0] == '+') {
-            power = power.substr(1);
+    private wordForWordParse(line: string) : SingleAcquisition {
+        let words = line.split(' ');
+        let ca =new ComplexAcquisition();
+        for (let word of words) {
+            if (word == 'white') ca.conditions.push(AcquisitionCondition.color(Color.White));
+            else if (word == 'blue') ca.conditions.push(AcquisitionCondition.color(Color.Blue));
+            else if (word == 'black') ca.conditions.push(AcquisitionCondition.color(Color.Black));
+            else if (word == 'red') ca.conditions.push(AcquisitionCondition.color(Color.Red));
+            else if (word == 'green') ca.conditions.push(AcquisitionCondition.color(Color.Green));
+            else if (stringToType(word) != null) ca.conditions.push(AcquisitionCondition.type(stringToType(word)));
+            else return null;
         }
-        let toughenss = split[1].trim();
-        if (toughenss[0] == '+') {
-            toughenss = toughenss.substr(1);
-        }
-        return [Number.parseInt(power), Number.parseInt(toughenss)];
+        return ca;
     }
+
+
 
     private checkForMiddleLine(line: string) :boolean {
         let gwords: string[] = ["get", "gets", "has", "have", "gain", "gains"];

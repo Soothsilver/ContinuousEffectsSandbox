@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.js"></script>
     <script>var exports = {};</script>
     <script src="Utilities.js"></script>
+    <script src="Typeline.js"></script>
     <script src="Card.js"></script>
     <script src="Effect.js"></script>
     <script src="Acquisition.js"></script>
@@ -19,13 +20,15 @@
     <script src="Ability.js"></script>
     <script src="AbilityCreation.js"></script>
     <script src="StateCheck.js"></script>
+    <script src="CardCreator.js"></script>
     <script src="index.js"></script>
+    <script src="Examples.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div ng-controller="PrimaryController">
         <div class="panel panel-default">
-            <div class="panel-body">{{greeting}} Continuous Effects Sandbox</div>
+            <div class="panel-body"><b>Continuous Effects Sandbox</b></div>
         </div>
         <div class="flexcontainer">
             <zone caption="Hand">
@@ -39,9 +42,10 @@
                         <li class="dropdown-item"><a href="#" ng-click="drawBear()">2/2 Bear</a></li>
                         <li class="dropdown-item"><a href="#" ng-click="drawArtifact()">An artifact</a></li>
                         <li class="dropdown-item" ><a href="#">Humility (TBD)</a></li>
-                        <li class="dropdown-item"><a href="#">Custom... (TBD)</a></li>
+                        <li class="dropdown-item"><a href="#" ng-click="openCustomCardEditor()">Custom...</a></li>
                     </ul>
                 </div>
+
             </zone>
             <zone caption="Battlefield">
                 <div class="flexcontainer">
@@ -51,7 +55,9 @@
             </zone>
         </div>
         <div class="panel panel-default">
-            <div class="panel-body">This is a footer.</div>
+            <div class="panel-body">
+                <button ng-click="createExample('613.3e1')">613.3e (ex 1)</button>
+            </div>
         </div>
         <!-- Modal -->
         <div id="abilityCreator" class="modal fade" role="dialog">
@@ -70,6 +76,47 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" ng-click="abilityCreatorAdd()" data-dismiss="modal">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="cardCreator" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Card creator</h4>
+                    </div>
+                    <div class="modal-body">
+                        You are creating a new card.<br>
+                        <textarea ng-model="cardCreatorScript" cols="50" rows="6"></textarea>
+                        <hr>
+                        <display-card hand="hand" battlefield="battlefield" obj="cardCreatorToCard()"></display-card>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="cardCreatorCreate()" data-dismiss="modal">Create</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="detailsViewer" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Details</h4>
+                    </div>
+                    <div class="modal-body">
+                        The printed card is<br>
+                        <display-card hand="hand" battlefield="battlefield" obj="detailsViewerCard"></display-card>
+                    </div>
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>

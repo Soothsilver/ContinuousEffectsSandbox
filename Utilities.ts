@@ -12,8 +12,33 @@ function joinList(pole : string[]) : string {
     s += pole[pole.length - 2] + " and " + pole[pole.length - 1];
     return s;
 }
+function joinAnyList(pole : any[]) : string {
+    if (pole.length == 0) return "";
+    if (pole.length == 1) return pole[0].toString();
+    let s = "";
+    for (let i =0; i < pole.length - 2;i++) {
+        s += pole[i].toString() + ", ";
+    }
+    s += pole[pole.length - 2] + " and " + pole[pole.length - 1];
+    return s;
+}
 interface ICopiable<T> {
     copy() : T;
+}
+function parsePT(line: string) : [number, number] {
+    if (line.indexOf('/') == -1) {
+        return [NaN, NaN];
+    }
+    let split = line.split("/");
+    let power = split[0].trim();
+    if (power[0] == '+') {
+        power = power.substr(1);
+    }
+    let toughenss = split[1].trim();
+    if (toughenss[0] == '+') {
+        toughenss = toughenss.substr(1);
+    }
+    return [Number.parseInt(power), Number.parseInt(toughenss)];
 }
 function getCssColor(color: Color[]): string {
     if (color.length == 0) {
