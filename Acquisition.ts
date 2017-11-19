@@ -30,6 +30,8 @@ class AcquisitionCondition {
     mustBeThisType: Type = null;
     mustBeThisSubtype: CreatureSubtype = null;
     suppressTypePlural: boolean = false;
+    mustBeControlledByYou: boolean = false;
+    mustBeControlledByOpponent: boolean = false;
 
     static color(clr: Color) {
         let ac = new AcquisitionCondition();
@@ -46,6 +48,12 @@ class AcquisitionCondition {
         }
         if (this.mustBeThisSubtype != null) {
             return CreatureSubtype[this.mustBeThisSubtype].toLowerCase() + (this.suppressTypePlural ? "" : " creatures");
+        }
+        if (this.mustBeControlledByYou) {
+            return "you control";
+        }
+        if (this.mustBeControlledByOpponent) {
+            return "you don't control";
         }
     }
 
@@ -65,6 +73,16 @@ class AcquisitionCondition {
                 return false;
             }
         }
+        if (this.mustBeControlledByYou) {
+            if (target.controlledByOpponent) {
+                return false;
+            }
+        }
+        if (this.mustBeControlledByOpponent) {
+            if (!target.controlledByOpponent) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -77,6 +95,13 @@ class AcquisitionCondition {
     static subtype(theType: CreatureSubtype) {
         let ac = new AcquisitionCondition();
         ac.mustBeThisSubtype = theType;
+        return ac;
+    }
+
+    static controller(you: boolean) {
+        let ac = new AcquisitionCondition();
+        if (you) ac.mustBeControlledByYou = true;
+        else ac.mustBeControlledByOpponent = true;
         return ac;
     }
 }

@@ -61,6 +61,49 @@ class SetColorToModification extends SingleModification {
         return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase();
     }
 }
+class SetPowerToughnessModification extends SingleModification {
+    private power: number;
+    private toughness: number;
+
+    constructor(power : number, toughness: number) {
+        super();
+        this.power = power;
+        this.toughness = toughness;
+    }
+
+    getLayer(): Layer {
+        return Layer.L7b_PnTSetSpecificValue;
+    }
+
+    toString(plural: boolean) {
+        return (plural ? "have base power and toughness" : "has base power and toughness") + " " + this.power + "/" + this.toughness;
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.power = this.power;
+        target.toughness = this.toughness;
+    }
+}
+class AddTypeModification extends  SingleModification {
+    private type: Type;
+
+    constructor(type : Type) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    toString(plural: boolean) {
+        return (plural ? "are" : "is a") + " " + Type[this.type].toLowerCase() + (plural ? "s in addition to their other types" : " in addition to its other types.");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.typeline.types.push(this.type);
+    }
+}
 class AddAbilityModification extends SingleModification {
 
     toString(plural: boolean) {

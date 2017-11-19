@@ -20,7 +20,12 @@ class StateCheck {
         this.applyLayer(Layer.L7a_PnTCharacteristicDefining);
         this.applyLayer(Layer.L7b_PnTSetSpecificValue);
         this.applyLayer(Layer.L7c_PnTModifications);
-        this.applyLayer(Layer.L7d_PnTCounters);
+        for(let perm of battlefield) {
+            for (let cntr of perm.counters) {
+                perm.power += cntr.power;
+                perm.toughness += cntr.toughness;
+            }
+        }
         this.applyLayer(Layer.L7e_PnTSwitch);
     }
 

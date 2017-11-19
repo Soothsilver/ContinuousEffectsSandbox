@@ -9,6 +9,14 @@ class AbilityCreator {
             this.ability.primitiveName = "Flying";
             return;
         }
+        if (script.trim() == "haste") {
+            this.ability.primitiveName = "Haste";
+            return;
+        }
+        if (script.trim() == "first strike") {
+            this.ability.primitiveName = "First strike";
+            return;
+        }
         for (let i = 0; i < lines.length; i++) {
             this.parseLine(lines[i].trim().toLowerCase());
         }
@@ -19,8 +27,10 @@ class AbilityCreator {
         if (line == "") return;
         if (line.substr(0,2) == "//") return;
         if (this.checkForMiddleLine(line)) return;
-        if (["flying"].includes(line)) {
-            this.effect.modification.addGrantPrimitiveAbility(Ability.flying());
+        if (["flying", "first strike", "haste"].includes(line)) {
+            let a = new Ability();
+            a.primitiveName = line;
+            this.effect.modification.addGrantPrimitiveAbility(a);
         }
         else if (["this", "cardname"].includes(line)) {
             this.effect.acquisition.addSubjectThis();
@@ -38,6 +48,13 @@ class AbilityCreator {
         else if (line.startsWith("setcolor:")) {
             this.effect.modification.parts.push(new SetColorToModification(stringToColor(line.substr("setcolor:".length))));
         }
+        else if (line.startsWith("setpt:")) {
+            let [power, toughness] = parsePT(line.substr("setpt:".length));
+            this.effect.modification.parts.push(new SetPowerToughnessModification(power, toughness));
+        }
+        else if (line.startsWith("addtype:")) {
+            this.effect.modification.parts.push(new AddTypeModification(stringToType(line.substr("addtype:".length))));
+        }
         else if (line.startsWith("loseprimitive:")) {
             this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));
         }
@@ -53,6 +70,8 @@ class AbilityCreator {
             if (stringToColor(word) != null) ca.conditions.push(AcquisitionCondition.color(stringToColor(word)));
             else if (stringToType(word) != null) ca.conditions.push(AcquisitionCondition.type(stringToType(word)));
             else if (stringToSubtype(word) != null) ca.conditions.push(AcquisitionCondition.subtype(stringToSubtype(word)));
+            else if (word == "youcontrol") ca.conditions.push(AcquisitionCondition.controller(true));
+            else if (word == "nocontrol") ca.conditions.push(AcquisitionCondition.controller(false));
             else return null;
         }
         return ca;

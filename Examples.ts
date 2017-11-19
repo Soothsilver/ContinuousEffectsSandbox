@@ -29,7 +29,6 @@ namespace Examples {
                 c2 = CardCreator.parse("Defensive Booster\nartifact");
                 c2.abilities.push(form('creatures','get','+0/+1'));
                 let p2 = Permanent.fromCard(c2);
-                p2.phasedOut = true;
                 battlefield.push(p2);
                 battlefield.push(p);
                 break;
@@ -70,6 +69,47 @@ namespace Examples {
                 battlefield.push(c.asPermanent());
                 battlefield.push(a1.asPermanent());
             }
+                break;
+            case "613.4e1":
+            {
+                /*Example: Honor of the Pure is an enchantment that reads “White creatures you control get +1/+1.” Honor of the Pure and a 2/2 black creature are on the battlefield under your control. If an effect then turns the creature white (layer 5), it gets +1/+1 from Honor of the Pure (layer 7c), becoming 3/3. If the creature’s color is later changed to red (layer 5), Honor of the Pure’s effect stops applying to it, and it will return to being 2/2.*/
+                let c = CardCreator.parse("Honor of the Pure\nwhite enchantment");
+                c.abilities.push(form('white creatures youcontrol', 'get', '+1/+1'));
+                battlefield.push(c.asPermanent());
+                battlefield.push(Card.createBear().asPermanent());
+                let d = Card.createArtifact();
+                d.abilities.push(form('bear', 'get', 'setcolor:white'));
+                battlefield.push(d.asPermanent());
+                let e = Card.createArtifact();
+                e.abilities.push(form('bear', 'get', 'setcolor:red'));
+                hand.push(e);
+            }
+                break;
+            case "613.4e2":
+            {
+                /*Example: Gray Ogre, a 2/2 creature, is on the battlefield. An effect puts a +1/+1 counter on it (layer 7d), making it 3/3. A spell targeting it that says “Target creature gets +4/+4 until end of turn” resolves (layer 7c), making it 7/7. An enchantment that says “Creatures you control get +0/+2” enters the battlefield (layer 7c), making it 7/9. An effect that says “Target creature becomes 0/1 until end of turn” is applied to it (layer 7b), making it 5/8 (0/1, with +4/+4 from the resolved spell, +0/+2 from the enchantment, and +1/+1 from the counter).*/
+                let p = Card.createBear().asPermanent();
+                battlefield.push(p);
+                p.counters.push(new Counter(1,1));
+                let a = Card.createArtifact();
+                a.abilities.push(form('bear', 'get','+4/+4'));
+                let b = Card.createArtifact();
+                b.abilities.push(form('bear', 'get','+0/+2'));
+                let c = Card.createArtifact();
+                c.abilities.push(form('bear','get','setpt:0/1'));
+                battlefield.push(a.asPermanent(),b.asPermanent(),c.asPermanent());
+            }
+                break;
+            case "613.5e1": {
+                /*Example: An effect that reads “Wild Mongrel gets +1/+1 and becomes the color of your choice until end of turn” is both a power- and toughness-changing effect and a color-changing effect. The “becomes the color of your choice” part is applied in layer 5, and then the “gets +1/+1” part is applied in layer 7c.*/
+                let p = CardCreator.parse("Wild Mongrel\n2/2 green creature");
+                p.abilities.push(form("this", "gets", "+1/+1", "setcolor:blue"));
+                battlefield.push(p.asPermanent());
+            }
+                break;
+            case "613.5e2":
+            case "613.5e3":
+            case "613.5e4":
                 break;
         }
     }

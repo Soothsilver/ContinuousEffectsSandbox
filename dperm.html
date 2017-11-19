@@ -2,10 +2,11 @@
     <div class="panel-heading">{{ obj.name}}</div>
     <div class="panel-body">
         <div class="cardcontents">
-        {{ obj.typeline.asString() }}
-        <hr style="border-color: black;">
-        <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
+            {{ obj.typeline.asString() }}
+            <hr style="border-color: black;">
+             <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
             <p ng-if="obj.typeline.isCreature()">{{ obj.power}} / {{obj.toughness}}</p>
+            <p ng-if="obj.counters.length > 0">Counters: {{ obj.counters.join(", ") }}</p>
         </div>
         <hr style="border-color: black;">
         <button class="btn btn-default" ng-click="viewAsPrinted()">View printed</button>

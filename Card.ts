@@ -36,6 +36,17 @@ class Card {
         return Permanent.fromCard(this);
     }
 }
+class Counter {
+    power: number;
+    toughness: number;
+    constructor(power:number,toughness:number) {
+        this.power = power;
+        this.toughness = toughness;
+    }
+    toString():string {
+        return "+" + this.power + "/+" + this.toughness;
+    }
+}
 class Permanent {
     originalCard : Card;
     name: string;
@@ -43,8 +54,10 @@ class Permanent {
     color: Color[];
     toughness : number;
     typeline: Typeline;
-    abilities: Ability[];
+    controlledByOpponent: boolean;
+    abilities: Ability[] = [];
     phasedOut: boolean;
+    counters: Counter[] = [];
 
     cssColor() : string {
         return getCssColor(this.color);
