@@ -19,7 +19,6 @@ class Ability implements ICopiable<Ability> {
         return capitalizeFirstLetter(this.toString());
     }
     toString() : string {
-        console.log('abbbtoss');
         if (this.primitiveName != null) {
             return this.primitiveName;
         } else if (this.parseError != null) {

@@ -42,7 +42,6 @@ class Effect implements ICopiable<Effect>{
         return ff;
     }
     toString() : string {
-        console.log('abtos');
         console.log(capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets) + ".");
         return capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets) + ".";
     }
