@@ -35,6 +35,12 @@ class AbilityCreator {
         else if (!this.parsingModifications && this.wordForWordParse(line) != null) {
             this.effect.acquisition.addComplexAcquisition(this.wordForWordParse(line));
         }
+        else if (line.startsWith("setcolor:")) {
+            this.effect.modification.parts.push(new SetColorToModification(stringToColor(line.substr("setcolor:".length))));
+        }
+        else if (line.startsWith("loseprimitive:")) {
+            this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));
+        }
         else {
             this.ability.parseError = "unrecognized: " + line;
         }
@@ -44,12 +50,9 @@ class AbilityCreator {
         let words = line.split(' ');
         let ca =new ComplexAcquisition();
         for (let word of words) {
-            if (word == 'white') ca.conditions.push(AcquisitionCondition.color(Color.White));
-            else if (word == 'blue') ca.conditions.push(AcquisitionCondition.color(Color.Blue));
-            else if (word == 'black') ca.conditions.push(AcquisitionCondition.color(Color.Black));
-            else if (word == 'red') ca.conditions.push(AcquisitionCondition.color(Color.Red));
-            else if (word == 'green') ca.conditions.push(AcquisitionCondition.color(Color.Green));
+            if (stringToColor(word) != null) ca.conditions.push(AcquisitionCondition.color(stringToColor(word)));
             else if (stringToType(word) != null) ca.conditions.push(AcquisitionCondition.type(stringToType(word)));
+            else if (stringToSubtype(word) != null) ca.conditions.push(AcquisitionCondition.subtype(stringToSubtype(word)));
             else return null;
         }
         return ca;

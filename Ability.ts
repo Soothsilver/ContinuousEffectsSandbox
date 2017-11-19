@@ -22,7 +22,7 @@ class Ability implements ICopiable<Ability> {
         if (this.primitiveName != null) {
             return this.primitiveName;
         } else if (this.parseError != null) {
-            return "<font color='red'>" + this.parseError + "</font>";
+            return "[[" + this.parseError + "]]";
         } else if (this.effect != null) {
             return this.effect.toString();
         } else {

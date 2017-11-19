@@ -31,6 +31,10 @@ class Card {
         c.color = [];
         return c;
     }
+
+    asPermanent() : Permanent {
+        return Permanent.fromCard(this);
+    }
 }
 class Permanent {
     originalCard : Card;

@@ -26,22 +26,26 @@ class SingleAcquisition {
     }
 }
 class AcquisitionCondition {
-    mustBeThisColor : Color = null;
-    mustBeThisType : Type = null;
+    mustBeThisColor: Color = null;
+    mustBeThisType: Type = null;
+    mustBeThisSubtype: CreatureSubtype = null;
     suppressTypePlural: boolean = false;
 
-    static color(clr : Color) {
+    static color(clr: Color) {
         let ac = new AcquisitionCondition();
         ac.mustBeThisColor = clr;
         return ac;
     }
 
-    toString() : String {
+    toString(): String {
         if (this.mustBeThisColor != null) {
             return Color[this.mustBeThisColor].toLowerCase();
         }
         if (this.mustBeThisType != null) {
             return Type[this.mustBeThisType].toLowerCase() + (this.suppressTypePlural ? "" : "s");
+        }
+        if (this.mustBeThisSubtype != null) {
+            return CreatureSubtype[this.mustBeThisSubtype].toLowerCase() + (this.suppressTypePlural ? "" : " creatures");
         }
     }
 
@@ -56,12 +60,23 @@ class AcquisitionCondition {
                 return false;
             }
         }
+        if (this.mustBeThisSubtype != null) {
+            if (!target.typeline.creatureSubtypes.includes(this.mustBeThisSubtype)) {
+                return false;
+            }
+        }
         return true;
     }
 
     static type(theType: Type) {
         let ac = new AcquisitionCondition();
         ac.mustBeThisType = theType;
+        return ac;
+    }
+
+    static subtype(theType: CreatureSubtype) {
+        let ac = new AcquisitionCondition();
+        ac.mustBeThisSubtype = theType;
         return ac;
     }
 }

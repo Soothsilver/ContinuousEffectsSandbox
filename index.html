@@ -59,31 +59,11 @@
                 <button ng-click="createExample('613.3e1')">613.3e (ex 1) [7e]</button>
                 <button ng-click="createExample('613.3e2')">613.3e (ex 2) [7e]</button>
                 <button ng-click="createExample('613.3e3')">613.3e (ex 3) [7e]</button>
+                <button ng-click="createExample('613.8.1')">613.8 (ex 1) [override]</button>
+                <button ng-click="createExample('613.8.2')">613.8 (ex 2) [override]</button>
             </div>
         </div>
         <!-- Modal -->
-        <div id="abilityCreator" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Ability creator</h4>
-                    </div>
-                    <div class="modal-body">
-                        You are adding a new ability to <b>{{ abilityCreatorCardName }}</b><br>
-                        <textarea ng-model="abilityCreatorScript" cols="50" rows="6"></textarea>
-                        <hr>
-                        <p>{{ abilityCreatorToString() }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" ng-click="abilityCreatorAdd()" data-dismiss="modal">Add</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
         <div id="cardCreator" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -119,6 +99,28 @@
                         <display-card hand="hand" battlefield="battlefield" obj="detailsViewerCard"></display-card>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="abilityCreator" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Ability creator</h4>
+                    </div>
+                    <div class="modal-body">
+                        You are adding a new ability to <b>{{ abilityCreatorCardName }}</b><br>
+                        <textarea ng-model="abilityCreatorScript" cols="50" rows="6"></textarea>
+                        <hr>
+                        <p>{{ abilityCreatorToString() }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="abilityCreatorAdd()" data-dismiss="modal">Add</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 abstract class SingleModification {
     abstract getLayer() : Layer;
     abstract toString(plural : boolean);
-    abstract applyTo(target: Permanent, battlefield: Permanent[], source: Permanent, layer : Layer);
+    abstract applyTo(target: Permanent, battlefield: Permanent[], source: Permanent);
 }
 
 class Modification  {
@@ -51,7 +51,7 @@ class Effect implements ICopiable<Effect>{
         for (let m  of this.modification.parts) {
             if (m.getLayer() == layer) {
                 for (let o  of affectedObjects) {
-                    m.applyTo(o, battlefield, this.source, layer);
+                    m.applyTo(o, battlefield, this.source);
                 }
                 this.startedApplyingThisStateCheck = true;
             }

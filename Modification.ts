@@ -23,6 +23,44 @@ class PowerToughnessModification extends SingleModification {
 
     }
 }
+class LosePrimitiveModification extends SingleModification {
+    private abilityname: string;
+    constructor(abilityname : string) {
+        super();
+        this.abilityname = abilityname;
+    }
+
+    getLayer(): Layer {
+        return Layer.L6_Abilities;
+    }
+
+    toString(plural: boolean) {
+        return (plural ? "lose" : "loses") + " " + this.abilityname.toLowerCase();
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.abilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
+    }
+
+}
+class SetColorToModification extends SingleModification {
+    private clr: Color;
+
+    constructor(clr : Color) {
+        super();
+        this.clr = clr;
+    }
+
+    getLayer(): Layer {
+        return Layer.L5_Color;
+    }
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.color = [this.clr];
+    }
+    toString(plural: boolean) {
+        return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase();
+    }
+}
 class AddAbilityModification extends SingleModification {
 
     toString(plural: boolean) {
@@ -53,7 +91,7 @@ class SwitchPTModification extends SingleModification {
         return (plural ? "have their power and toughness switched" : "has its power and toughness switched");
     }
 
-    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent, layer: Layer) {
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
         const swap = target.toughness;
         target.toughness = target.power;
         target.power = swap;

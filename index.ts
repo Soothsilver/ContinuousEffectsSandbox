@@ -110,6 +110,12 @@ angular.module('PrimaryApp', [])
                     crd.phasedOut = !(scope.obj).phasedOut;
                     reevaluateValues();
                 };
+                scope.flicker = function () {
+                    let crd : Permanent = scope.obj;
+                    removeFromArray(mainscope.battlefield, crd);
+                    mainscope.battlefield.push(crd.originalCard.asPermanent());
+                    reevaluateValues();
+                };
                 scope.viewAsPrinted = function () {
                    mainscope.detailsViewerCard = scope.obj.originalCard;
                    $("#detailsViewer").modal();

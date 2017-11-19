@@ -24,11 +24,11 @@ enum CreatureSubtype {
     Spider
 }
 function stringToSubtype(word: string) : CreatureSubtype {
-    switch (word){
-        case "Bear": return  CreatureSubtype.Bear;
-        case "Elephant": return CreatureSubtype.Elephant;
-        case "Elf": return CreatureSubtype.Elf;
-        case "Spider": return CreatureSubtype.Spider;
+    switch (word.toLowerCase()){
+        case "bear": return  CreatureSubtype.Bear;
+        case "elephant": return CreatureSubtype.Elephant;
+        case "elf": return CreatureSubtype.Elf;
+        case "spider": return CreatureSubtype.Spider;
         default: return null;
     }
 }
