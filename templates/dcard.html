@@ -7,10 +7,12 @@
         <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
             <p ng-if="obj.typeline.isCreature()">{{ obj.power}} / {{obj.toughness}}</p>
         </div>
-        <hr style="border-color: black;">
-        <button class="btn btn-default" style="margin-bottom: 5px;" ng-click="openAbilityCreator()">Add ability...</button>
-        <br>
-        <button class="btn btn-primary" ng-click="castSelf()">Cast</button>
-        <button class="btn btn-danger" ng-click="discardSelf()">Discard</button>
+        <div ng-if=" editable == 'true' ">
+            <hr style="border-color: black;">
+            <button class="btn btn-default" style="margin-bottom: 5px;" ng-click="openAbilityCreator()">Add ability...</button>
+            <br>
+            <button class="btn btn-primary" ng-click="castSelf()">Cast</button>
+            <button class="btn btn-danger" ng-click="discardSelf()">Discard</button>
+        </div>
     </div>
 </div>

@@ -12,18 +12,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.js"></script>
     <script>var exports = {};</script>
     <script src="Utilities.js"></script>
-    <script src="Typeline.js"></script>
-    <script src="Card.js"></script>
-    <script src="Effect.js"></script>
-    <script src="Acquisition.js"></script>
-    <script src="Modification.js"></script>
-    <script src="Ability.js"></script>
-    <script src="AbilityCreation.js"></script>
+    <script src="structures/Typeline.js"></script>
+    <script src="structures/Card.js"></script>
+    <script src="structures/Effect.js"></script>
+    <script src="structures/Acquisition.js"></script>
+    <script src="structures/Modification.js"></script>
+    <script src="structures/Ability.js"></script>
+    <script src="creators/AbilityCreation.js"></script>
     <script src="StateCheck.js"></script>
-    <script src="CardCreator.js"></script>
+    <script src="creators/CardCreator.js"></script>
     <script src="index.js"></script>
-    <script src="Examples.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <script src="examples/Examples.js"></script>
+    <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
     <div ng-controller="PrimaryController">
@@ -33,15 +33,15 @@
         <div class="flexcontainer">
             <zone caption="Hand">
                 <div class="flexcontainer">
-                <display-card ng-repeat="crd in hand" obj="crd" hand="hand" battlefield="battlefield"></display-card>
+                <display-card ng-repeat="crd in hand" obj="crd" hand="hand" battlefield="battlefield" editable="true"></display-card>
                 </div>
                 <button class="btn btn-default" ng-click="drawBear()" >Add 2/2 Bear</button>
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Draw card...</button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" id="sample-card-dropdown">
                         <li class="dropdown-item"><a href="#" ng-click="drawBear()">2/2 Bear</a></li>
                         <li class="dropdown-item"><a href="#" ng-click="drawArtifact()">An artifact</a></li>
-                        <li class="dropdown-item" ><a href="#">Humility (TBD)</a></li>
+                        <li class="dropdown-item" ><a href="#" ng-click="drawHumility()">Humility</a></li>
                         <li class="dropdown-item"><a href="#" ng-click="openCustomCardEditor()">Custom...</a></li>
                     </ul>
                 </div>
@@ -51,7 +51,6 @@
                 <div class="flexcontainer">
                     <display-permanent ng-repeat="crd in battlefield" obj="crd"></display-permanent>
                 </div>
-                <button class="btn btn-success" disabled>Create permanent...</button>
             </zone>
         </div>
         <div class="panel panel-default">

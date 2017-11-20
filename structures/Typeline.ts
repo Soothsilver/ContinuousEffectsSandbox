@@ -72,7 +72,7 @@ class Typeline {
         }
         if (this.creatureSubtypes.length > 0) {
             s += " - ";
-            for (let i = 0; i < this.types.length; i++) {
+            for (let i = 0; i < this.creatureSubtypes.length; i++) {
                 s += CreatureSubtype[this.creatureSubtypes[i]] + " ";
             }
         }

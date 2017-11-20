@@ -23,6 +23,42 @@ class PowerToughnessModification extends SingleModification {
 
     }
 }
+class ControlChangeModification extends SingleModification {
+    controlGoesToYou: boolean;
+
+    private getPlayerName() : string {
+        return (this.controlGoesToYou) ? "you" : "Player 2";
+    }
+
+    toString(plural: boolean) : string {
+        return (plural ? "are controlled by " : "is controlled by ") + this.getPlayerName();
+    }
+    getLayer() : Layer {
+        return Layer.L2_Control;
+    }
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.controlledByOpponent = !this.controlGoesToYou;
+
+    }
+    constructor(controlGoesToYou : boolean) {
+        super();
+        this.controlGoesToYou = controlGoesToYou;
+
+    }
+}
+class SilenceModification extends SingleModification {
+    toString(plural: boolean) {
+        return (plural ? "lose all abilities" : "loses all abilities");
+    }
+
+    getLayer(): Layer {
+        return Layer.L6_Abilities;
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.abilities.length = 0;
+    }
+}
 class LosePrimitiveModification extends SingleModification {
     private abilityname: string;
     constructor(abilityname : string) {

@@ -42,8 +42,8 @@ class AbilityCreator {
             let [power, toughness] = parsePT(line);
             this.effect.modification.addPTModification(power, toughness);
         }
-        else if (!this.parsingModifications && this.wordForWordParse(line) != null) {
-            this.effect.acquisition.addComplexAcquisition(this.wordForWordParse(line));
+        else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
+            this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
         }
         else if (line.startsWith("setcolor:")) {
             this.effect.modification.parts.push(new SetColorToModification(stringToColor(line.substr("setcolor:".length))));
@@ -58,12 +58,18 @@ class AbilityCreator {
         else if (line.startsWith("loseprimitive:")) {
             this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));
         }
+        else if (line.startsWith("gainscontrol:")) {
+            this.effect.modification.parts.push(new ControlChangeModification(line.substr("gainscontrol:".length) == "1"));
+        }
+        else if (line == "silence") {
+            this.effect.modification.parts.push(new SilenceModification());
+        }
         else {
             this.ability.parseError = "unrecognized: " + line;
         }
     }
 
-    private wordForWordParse(line: string) : SingleAcquisition {
+    private static wordForWordParse(line: string) : SingleAcquisition {
         let words = line.split(' ');
         let ca =new ComplexAcquisition();
         for (let word of words) {

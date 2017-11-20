@@ -1,4 +1,5 @@
-import {IScope} from "./angular";
+import {IScope} from "./definition-files/angular";
+import {SampleLoader} from "./examples/SampleLoader";
 
 function removeFromArray<T> (pole : T[], prvek : T) : boolean {
     const index = pole.indexOf(prvek);
@@ -17,6 +18,7 @@ interface PrimaryScope extends IScope {
     battlefield: Permanent[];
     phasedOut: Permanent[];
     drawBear : () => void;
+    drawHumility : () => void;
     drawArtifact : () => void;
     abilityCreatorCard : Card;
     abilityCreatorCardName : string;
@@ -93,10 +95,18 @@ angular.module('PrimaryApp', [])
         $scope.hand.push(Card.createBear());
         reevaluateValues();
    };
+    $scope.drawHumility = function () {
+        let c = CardCreator.parse("Humility\nwhite enchantment");
+        c.abilities.push(parseAsAbility("creature\nget\nsetpt:1/1\nsilence"));
+        $scope.hand.push(c);
+        reevaluateValues();
+    };
+
+    SampleLoader.addSampleCards();
 })
     .directive('displayPermanent', function () {
         return {
-            templateUrl: 'dperm.html',
+            templateUrl: 'templates/dperm.html',
             scope: {
                 obj: '=',
             },
@@ -126,10 +136,11 @@ angular.module('PrimaryApp', [])
 .directive('displayCard', function () {
     return {
         //template: '<div>Hello, {{obj.name}}</div>',
-        templateUrl: 'dcard.html',
+        templateUrl: 'templates/dcard.html',
         scope: {
             obj: '=',
             hand: '=',
+            editable: '@',
             battlefield: '='
         },
         link: function (scope : any, element, attrs) {
@@ -153,7 +164,7 @@ angular.module('PrimaryApp', [])
 })
 .directive('zone', function () {
    return {
-       templateUrl: 'zone.html',
+       templateUrl: 'templates/zone.html',
        scope: {
            caption: '@'
        },
