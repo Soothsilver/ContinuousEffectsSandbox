@@ -1,10 +1,10 @@
-enum Type {
+export enum Type {
     Artifact,
     Enchantment,
     Creature,
     Land
 }
-function stringToType(word: string) : Type {
+export function stringToType(word: string) : Type {
     switch (word){
         case "artifact": return Type.Artifact;
         case "artifacts": return Type.Artifact;
@@ -17,13 +17,13 @@ function stringToType(word: string) : Type {
         default: return null;
     }
 }
-enum CreatureSubtype {
+export enum CreatureSubtype {
     Bear,
     Elephant,
     Elf,
     Spider
 }
-function stringToSubtype(word: string) : CreatureSubtype {
+export function stringToSubtype(word: string) : CreatureSubtype {
     switch (word.toLowerCase()){
         case "bear": return  CreatureSubtype.Bear;
         case "elephant": return CreatureSubtype.Elephant;
@@ -32,18 +32,18 @@ function stringToSubtype(word: string) : CreatureSubtype {
         default: return null;
     }
 }
-enum ArtifactSubtype {
+export enum ArtifactSubtype {
     Equipment,
     Vehicle
 }
-enum LandSubtype {
+export enum LandSubtype {
     Plains,
     Island,
     Swamp,
     Mountain,
     Forest
 }
-enum Color {
+export enum Color {
     Red,
     Green,
     White,
@@ -51,7 +51,7 @@ enum Color {
     Black
 }
 
-function stringToColor(word: string) : Color {
+export function stringToColor(word: string) : Color {
     switch (word){
         case "red": return Color.Red;
         case "blue": return Color.Blue;
@@ -61,7 +61,7 @@ function stringToColor(word: string) : Color {
         default: return null;
     }
 }
-class Typeline {
+export class Typeline {
     types : Type[] = [];
     creatureSubtypes : CreatureSubtype[] = [];
 

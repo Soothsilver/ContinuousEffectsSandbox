@@ -1,15 +1,20 @@
 <component name="ProjectDictionaryState">
   <dictionary name="petrh">
     <words>
+      <w>abilityname</w>
       <w>addtype</w>
       <w>cardname</w>
+      <w>copiable</w>
       <w>gainscontrol</w>
       <w>gwords</w>
       <w>loseprimitive</w>
       <w>nocontrol</w>
+      <w>runeclaw</w>
       <w>setcolor</w>
       <w>setpt</w>
+      <w>strs</w>
       <w>typeline</w>
+      <w>unswitched</w>
       <w>youcontrol</w>
     </words>
   </dictionary>

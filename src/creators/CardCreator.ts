@@ -1,4 +1,8 @@
-namespace CardCreator {
+import {Card} from "../structures/Card";
+import {stringToColor, stringToSubtype, stringToType, Typeline} from "../structures/Typeline";
+import {parsePT} from "../Utilities";
+
+export namespace CardCreator {
     export function parse(script : string) : Card {
         if (!script) {
             return new Card();

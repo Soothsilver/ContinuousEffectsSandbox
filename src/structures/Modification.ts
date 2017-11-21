@@ -1,4 +1,10 @@
-class PowerToughnessModification extends SingleModification {
+import {Permanent} from "./Card";
+import {SingleModification} from "./Effect";
+import {Layer} from "../StateCheck";
+import {Color, Type} from "./Typeline";
+import {Ability} from "./Ability";
+
+export class PowerToughnessModification implements SingleModification {
 
 
     power : number;
@@ -17,13 +23,12 @@ class PowerToughnessModification extends SingleModification {
 
     }
     constructor(power : number, toughness : number) {
-        super();
         this.power = power;
         this.toughness = toughness;
 
     }
 }
-class ControlChangeModification extends SingleModification {
+export class ControlChangeModification implements SingleModification {
     controlGoesToYou: boolean;
 
     private getPlayerName() : string {
@@ -41,12 +46,11 @@ class ControlChangeModification extends SingleModification {
 
     }
     constructor(controlGoesToYou : boolean) {
-        super();
         this.controlGoesToYou = controlGoesToYou;
 
     }
 }
-class SilenceModification extends SingleModification {
+export class SilenceModification implements SingleModification {
     toString(plural: boolean) {
         return (plural ? "lose all abilities" : "loses all abilities");
     }
@@ -59,10 +63,9 @@ class SilenceModification extends SingleModification {
         target.abilities.length = 0;
     }
 }
-class LosePrimitiveModification extends SingleModification {
+export class LosePrimitiveModification implements SingleModification {
     private abilityname: string;
     constructor(abilityname : string) {
-        super();
         this.abilityname = abilityname;
     }
 
@@ -79,11 +82,10 @@ class LosePrimitiveModification extends SingleModification {
     }
 
 }
-class SetColorToModification extends SingleModification {
+export class SetColorToModification implements SingleModification {
     private clr: Color;
 
     constructor(clr : Color) {
-        super();
         this.clr = clr;
     }
 
@@ -97,12 +99,11 @@ class SetColorToModification extends SingleModification {
         return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase();
     }
 }
-class SetPowerToughnessModification extends SingleModification {
+export class SetPowerToughnessModification implements SingleModification {
     private power: number;
     private toughness: number;
 
     constructor(power : number, toughness: number) {
-        super();
         this.power = power;
         this.toughness = toughness;
     }
@@ -120,11 +121,10 @@ class SetPowerToughnessModification extends SingleModification {
         target.toughness = this.toughness;
     }
 }
-class AddTypeModification extends  SingleModification {
+export class AddTypeModification implements  SingleModification {
     private type: Type;
 
     constructor(type : Type) {
-        super();
         this.type = type;
     }
 
@@ -140,7 +140,7 @@ class AddTypeModification extends  SingleModification {
         target.typeline.types.push(this.type);
     }
 }
-class AddAbilityModification extends SingleModification {
+export class AddAbilityModification implements SingleModification {
 
     toString(plural: boolean) {
         return (plural ? "have" : "has") + " " + this.addWhat.toString();
@@ -156,12 +156,11 @@ class AddAbilityModification extends SingleModification {
         target.abilities.push(this.addWhat.copyAndInitialize(target));
     }
     constructor(addWhat :Ability) {
-        super();
         this.addWhat = addWhat;
     }
 
 }
-class SwitchPTModification extends SingleModification {
+export class SwitchPTModification implements SingleModification {
     getLayer(): Layer {
         return Layer.L7e_PnTSwitch;
     }

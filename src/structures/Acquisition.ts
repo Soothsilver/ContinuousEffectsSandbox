@@ -1,4 +1,8 @@
-class SingleAcquisition {
+import { Permanent} from "./Card";
+import {joinList, removeDuplicates, shallowCopy} from "../Utilities";
+import {Color, Type, CreatureSubtype} from "./Typeline";
+
+export class SingleAcquisition {
     private keyword : string = null;
     plural: boolean = false;
 
@@ -25,7 +29,7 @@ class SingleAcquisition {
         return [];
     }
 }
-class AcquisitionCondition {
+export class AcquisitionCondition {
     mustBeThisColor: Color = null;
     mustBeThisType: Type = null;
     mustBeThisSubtype: CreatureSubtype = null;
@@ -105,7 +109,7 @@ class AcquisitionCondition {
         return ac;
     }
 }
-class ComplexAcquisition extends SingleAcquisition {
+export class ComplexAcquisition extends SingleAcquisition {
     conditions : AcquisitionCondition[] = [];
 
     constructor() {
@@ -122,7 +126,7 @@ class ComplexAcquisition extends SingleAcquisition {
         return filtered;
     }
 }
-class Acquisition {
+export class Acquisition {
     multipleTargets: boolean = true;
     parts: SingleAcquisition[] = [];
 
@@ -139,7 +143,7 @@ class Acquisition {
     }
 
     addSubjectThis() {
-        this.parts.push(SingleAcquisition.acquireSelf())
+        this.parts.push(SingleAcquisition.acquireSelf());
         this.reevaluatePlural();
     }
     addComplexAcquisition(complex: SingleAcquisition) {

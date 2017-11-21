@@ -1,5 +1,9 @@
 
-class Card {
+import {Color, CreatureSubtype, Type, Typeline} from "./Typeline";
+import {Ability} from "./Ability";
+import {getCssColor} from "../Utilities";
+
+export class Card {
     name : string;
     power : number;
     color: Color[] = [];
@@ -36,7 +40,7 @@ class Card {
         return Permanent.fromCard(this);
     }
 }
-class Counter {
+export class Counter {
     power: number;
     toughness: number;
     constructor(power:number,toughness:number) {
@@ -47,7 +51,7 @@ class Counter {
         return "+" + this.power + "/+" + this.toughness;
     }
 }
-class Permanent {
+export class Permanent {
     originalCard : Card;
     name: string;
     power : number;

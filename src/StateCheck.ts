@@ -1,4 +1,8 @@
-class StateCheck {
+import {Permanent} from "./structures/Card";
+import {Effect} from "./structures/Effect";
+import {deepCopy, shallowCopy} from "./Utilities";
+
+export class StateCheck {
     private battlefield : Permanent[];
 
     perform(battlefield : Permanent[])
@@ -83,7 +87,7 @@ class StateCheck {
         }
     }
 }
-enum Layer {
+export enum Layer {
     L0_NoLayer,
     L1_Copy,
     L2_Control,

@@ -1,5 +1,9 @@
 
-class Ability implements ICopiable<Ability> {
+import {capitalizeFirstLetter, ICopiable} from "../Utilities";
+import {Effect} from "./Effect";
+import {Permanent} from "./Card";
+
+export class Ability implements ICopiable<Ability> {
 
 
     primitiveName : string = null;

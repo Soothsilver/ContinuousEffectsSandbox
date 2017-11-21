@@ -1,3 +1,20 @@
+import {parsePT} from "../Utilities";
+import {stringToColor, stringToSubtype, stringToType} from "../structures/Typeline";
+import {Ability} from "../structures/Ability";
+import {Effect} from "../structures/Effect";
+import {
+    AddTypeModification,
+    SetColorToModification,
+    SetPowerToughnessModification,
+    SwitchPTModification,
+    LosePrimitiveModification,
+    ControlChangeModification
+} from "../structures/Modification";
+import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
+
+import {SingleAcquisition} from "../structures/Acquisition";
+import {SilenceModification} from "../structures/Modification";
+
 
 class AbilityCreator {
     ability : Ability = new Ability();
@@ -95,7 +112,7 @@ class AbilityCreator {
     }
 }
 
-function parseAsAbility(script : string) : Ability {
+export function parseAsAbility(script : string) : Ability {
     console.log('p');
     let abilityCreator = new AbilityCreator();
     abilityCreator.parseScript(script);

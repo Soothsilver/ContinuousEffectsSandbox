@@ -1,8 +1,10 @@
-function capitalizeFirstLetter(s: string) : string {
+import {Color} from "./structures/Typeline";
+
+export function capitalizeFirstLetter(s: string) : string {
     if (s.length == 0) { return ""; }
     return s[0].toUpperCase() + s.substr(1);
 }
-function joinList(pole : string[]) : string {
+export function joinList(pole : string[]) : string {
     if (pole.length == 0) return "";
     if (pole.length == 1) return pole[0];
     let s = "";
@@ -12,7 +14,7 @@ function joinList(pole : string[]) : string {
     s += pole[pole.length - 2] + " and " + pole[pole.length - 1];
     return s;
 }
-function joinAnyList(pole : any[]) : string {
+export function joinAnyList(pole : any[]) : string {
     if (pole.length == 0) return "";
     if (pole.length == 1) return pole[0].toString();
     let s = "";
@@ -22,10 +24,10 @@ function joinAnyList(pole : any[]) : string {
     s += pole[pole.length - 2] + " and " + pole[pole.length - 1];
     return s;
 }
-interface ICopiable<T> {
+export interface ICopiable<T> {
     copy() : T;
 }
-function parsePT(line: string) : [number, number] {
+export function parsePT(line: string) : [number, number] {
     if (line.indexOf('/') == -1) {
         return [NaN, NaN];
     }
@@ -34,13 +36,13 @@ function parsePT(line: string) : [number, number] {
     if (power[0] == '+') {
         power = power.substr(1);
     }
-    let toughenss = split[1].trim();
-    if (toughenss[0] == '+') {
-        toughenss = toughenss.substr(1);
+    let toughness = split[1].trim();
+    if (toughness[0] == '+') {
+        toughness = toughness.substr(1);
     }
-    return [Number.parseInt(power), Number.parseInt(toughenss)];
+    return [Number.parseInt(power), Number.parseInt(toughness)];
 }
-function getCssColor(color: Color[]): string {
+export function getCssColor(color: Color[]): string {
     if (color.length == 0) {
         return "";
     } else if (color.length == 1) {
@@ -55,21 +57,21 @@ function getCssColor(color: Color[]): string {
         return "gold";
     }
 }
-function shallowCopy<T>(array : T[]) : T[] {
+export function shallowCopy<T>(array : T[]) : T[] {
     let newArray : T[] = [];
     for(let element of array) {
         newArray.push(element);
     }
     return newArray;
 }
-function deepCopy<T extends ICopiable<T>>(array : T[]) : T[] {
+export function deepCopy<T extends ICopiable<T>>(array : T[]) : T[] {
     let newArray : T[] = [];
     for(let element of array) {
         newArray.push(element.copy());
     }
     return newArray;
 }
-function removeDuplicates<T>(array: T[]) : T[] {
+export function removeDuplicates<T>(array: T[]) : T[] {
     let newArray : T[] = [];
     outerFor: for(let element of array) {
        for (let n of newArray) {

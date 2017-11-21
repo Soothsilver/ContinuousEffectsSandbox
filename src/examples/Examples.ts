@@ -1,4 +1,8 @@
-namespace Examples {
+import {Card, Counter, Permanent} from "../structures/Card";
+import {parseAsAbility} from "../creators/AbilityCreation";
+import {CardCreator} from "../creators/CardCreator";
+
+export namespace Examples {
 
 
     function form(...lines: string[]) {

@@ -1,5 +1,10 @@
-import {IScope} from "./definition-files/angular";
 import {SampleLoader} from "./examples/SampleLoader";
+import {IScope} from "./definition-files/angular";
+import {Card, Permanent, Counter} from "./structures/Card";
+import {StateCheck} from "./StateCheck";
+import {parseAsAbility} from "./creators/AbilityCreation";
+import {CardCreator} from "./creators/CardCreator";
+import {Examples} from "./examples/Examples";
 
 function removeFromArray<T> (pole : T[], prvek : T) : boolean {
     const index = pole.indexOf(prvek);
@@ -106,7 +111,7 @@ angular.module('PrimaryApp', [])
 })
     .directive('displayPermanent', function () {
         return {
-            templateUrl: 'templates/dperm.html',
+            templateUrl: './templates/dperm.html',
             scope: {
                 obj: '=',
             },
@@ -136,7 +141,7 @@ angular.module('PrimaryApp', [])
 .directive('displayCard', function () {
     return {
         //template: '<div>Hello, {{obj.name}}</div>',
-        templateUrl: 'templates/dcard.html',
+        templateUrl: './templates/dcard.html',
         scope: {
             obj: '=',
             hand: '=',
@@ -164,7 +169,7 @@ angular.module('PrimaryApp', [])
 })
 .directive('zone', function () {
    return {
-       templateUrl: 'templates/zone.html',
+       templateUrl: './templates/zone.html',
        scope: {
            caption: '@'
        },

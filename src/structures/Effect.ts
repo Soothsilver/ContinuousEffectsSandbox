@@ -1,11 +1,17 @@
+import { Permanent} from "./Card";
+import {AddAbilityModification, PowerToughnessModification} from "./Modification";
+import {Ability} from "./Ability";
+import {Acquisition} from "./Acquisition";
+import {Layer} from "../StateCheck";
+import {capitalizeFirstLetter, ICopiable, joinList} from "../Utilities";
 
-abstract class SingleModification {
-    abstract getLayer() : Layer;
-    abstract toString(plural : boolean);
-    abstract applyTo(target: Permanent, battlefield: Permanent[], source: Permanent);
+export interface SingleModification {
+     getLayer() : Layer;
+     toString(plural : boolean);
+     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent);
 }
 
-class Modification  {
+export class Modification  {
     parts: SingleModification[] = [];
 
     toString(multipleTargets : boolean) : string {
@@ -25,7 +31,7 @@ class Modification  {
     }
 }
 
-class Effect implements ICopiable<Effect>{
+export class Effect implements ICopiable<Effect>{
 
     acquisition : Acquisition = new Acquisition();
     modification : Modification = new Modification();
