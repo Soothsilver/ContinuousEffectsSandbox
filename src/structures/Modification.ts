@@ -20,6 +20,7 @@ export class PowerToughnessModification implements SingleModification {
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
         target.power += this.power;
         target.toughness += this.toughness;
+        target.modificationLog.ptChanged = true;
 
     }
     constructor(power : number, toughness : number) {
@@ -119,6 +120,7 @@ export class SetPowerToughnessModification implements SingleModification {
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
         target.power = this.power;
         target.toughness = this.toughness;
+        target.modificationLog.ptChanged = true;
     }
 }
 export class AddTypeModification implements  SingleModification {
@@ -138,6 +140,7 @@ export class AddTypeModification implements  SingleModification {
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
         target.typeline.types.push(this.type);
+        target.modificationLog.addType(Type[this.type]);
     }
 }
 export class AddAbilityModification implements SingleModification {
@@ -153,7 +156,7 @@ export class AddAbilityModification implements SingleModification {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent)  {
-        target.abilities.push(this.addWhat.copyAndInitialize(target));
+        target.addAbility(this.addWhat.copyAndInitialize(target));
     }
     constructor(addWhat :Ability) {
         this.addWhat = addWhat;
@@ -173,6 +176,7 @@ export class SwitchPTModification implements SingleModification {
         const swap = target.toughness;
         target.toughness = target.power;
         target.power = swap;
+        target.modificationLog.ptChanged = true;
     }
 
 }

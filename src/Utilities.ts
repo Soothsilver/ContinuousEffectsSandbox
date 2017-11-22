@@ -58,6 +58,7 @@ export function getCssColor(color: Color[]): string {
     }
 }
 export function shallowCopy<T>(array : T[]) : T[] {
+    if (array == null) return null;
     let newArray : T[] = [];
     for(let element of array) {
         newArray.push(element);

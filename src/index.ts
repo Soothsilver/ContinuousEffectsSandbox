@@ -1,4 +1,4 @@
-import {SampleLoader} from "./examples/SampleLoader";
+import {CardRecipe, SampleLoader} from "./examples/SampleLoader";
 import {IScope} from "./definition-files/angular";
 import {Card, Permanent, Counter} from "./structures/Card";
 import {StateCheck} from "./StateCheck";
@@ -25,6 +25,8 @@ interface PrimaryScope extends IScope {
     drawBear : () => void;
     drawHumility : () => void;
     drawArtifact : () => void;
+    drawExampleCard : (card: CardRecipe ) =>void;
+    exampleCards: CardRecipe [];
     abilityCreatorCard : Card;
     abilityCreatorCardName : string;
     abilityCreatorScript : string;
@@ -48,7 +50,6 @@ function reevaluateValues() {
 angular.module('PrimaryApp', [])
 
 .controller('PrimaryController', function ($scope : PrimaryScope) {
-    console.log('he');
    $scope.greeting = "Hello";
    $scope.battlefield = [];
    $scope.hand  = [ Card.createBear() ];
@@ -65,17 +66,17 @@ angular.module('PrimaryApp', [])
        reevaluateValues();
    };
    $scope.abilityCreatorAdd = function () {
-       console.log('add');
         let ab = parseAsAbility($scope.abilityCreatorScript);
         $scope.abilityCreatorCard.abilities.push(ab);
-        console.log($scope.abilityCreatorCard.abilities);
         reevaluateValues();
    };
 
     function recalculateCardCreatorTempCard() {
         $scope.cardCreatorTempCard = CardCreator.parse($scope.cardCreatorScript);
     }
-
+    $scope.drawExampleCard = function (script : CardRecipe) {
+        $scope.hand.push(SampleLoader.createCard(script));
+    };
     $scope.$watch('cardCreatorScript', function () {
        recalculateCardCreatorTempCard();
     });
@@ -107,7 +108,7 @@ angular.module('PrimaryApp', [])
         reevaluateValues();
     };
 
-    SampleLoader.addSampleCards();
+    $scope.exampleCards = SampleLoader.getCardRecipes();
 })
     .directive('displayPermanent', function () {
         return {

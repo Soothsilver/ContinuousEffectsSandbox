@@ -16,7 +16,7 @@
 <body>
     <div ng-controller="PrimaryController">
         <div class="panel panel-default">
-            <div class="panel-body"><b>Continuous Effects Sandbox</b></div>
+            <div class="panel-body"><b>Continuous Effects Sandbox</b><span id="kaktus"></span></div>
         </div>
         <div class="flexcontainer">
             <zone caption="Hand">
@@ -26,14 +26,14 @@
                 <button class="btn btn-default" ng-click="drawBear()" >Add 2/2 Bear</button>
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Draw card...</button>
-                    <ul class="dropdown-menu" id="sample-card-dropdown">
+                    <ul class="dropdown-menu" id="dropdowner">
                         <li class="dropdown-item"><a href="#" ng-click="drawBear()">2/2 Bear</a></li>
                         <li class="dropdown-item"><a href="#" ng-click="drawArtifact()">An artifact</a></li>
                         <li class="dropdown-item" ><a href="#" ng-click="drawHumility()">Humility</a></li>
                         <li class="dropdown-item"><a href="#" ng-click="openCustomCardEditor()">Custom...</a></li>
+                        <li class="dropdown-item" ng-repeat="example in exampleCards"><a href="#" ng-click="drawExampleCard(example)">{{example.name}}</a></li>
                     </ul>
                 </div>
-
             </zone>
             <zone caption="Battlefield">
                 <div class="flexcontainer">

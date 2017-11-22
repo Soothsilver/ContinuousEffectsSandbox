@@ -1,4 +1,6 @@
-[
+import {CardRecipe} from "./SampleLoader";
+
+export const definitions : CardRecipe[] = [
   {
     "name": "Trained Armodon",
     "card": "3/3 green Elephant creature",
@@ -6,10 +8,10 @@
   },
   {
     "name": "Blue Silencer",
-    "card": "red 1/1 red creature",
+    "card": "red 1/1 creature",
     "abilities": [
       ["First strike"],
       ["blue creatures", "blue artifacts", "gain", "silence"]
     ]
   }
-]
+];

@@ -28,7 +28,10 @@ export class SingleAcquisition {
         }
         return [];
     }
+
 }
+
+
 export class AcquisitionCondition {
     mustBeThisColor: Color = null;
     mustBeThisType: Type = null;
@@ -36,6 +39,13 @@ export class AcquisitionCondition {
     suppressTypePlural: boolean = false;
     mustBeControlledByYou: boolean = false;
     mustBeControlledByOpponent: boolean = false;
+
+
+    negate() : AcquisitionCondition {
+        console.log(this);
+        console.log(this.suppressTypePlural);
+        return new NegatedAcquisitionCondition(this);
+    }
 
     static color(clr: Color) {
         let ac = new AcquisitionCondition();
@@ -107,6 +117,23 @@ export class AcquisitionCondition {
         if (you) ac.mustBeControlledByYou = true;
         else ac.mustBeControlledByOpponent = true;
         return ac;
+    }
+}
+
+export class NegatedAcquisitionCondition extends AcquisitionCondition {
+    private original: AcquisitionCondition;
+    constructor ( original : AcquisitionCondition) {
+        super();
+        this.original = original;
+        this.original.suppressTypePlural = true;
+    }
+
+    toString(): String {
+        return "non" + this.original.toString();
+    }
+
+    satisfiedBy(target: Permanent, source: Permanent, battlefield: Permanent[]): boolean {
+        return !this.original.satisfiedBy(target, source, battlefield);
     }
 }
 export class ComplexAcquisition extends SingleAcquisition {

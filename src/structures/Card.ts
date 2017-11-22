@@ -1,7 +1,8 @@
 
 import {Color, CreatureSubtype, Type, Typeline} from "./Typeline";
 import {Ability} from "./Ability";
-import {getCssColor} from "../Utilities";
+import {deepCopy, getCssColor, shallowCopy} from "../Utilities";
+import {ModificationLog} from "./ModificationLog";
 
 export class Card {
     name : string;
@@ -62,6 +63,7 @@ export class Permanent {
     abilities: Ability[] = [];
     phasedOut: boolean;
     counters: Counter[] = [];
+    modificationLog: ModificationLog = new ModificationLog();
 
     cssColor() : string {
         return getCssColor(this.color);
@@ -71,5 +73,27 @@ export class Permanent {
         let p = new Permanent();
         p.originalCard = card;
         return p;
+    }
+
+    addAbility(ability: Ability) {
+        ability.nonprinted = true;
+        this.abilities.push(ability);
+    }
+
+    beginStateCheck() {
+        // Copy card
+        this.name = this.originalCard.name;
+        this.toughness = this.originalCard.toughness;
+        this.power = this.originalCard.power;
+        this.typeline = this.originalCard.typeline.copy();
+        this.abilities = deepCopy(this.originalCard.abilities);
+        this.color = shallowCopy(this.originalCard.color);
+        // Blank status
+        this.controlledByOpponent = false;
+        this.modificationLog = new ModificationLog();
+        for (let ab of this.abilities) {
+            ab.effect.source = this;
+            ab.effect.acquisitionResults = null;
+        }
     }
 }

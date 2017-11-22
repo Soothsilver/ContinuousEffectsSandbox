@@ -3,7 +3,7 @@ import {AddAbilityModification, PowerToughnessModification} from "./Modification
 import {Ability} from "./Ability";
 import {Acquisition} from "./Acquisition";
 import {Layer} from "../StateCheck";
-import {capitalizeFirstLetter, ICopiable, joinList} from "../Utilities";
+import {capitalizeFirstLetter, ICopiable, joinList, shallowCopy} from "../Utilities";
 
 export interface SingleModification {
      getLayer() : Layer;
@@ -38,22 +38,30 @@ export class Effect implements ICopiable<Effect>{
     startedApplyingThisStateCheck: boolean;
     lastAppliedInLayer : Layer;
     source : Permanent;
+    /**
+     * The objects this effect applies to during the current state check. If this is null, then these haven't yet
+     * been determined.
+     */
+    acquisitionResults: Permanent[];
 
     copy(): Effect {
         let ff = new Effect();
         ff.acquisition = this.acquisition;
         ff.modification = this.modification;
         ff.startedApplyingThisStateCheck = false;
+        ff.acquisitionResults = shallowCopy(this.acquisitionResults);
         ff.lastAppliedInLayer = Layer.L0_NoLayer;
         return ff;
     }
     toString() : string {
-        console.log(capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets) + ".");
         return capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets) + ".";
     }
 
     apply(battlefield: Permanent[], layer : Layer) {
-        let affectedObjects : Permanent[] = this.acquisition.getAcquiredObjects(battlefield, this.source);
+        if (this.acquisitionResults == null) {
+            this.acquisitionResults = this.acquisition.getAcquiredObjects(battlefield, this.source);
+        }
+        let affectedObjects : Permanent[] = this.acquisitionResults;
         for (let m  of this.modification.parts) {
             if (m.getLayer() == layer) {
                 for (let o  of affectedObjects) {

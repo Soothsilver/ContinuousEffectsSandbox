@@ -1,12 +1,18 @@
 import {Card, Counter, Permanent} from "../structures/Card";
 import {parseAsAbility} from "../creators/AbilityCreation";
 import {CardCreator} from "../creators/CardCreator";
+import {CardRecipe, SampleLoader} from "./SampleLoader";
+import {Ability} from "../structures/Ability";
 
 export namespace Examples {
 
 
-    function form(...lines: string[]) {
+    function form(...lines: string[]) : Ability {
         return parseAsAbility(lines.join("\n"));
+    }
+
+    function join(...lines: string[]) : string {
+        return lines.join("\n");
     }
 
     export function createExample(identifier: string, battlefield : Permanent[], hand : Card[]) {
@@ -112,8 +118,61 @@ export namespace Examples {
             }
                 break;
             case "613.5e2":
+                /*Example: Act of Treason has an effect that reads “Gain control of target creature until end of turn. Untap that creature.
+                It gains haste until end of turn.” This is both a control-changing effect and an effect that adds an ability to an object.
+                 The “gain control” part is applied in layer 2, and then the “it gains haste” part is applied in layer 6.
+*/
+            {
+                let c = Card.createBear();
+                c.abilities.push(form("this", "gets","gainscontrol:2", "haste"))
+                let p = c.asPermanent();
+                battlefield.push(p);
+            }
+                break;
             case "613.5e3":
+                /*Example: An effect that reads “All noncreature artifacts become 2/2 artifact creatures until end of turn” is both a type-changing effect and a power- and toughness-setting effect. The type-changing effect is applied to all noncreature artifacts in layer 4 and the power- and toughness-setting effect is applied to those same permanents in layer 7b, even though those permanents aren’t noncreature artifacts by then.
+*/
+            {
+                battlefield.push(Card.createArtifact().asPermanent());
+                let c = CardCreator.parse("Little March\nblue enchantment");
+                c.abilities.push(form("noncreature artifact", "get", "setpt:2/2", "addtype:creature"));
+                battlefield.push(c.asPermanent());
+            }
+            break;
             case "613.5e4":
+                /*Example: Svogthos, the Restless Tomb, is on the battlefield.
+                 An effect that says “Until end of turn, target land becomes a 3/3 creature that’s still a land” is applied to it (layers 4 and 7b).
+                 An effect that says “Target creature gets +1/+1 until end of turn” is applied to it (layer 7c), making it a 4/4 land creature.
+                  Then while you have ten creature cards in your graveyard, you activate Svogthos’s ability: “Until end of turn, Svogthos, the Restless Tomb becomes a black and green Plant
+                  Zombie creature with ‘This creature’s power and toughness are each equal to the number of creature cards in your graveyard.’ It’s still a land.” (layers 4, 5, and 7b).
+                   It becomes an 11/11 land creature. If a creature card enters or leaves your graveyard, Svogthos’s power and toughness will be modified accordingly.
+                    If the first effect is applied to it again, it will become a 4/4 land creature again.
+*/
+            {
+                let svogthos = SampleLoader.createCard({
+                    name: "Svogthos, the Restless Tomb",
+                    card: "land",
+                    abilities: []
+                });
+                let animation = Card.createArtifact();
+                animation.abilities.push(form("lands youcontrol", "gain", "setpt:3/3", "addtype:creature"));
+                let anthem = SampleLoader.createCard({
+                    name: "Glorious Anthem",
+                    card: "white enchantment",
+                    abilities: [ ["creatures youcontrol", "get", "+1/+1" ] ]
+                });
+                let svogthosAbility = SampleLoader.createCard({
+                    name: "Svogthos's Ability",
+                    card: "black enchantment",
+                    abilities: [
+                        [
+                            "this", "gets", "losecolors", "addcolor:black", "addcolor:green", "addtype:creature", "namedability:ScionOfTheWild"
+                        ]
+                    ]
+                });
+                battlefield.push(svogthos.asPermanent(), animation.asPermanent(), anthem.asPermanent(), svogthosAbility.asPermanent() );
+
+            }
                 break;
         }
     }

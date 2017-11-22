@@ -4,6 +4,10 @@ import {deepCopy, shallowCopy} from "./Utilities";
 
 export class StateCheck {
     private battlefield : Permanent[];
+    /**
+     * Effects that have started to apply go here. These will apply in other layers to the same objects.
+     */
+    private effects : Effect[];
 
     perform(battlefield : Permanent[])
     {
@@ -13,6 +17,7 @@ export class StateCheck {
                 phasedIns.push(perm);
             }
         }
+        this.effects = [];
         this.battlefield = phasedIns;
         this.L0_ApplyPrintedCharacteristics();
         this.applyLayer(Layer.L1_Copy);
@@ -36,10 +41,16 @@ export class StateCheck {
 
     private getAllContinuousEffects() : Effect[] {
         let pole : Effect[] = [];
+        for (let ff of this.effects) {
+            pole.push(ff);
+        }
         for (let p of this.battlefield) {
             for (let ab of p.abilities) {
                 if (ab.hasEffect()) {
-                    pole.push(ab.effect);
+                    let ff = ab.effect;
+                    if (!pole.includes(ff)) {
+                        pole.push(ab.effect);
+                    }
                 }
             }
         }
@@ -63,15 +74,7 @@ export class StateCheck {
 
     private L0_ApplyPrintedCharacteristics() {
         for(let permanent of this.battlefield) {
-            permanent.name = permanent.originalCard.name;
-            permanent.toughness = permanent.originalCard.toughness;
-            permanent.power = permanent.originalCard.power;
-            permanent.typeline = permanent.originalCard.typeline.copy();
-            permanent.abilities = deepCopy(permanent.originalCard.abilities);
-            permanent.color = shallowCopy(permanent.originalCard.color);
-            for (let ab of permanent.abilities) {
-                ab.effect.source = permanent;
-            }
+            permanent.beginStateCheck();
         }
     }
 
@@ -80,6 +83,8 @@ export class StateCheck {
         while (true) {
             let effect: Effect = this.getNextApplicableEffectForLayer(layer);
             if (effect) {
+                console.log("Effect applying in: " + Layer[layer]);
+                this.effects.push(effect);
                 effect.apply(this.battlefield, layer);
             } else {
                 break;

@@ -95,6 +95,8 @@ class AbilityCreator {
             else if (stringToSubtype(word) != null) ca.conditions.push(AcquisitionCondition.subtype(stringToSubtype(word)));
             else if (word == "youcontrol") ca.conditions.push(AcquisitionCondition.controller(true));
             else if (word == "nocontrol") ca.conditions.push(AcquisitionCondition.controller(false));
+            else if (word.startsWith("non") && stringToType(word.substr(3)) != null) ca.conditions.push(AcquisitionCondition.type(stringToType(word.substr(3))).negate());
+            else if (word.startsWith("non") && stringToColor(word.substr(3)) != null) ca.conditions.push(AcquisitionCondition.color(stringToColor(word.substr(3))).negate());
             else return null;
         }
         return ca;
@@ -113,7 +115,6 @@ class AbilityCreator {
 }
 
 export function parseAsAbility(script : string) : Ability {
-    console.log('p');
     let abilityCreator = new AbilityCreator();
     abilityCreator.parseScript(script);
     return abilityCreator.ability;

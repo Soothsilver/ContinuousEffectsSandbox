@@ -90,6 +90,13 @@ export class Typeline {
         return tl;
     }
 
+    stringifyType(type : string) {
+        return Type[type];
+    }
+    stringifySubtype(type : string) {
+        return CreatureSubtype[type];
+    }
+
     copy() : Typeline {
         let t = new Typeline();
         for (let a of this.types) {

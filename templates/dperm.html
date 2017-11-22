@@ -2,10 +2,13 @@
     <div class="panel-heading">{{ obj.name}}</div>
     <div class="panel-body">
         <div class="cardcontents">
-            {{ obj.typeline.asString() }}
+            <span ng-repeat="type in obj.typeline.types" ng-class="obj.modificationLog.isTypeAdded(obj.typeline.stringifyType(type)) ? 'changedText' : ''">{{ obj.typeline.stringifyType(type) }} </span>
+            <span ng-if="obj.typeline.creatureSubtypes.length > 0">– </span>
+            <span ng-repeat="type in obj.typeline.creatureSubtypes" ng-class="obj.modificationLog.isTypeAdded(obj.typeline.stringifySubtype(type)) ? 'changedText' : ''">{{ obj.typeline.stringifySubtype(type) }} </span>
             <hr style="border-color: black;">
-             <p ng-repeat="ab in obj.abilities">{{ ab.toCapitalizedString() }}</p>
-            <p ng-if="obj.typeline.isCreature()">{{ obj.power}} / {{obj.toughness}}</p>
+            <p class="invisibleText" ng-if="obj.controlledByOpponent">(Controlled by your opponent.)</p>
+            <p ng-repeat="ab in obj.abilities" ng-class="ab.nonprinted ? 'changedText' : ''">{{ ab.toCapitalizedString() }}</p>
+            <p ng-if="obj.typeline.isCreature()" ng-class="obj.modificationLog.ptChanged ? 'changedText' : ''">{{ obj.power}} / {{obj.toughness}}</p>
             <p ng-if="obj.counters.length > 0">Counters: {{ obj.counters.join(", ") }}</p>
         </div>
         <hr style="border-color: black;">

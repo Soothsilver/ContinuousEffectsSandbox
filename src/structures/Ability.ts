@@ -9,11 +9,13 @@ export class Ability implements ICopiable<Ability> {
     primitiveName : string = null;
     parseError : string = null;
     effect : Effect = new Effect();
+    nonprinted : boolean = false;
 
     copy(): Ability {
         let copie = new Ability();
         copie.primitiveName = this.primitiveName;
         copie.parseError = this.parseError;
+        copie.nonprinted = this.nonprinted;
         copie.effect = this.effect.copy();
         return copie;
     }

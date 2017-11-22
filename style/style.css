@@ -15,6 +15,30 @@
     background: #d8d8d8;
     max-width: 240px;
 }
+.card.panel {
+    border-color: black;
+}
+.card .panel-body {
+    padding: 10px;
+    border-color: black;
+}
+.card .panel-heading {
+    padding-bottom: 10px;
+    background-color: white;
+    color: black;
+    border-color: black;
+}
+.card hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.card button {
+    margin-bottom: 5px;
+    padding: 7px;
+}
+.card p {
+    margin: 0 0 5px;
+}
 .green {
     background-color: #96ffb8;
 }
@@ -35,4 +59,12 @@
 }
 .phasedout .cardcontents {
     filter: blur(3px) grayscale(100%);
+}
+.invisibleText {
+    color: #466cff;
+    font-style: italic;
+}
+.changedText {
+    color: #2331ff;
+    font-weight: bold;
 }
