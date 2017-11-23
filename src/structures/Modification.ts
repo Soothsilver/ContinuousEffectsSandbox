@@ -1,8 +1,10 @@
-import {Permanent} from "./Card";
+import {Permanent} from "./Permanent";
 import {SingleModification} from "./Effect";
 import {Layer} from "../StateCheck";
 import {Color, Type} from "./Typeline";
 import {Ability} from "./Ability";
+import {EnumEx} from "../utils/EnumEx";
+import {CreatureSubtype} from "./CreatureSubtype";
 
 export class PowerToughnessModification implements SingleModification {
 
@@ -61,6 +63,9 @@ export class SilenceModification implements SingleModification {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        for (let ab of target.abilities) {
+            target.modificationLog.addStrickenAbility(ab);
+        }
         target.abilities.length = 0;
     }
 }
@@ -79,9 +84,32 @@ export class LosePrimitiveModification implements SingleModification {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
-        target.abilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
+        let remainingAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
+        let removedAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() == this.abilityname.toLowerCase());
+        target.abilities = remainingAbilities;
+        for (let ab of removedAbilities) {
+            target.modificationLog.addStrickenAbility(ab);
+        }
     }
 
+}
+export class AddColorModification implements SingleModification {
+    private clr: Color;
+
+    constructor(clr : Color) {
+        this.clr = clr;
+    }
+
+    getLayer(): Layer {
+        return Layer.L5_Color;
+    }
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        if (target.color.includes(this.clr)) return;
+        target.color.push(this.clr);
+    }
+    toString(plural: boolean) {
+        return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase() + " in addition to " + (plural ? "their" : "its") + " other colors";
+    }
 }
 export class SetColorToModification implements SingleModification {
     private clr: Color;
@@ -123,6 +151,23 @@ export class SetPowerToughnessModification implements SingleModification {
         target.modificationLog.ptChanged = true;
     }
 }
+export class ChangelingModification implements  SingleModification {
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    toString(plural: boolean) {
+        return (plural ?"are" :"is") +" every creature type";
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.typeline.creatureSubtypes.length = 0;
+        for (let subtype of EnumEx.getValues(CreatureSubtype)) {
+            target.typeline.creatureSubtypes.push(subtype);
+            target.modificationLog.addType(CreatureSubtype[subtype]);
+        }
+    }
+}
 export class AddTypeModification implements  SingleModification {
     private type: Type;
 
@@ -139,14 +184,30 @@ export class AddTypeModification implements  SingleModification {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        if (target.typeline.types.includes(this.type)) return;
         target.typeline.types.push(this.type);
         target.modificationLog.addType(Type[this.type]);
     }
 }
+export class LoseColorsModification implements SingleModification {
+    getLayer(): Layer {
+        return Layer.L5_Color;
+    }
+
+    toString(plural : boolean) {
+        return (plural ? "lose all colors" : "loses all colors");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+        target.color = [];
+    }
+
+}
 export class AddAbilityModification implements SingleModification {
 
     toString(plural: boolean) {
-        return (plural ? "have" : "has") + " " + this.addWhat.toString();
+        let abilityDescription = this.addWhat.toString();
+        return (plural ? "have" : "has") + " " + (this.addWhat.primitiveName != null ? abilityDescription : ("\"" + abilityDescription + "\""));
     }
 
     addWhat: Ability;

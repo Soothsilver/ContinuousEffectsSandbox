@@ -1,4 +1,4 @@
-import { Permanent} from "./Card";
+import { Permanent} from "./Permanent";
 import {AddAbilityModification, PowerToughnessModification} from "./Modification";
 import {Ability} from "./Ability";
 import {Acquisition} from "./Acquisition";
@@ -54,7 +54,12 @@ export class Effect implements ICopiable<Effect>{
         return ff;
     }
     toString() : string {
-        return capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets) + ".";
+        const mainPart = capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets);
+        if (mainPart.substr(mainPart.length -2,2) == '."') {
+            return mainPart;
+        } else {
+            return mainPart+".";
+        }
     }
 
     apply(battlefield: Permanent[], layer : Layer) {

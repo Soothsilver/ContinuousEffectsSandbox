@@ -1,3 +1,6 @@
+import {CreatureSubtype} from "./CreatureSubtype";
+import {EnumEx} from "../utils/EnumEx";
+
 export enum Type {
     Artifact,
     Enchantment,
@@ -17,20 +20,14 @@ export function stringToType(word: string) : Type {
         default: return null;
     }
 }
-export enum CreatureSubtype {
-    Bear,
-    Elephant,
-    Elf,
-    Spider
-}
+
 export function stringToSubtype(word: string) : CreatureSubtype {
-    switch (word.toLowerCase()){
-        case "bear": return  CreatureSubtype.Bear;
-        case "elephant": return CreatureSubtype.Elephant;
-        case "elf": return CreatureSubtype.Elf;
-        case "spider": return CreatureSubtype.Spider;
-        default: return null;
+    for (let s of EnumEx.getValues(CreatureSubtype)) {
+        if (word.toLowerCase() == CreatureSubtype[s].toLowerCase()) {
+            return s;
+        }
     }
+    return null;
 }
 export enum ArtifactSubtype {
     Equipment,

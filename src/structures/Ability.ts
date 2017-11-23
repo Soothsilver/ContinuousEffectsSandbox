@@ -1,7 +1,7 @@
 
 import {capitalizeFirstLetter, ICopiable} from "../Utilities";
 import {Effect} from "./Effect";
-import {Permanent} from "./Card";
+import {Permanent} from "./Permanent";
 
 export class Ability implements ICopiable<Ability> {
 

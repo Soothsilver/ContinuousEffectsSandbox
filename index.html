@@ -54,6 +54,8 @@
                 <button ng-click="createExample('613.5e4')">613.5 (ex 4) [svogthos]</button>
                 <button ng-click="createExample('613.8.1')">613.8 (ex 1) [override]</button>
                 <button ng-click="createExample('613.8.2')">613.8 (ex 2) [override]</button>
+                <hr>
+                <button ng-repeat="scenario in allScenarios" ng-click="createScenario(scenario)">{{scenario.name}}</button>
             </div>
         </div>
         <!-- Modal -->

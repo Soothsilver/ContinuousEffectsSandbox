@@ -1,10 +1,13 @@
 import {CardRecipe, SampleLoader} from "./examples/SampleLoader";
 import {IScope} from "./definition-files/angular";
-import {Card, Permanent, Counter} from "./structures/Card";
+import {Card, Counter} from "./structures/Card";
 import {StateCheck} from "./StateCheck";
 import {parseAsAbility} from "./creators/AbilityCreation";
 import {CardCreator} from "./creators/CardCreator";
 import {Examples} from "./examples/Examples";
+import {Permanent} from "./structures/Permanent";
+import {Scenario} from "./examples/Scenario";
+import {ScenarioLoader} from "./examples/ScenarioLoader";
 
 function removeFromArray<T> (pole : T[], prvek : T) : boolean {
     const index = pole.indexOf(prvek);
@@ -39,6 +42,8 @@ interface PrimaryScope extends IScope {
     detailsViewerCard : Card;
     openCustomCardEditor : ()=>void;
     createExample: (identifier : string) => void;
+    allScenarios : Scenario[];
+    createScenario: (scenario : Scenario) => void;
 }
 
 var mainscope : PrimaryScope;
@@ -109,6 +114,13 @@ angular.module('PrimaryApp', [])
     };
 
     $scope.exampleCards = SampleLoader.getCardRecipes();
+    $scope.allScenarios = ScenarioLoader.loadAllScenarios();
+    $scope.createScenario = function (scenario : Scenario) {
+        $scope.hand = [];
+        scenario.execute();
+        $scope.battlefield = scenario.createdBattlefield;
+        reevaluateValues();
+    };
 })
     .directive('displayPermanent', function () {
         return {

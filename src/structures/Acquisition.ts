@@ -1,6 +1,7 @@
-import { Permanent} from "./Card";
+import { Permanent} from "./Permanent";
 import {joinList, removeDuplicates, shallowCopy} from "../Utilities";
-import {Color, Type, CreatureSubtype} from "./Typeline";
+import {Color, Type} from "./Typeline";
+import {CreatureSubtype} from "./CreatureSubtype";
 
 export class SingleAcquisition {
     private keyword : string = null;

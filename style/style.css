@@ -52,7 +52,7 @@
     background-color: #f1ffcb;
 }
 .black {
-    background-color: #606250;
+    background-color: #cb8683;
 }
 .gold {
     background: #faef65;
@@ -67,4 +67,8 @@
 .changedText {
     color: #2331ff;
     font-weight: bold;
+}
+.strickenText {
+    text-decoration: line-through;
+    color: #a3a2a1;
 }

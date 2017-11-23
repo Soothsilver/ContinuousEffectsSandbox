@@ -1,0 +1,38 @@
+{
+  "name": "continuouseffectssandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "ts-loader": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "mocha-typescript": "^1.1.12",
+    "nyc": "^11.3.0",
+    "source-map-support": "^0.5.0",
+    "typescript": "^2.6.1"
+  },
+  "scripts": {
+    "pretest": "webpack --config testing.config.js",
+    "test": "mocha testbundle.js",
+    "watch": "mocha-typescript-watch",
+    "prepare": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soothsilver/ContinuousEffectsSandbox.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Soothsilver/ContinuousEffectsSandbox/issues"
+  },
+  "homepage": "https://github.com/Soothsilver/ContinuousEffectsSandbox#readme"
+}

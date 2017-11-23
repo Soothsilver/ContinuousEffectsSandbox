@@ -1,4 +1,4 @@
-import {Permanent} from "./structures/Card";
+import {Permanent} from "./structures/Permanent";
 import {Effect} from "./structures/Effect";
 import {deepCopy, shallowCopy} from "./Utilities";
 
@@ -83,10 +83,9 @@ export class StateCheck {
         while (true) {
             let effect: Effect = this.getNextApplicableEffectForLayer(layer);
             if (effect) {
-                console.log("Effect applying in: " + Layer[layer]);
                 this.effects.push(effect);
                 effect.apply(this.battlefield, layer);
-            } else {
+             } else {
                 break;
             }
         }

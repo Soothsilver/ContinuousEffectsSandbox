@@ -1,8 +1,9 @@
-import {Card, Counter, Permanent} from "../structures/Card";
+import {Card, Counter} from "../structures/Card";
 import {parseAsAbility} from "../creators/AbilityCreation";
 import {CardCreator} from "../creators/CardCreator";
 import {CardRecipe, SampleLoader} from "./SampleLoader";
 import {Ability} from "../structures/Ability";
+import {Permanent} from "../structures/Permanent";
 
 export namespace Examples {
 
@@ -166,7 +167,7 @@ export namespace Examples {
                     card: "black enchantment",
                     abilities: [
                         [
-                            "this", "gets", "losecolors", "addcolor:black", "addcolor:green", "addtype:creature", "namedability:ScionOfTheWild"
+                            "lands", "gets", "losecolors", "addcolor:black", "addcolor:green", "addtype:creature", "namedability:ScionOfTheWild"
                         ]
                     ]
                 });

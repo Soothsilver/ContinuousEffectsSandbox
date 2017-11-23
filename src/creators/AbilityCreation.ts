@@ -8,12 +8,14 @@ import {
     SetPowerToughnessModification,
     SwitchPTModification,
     LosePrimitiveModification,
-    ControlChangeModification
+    ControlChangeModification,
+    ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification
 } from "../structures/Modification";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
 import {SingleAcquisition} from "../structures/Acquisition";
 import {SilenceModification} from "../structures/Modification";
+import {NamedAbilities} from "./NamedAbilities";
 
 
 class AbilityCreator {
@@ -32,6 +34,11 @@ class AbilityCreator {
         }
         if (script.trim() == "first strike") {
             this.ability.primitiveName = "First strike";
+            return;
+        }
+        if (script.trim() == "changeling") {
+            this.ability.effect.acquisition.addSubjectThis();
+            this.ability.effect.modification.parts.push(new ChangelingModification());
             return;
         }
         for (let i = 0; i < lines.length; i++) {
@@ -65,6 +72,9 @@ class AbilityCreator {
         else if (line.startsWith("setcolor:")) {
             this.effect.modification.parts.push(new SetColorToModification(stringToColor(line.substr("setcolor:".length))));
         }
+        else if (line.startsWith("addcolor:")) {
+            this.effect.modification.parts.push(new AddColorModification(stringToColor(line.substr("addcolor:".length))));
+        }
         else if (line.startsWith("setpt:")) {
             let [power, toughness] = parsePT(line.substr("setpt:".length));
             this.effect.modification.parts.push(new SetPowerToughnessModification(power, toughness));
@@ -78,11 +88,21 @@ class AbilityCreator {
         else if (line.startsWith("gainscontrol:")) {
             this.effect.modification.parts.push(new ControlChangeModification(line.substr("gainscontrol:".length) == "1"));
         }
+        else if (line.startsWith("addability:")) {
+            const innerAbility = line.substr("addability:".length).replace(";", "\n");
+            this.effect.modification.parts.push(new AddAbilityModification(parseAsAbility(innerAbility)));
+        }
         else if (line == "silence") {
             this.effect.modification.parts.push(new SilenceModification());
         }
+        else if (line == "losecolors") {
+            this.effect.modification.parts.push(new LoseColorsModification());
+        }
+        else if (line.startsWith("namedability:")) {
+            this.effect.modification.parts.push(new AddAbilityModification(NamedAbilities.create(line.substr("namedability:".length))));
+        }
         else {
-            this.ability.parseError = "unrecognized: " + line;
+            this.ability.parseError = "unrecognized! " + line;
         }
     }
 
