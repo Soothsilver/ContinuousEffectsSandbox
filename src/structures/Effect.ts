@@ -7,8 +7,9 @@ import {capitalizeFirstLetter, ICopiable, joinList, shallowCopy} from "../Utilit
 
 export interface SingleModification {
      getLayer() : Layer;
-     toString(plural : boolean);
-     applyTo(target: Permanent, battlefield: Permanent[], source: Permanent);
+
+    asString(plural: boolean);
+     applyTo(target: Permanent, battlefield: Permanent[], source: Effect);
 }
 
 export class Modification  {
@@ -17,7 +18,7 @@ export class Modification  {
     toString(multipleTargets : boolean) : string {
         let strs : string[] = [];
         for (let i = 0; i < this.parts.length; i++) {
-            strs.push(this.parts[i].toString(multipleTargets));
+            strs.push(this.parts[i].asString(multipleTargets));
         }
         return joinList(strs);
     }
@@ -29,6 +30,18 @@ export class Modification  {
     addGrantPrimitiveAbility(ab: Ability) {
         this.parts.push(new AddAbilityModification(ab));
     }
+
+    asHtmlString(multipleTargets: boolean, layer: Layer) {
+        let strs : string[] = [];
+        for (let i = 0; i < this.parts.length; i++) {
+            let prt = this.parts[i].asString(multipleTargets);
+            if (this.parts[i].getLayer() == layer) {
+                prt = "<b>" + prt + "</b>";
+            }
+            strs.push(prt);
+        }
+        return joinList(strs);
+    }
 }
 
 export class Effect implements ICopiable<Effect>{
@@ -38,6 +51,7 @@ export class Effect implements ICopiable<Effect>{
     startedApplyingThisStateCheck: boolean;
     lastAppliedInLayer : Layer;
     source : Permanent;
+    timestamp: number;
     /**
      * The objects this effect applies to during the current state check. If this is null, then these haven't yet
      * been determined.
@@ -51,9 +65,13 @@ export class Effect implements ICopiable<Effect>{
         ff.startedApplyingThisStateCheck = false;
         ff.acquisitionResults = shallowCopy(this.acquisitionResults);
         ff.lastAppliedInLayer = Layer.L0_NoLayer;
+        ff.timestamp = this.timestamp;
         return ff;
     }
     toString() : string {
+        if (this.modification.parts.length ==0) {
+            return "This ability does nothing.";
+        }
         const mainPart = capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.toString(this.acquisition.multipleTargets);
         if (mainPart.substr(mainPart.length -2,2) == '."') {
             return mainPart;
@@ -70,10 +88,19 @@ export class Effect implements ICopiable<Effect>{
         for (let m  of this.modification.parts) {
             if (m.getLayer() == layer) {
                 for (let o  of affectedObjects) {
-                    m.applyTo(o, battlefield, this.source);
+                    m.applyTo(o, battlefield, this);
                 }
                 this.startedApplyingThisStateCheck = true;
             }
+        }
+    }
+
+    asHtmlString(layer: Layer) {
+        const mainPart = capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.asHtmlString(this.acquisition.multipleTargets, layer);
+        if (mainPart.substr(mainPart.length -2,2) == '."') {
+            return mainPart;
+        } else {
+            return mainPart+".";
         }
     }
 }

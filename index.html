@@ -10,27 +10,27 @@
             crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.js"></script>
-    <script src="bundle.js"></script>
+    <script src="bundles/bundle.js"></script>
     <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
     <div ng-controller="PrimaryController">
         <div class="panel panel-default">
-            <div class="panel-body"><b>Continuous Effects Sandbox</b><span id="kaktus"></span></div>
+            <div class="panel-body"><b>Continuous effects sandbox.</b> Create Magic: the Gathering cards, add abilities to them, and then see how they interact with each other on the battlefield. This is an interactive sandbox for the Comprehensive Rulebook rule 613 (Interaction of Continuous Effects).</div>
         </div>
         <div class="flexcontainer">
             <zone caption="Hand">
                 <div class="flexcontainer">
                 <display-card ng-repeat="crd in hand" obj="crd" hand="hand" battlefield="battlefield" editable="true"></display-card>
                 </div>
-                <button class="btn btn-default" ng-click="drawBear()" >Add 2/2 Bear</button>
+                <button class="btn btn-default" ng-click="drawBear()" style="margin-bottom: 5px;">Add 2/2 Bear</button>
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Draw card...</button>
                     <ul class="dropdown-menu" id="dropdowner">
-                        <li class="dropdown-item"><a href="#" ng-click="drawBear()">2/2 Bear</a></li>
-                        <li class="dropdown-item"><a href="#" ng-click="drawArtifact()">An artifact</a></li>
-                        <li class="dropdown-item" ><a href="#" ng-click="drawHumility()">Humility</a></li>
-                        <li class="dropdown-item"><a href="#" ng-click="openCustomCardEditor()">Custom...</a></li>
+                        <li class="dropdown-item"><a href="#" ng-click="drawBear()" >2/2 Bear</a></li>
+                        <li class="dropdown-item"><a href="#" ng-click="drawArtifact()" >An artifact</a></li>
+                        <li class="dropdown-item" ><a href="#" ng-click="drawHumility()" >Humility</a></li>
+                        <li class="dropdown-item"><a href="#" ng-click="openCustomCardEditor()"><b>Custom...</b></a></li>
                         <li class="dropdown-item" ng-repeat="example in exampleCards"><a href="#" ng-click="drawExampleCard(example)">{{example.name}}</a></li>
                     </ul>
                 </div>
@@ -41,8 +41,21 @@
                 </div>
             </zone>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="margin: 15px;">
+            <div class="panel-heading">
+                <button data-toggle="collapse" data-target="#collapsibleLog" class="btn btn-default">Toggle explanation</button>
+            </div>
             <div class="panel-body">
+                <div id="collapsibleLog" class="collapse in">
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" style="margin: 15px;">
+            <div class="panel-heading">
+                Example scenarios
+            </div>
+            <div class="panel-body" id="scenarioExamples">
+                From Comprehensive Rules: <br>
                 <button ng-click="createExample('613.3e1')">613.3e (ex 1) [7e]</button>
                 <button ng-click="createExample('613.3e2')">613.3e (ex 2) [7e]</button>
                 <button ng-click="createExample('613.3e3')">613.3e (ex 3) [7e]</button>
@@ -55,10 +68,27 @@
                 <button ng-click="createExample('613.8.1')">613.8 (ex 1) [override]</button>
                 <button ng-click="createExample('613.8.2')">613.8 (ex 2) [override]</button>
                 <hr>
-                <button ng-repeat="scenario in allScenarios" ng-click="createScenario(scenario)">{{scenario.name}}</button>
+                Other scenarios: <br>
+                <button ng-repeat="scenario in allScenarios" ng-click="createScenario(scenario)" style="margin-right: 2px;">{{scenario.name}}</button>
             </div>
         </div>
         <!-- Modal -->
+        <div id="logModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Log</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="stateCheckLog"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="cardCreator" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -68,17 +98,19 @@
                         <h4 class="modal-title">Card creator</h4>
                     </div>
                     <div class="modal-body">
-                        You are creating a new card.<br>
-                        <textarea ng-model="cardCreatorScript" cols="50" rows="6"></textarea>
+                        You are creating a new card. The first line is the card name. The second line is its characteristics.<br><br>
+                        <textarea ng-model="cardCreatorScript" cols="60" rows="2" placeholder="{{ 'Runeclaw Bear\n2/2 green Bear creature' }}"></textarea>
                         <hr>
+                        Preview:
                         <display-card hand="hand" battlefield="battlefield" obj="cardCreatorToCard()"></display-card>
+                        <hr>
+                        You may set the card's power/toughness, color(s), type(s) and creature subtypes. You will be able to add abilities to the card later.
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" ng-click="cardCreatorCreate()" data-dismiss="modal">Create</button>
+                        <button type="button" class="btn btn-primary" ng-click="cardCreatorCreate()" data-dismiss="modal">Add this card to your hand</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>
-
             </div>
         </div>
         <div id="detailsViewer" class="modal fade" role="dialog">
@@ -109,13 +141,56 @@
                         <h4 class="modal-title">Ability creator</h4>
                     </div>
                     <div class="modal-body">
-                        You are adding a new ability to <b>{{ abilityCreatorCardName }}</b><br>
-                        <textarea ng-model="abilityCreatorScript" cols="50" rows="6"></textarea>
+                        You are adding a new ability to <b>{{ abilityCreatorCardName }}</b>.<br>
+                        <textarea ng-model="abilityCreatorScript" cols="50" rows="6" placeholder="{{ 'this\n+1/+1' }}"></textarea>
                         <hr>
                         <p>{{ abilityCreatorToString() }}</p>
                     </div>
                     <div class="modal-footer">
+                        <div class="dropdown" style="display: inline">
+                            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Example scripts...</button>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><a href="#" ng-click="abilityCreatorScript = 'this\nsetpt:3/3\naddtype:creature'" >This is also a 3/3 creature.</a></li>
+                                <li class="dropdown-item"><a href="#" ng-click="abilityCreatorScript = 'Bear creatures\naddability:flying\nsetcolor:blue'" >Bears are blue and fly.</a></li>
+                                <li class="dropdown-item"><a href="#" ng-click="abilityCreatorScript = 'noncreature artifacts\nnoncreature enchantments\nsetpt:2/2\naddtype:creature\nsilence'" >Noncreatures are 2/2 with no abilities.</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-default" onclick="$('#scriptDocumentation').modal()">View script documentation</button>
                         <button type="button" class="btn btn-primary" ng-click="abilityCreatorAdd()" data-dismiss="modal">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="scriptDocumentation" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Ability script documentation</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>You can only add static abilities that change the characteristics of permanents, and a couple of "primitive" abilities.
+                        <p>A primitive ability is only a single line: "flying", "first strike" or "haste".
+                        <p>Other abilities consist of one or more lines that define the "subjects" and one or more lines that define the "changes" to those subject's characteristics.</p>
+                        <p><b>Defining subjects.</b> A subject may be <b>this</b> (meaning 'this permanent') or a set of permanents that satisfy all requirements on a line. These requirements may be a type (such as 'creature'), a subtype (such as 'Bear'), a color (such as 'red'), a lack of these characteristics (such as 'nonblack' or 'noncreature') or the word 'youcontrol' or 'nocontrol'.</p>
+                        <p><b>Defining changes.</b> A line such as "1/2" means adding "+1/+2" to the subjects; otherwise changes may be the following directives:</p>
+                        <ul>
+                            <li><b>switch</b> switches power and toughness</li>
+                            <li><b>silence</b>: lose all abilities</li>
+                            <li><b>losecolors</b>: lose all colors</li>
+                            <li><b>setcolor:[colorname]</b>: becomes [colorname]</li>
+                            <li><b>addcolor:[colorname]</b>: is [colorname] in addition to other colors</li>
+                            <li><b>addtype:[cardtype]</b>:is [cardtype] in addition to other types</li>
+                            <li><b>setpt:X/Y</b>: sets base power and toughness</li>
+                            <li><b>gainscontrol:2</b>: opponent gains control</li>
+                            <li><b>addability:flying</b>: has flying</li>
+                        </ul>
+                        <p>Other features may be undocumented.</p>
+                    </div>
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>

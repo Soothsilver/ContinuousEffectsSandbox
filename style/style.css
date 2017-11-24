@@ -1,14 +1,20 @@
 .flexcontainer {
     display: flex;
-  /*  border: 1px solid black;
 
-   */
-    margin: 5px;
-    padding: 5px;
+
+     flex-direction: row;
     flex-flow: wrap;
+    align-items: stretch;
+
+}
+zone {
+    margin: 5px;
+}
+zone:last-child {
+    flex-grow: 1;
 }
 .zone {
-    margin: 5px;
+    padding: 0;
 }
 .card {
     margin: 5px;
@@ -56,6 +62,9 @@
 }
 .gold {
     background: #faef65;
+}
+#scenarioExamples button {
+    margin-bottom: 5px;
 }
 .phasedout .cardcontents {
     filter: blur(3px) grayscale(100%);

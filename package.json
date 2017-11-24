@@ -1,8 +1,7 @@
 {
   "name": "continuouseffectssandbox",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Create Magic: the Gathering cards, add abilities to them, and then see how they interact with each other on the battlefield.",
   "directories": {
     "example": "examples"
   },
@@ -21,8 +20,9 @@
   },
   "scripts": {
     "pretest": "webpack --config testing.config.js",
-    "test": "mocha testbundle.js",
+    "test": "mocha bundles/testbundle.js",
     "watch": "mocha-typescript-watch",
+    "start" : "webpack",
     "prepare": "tsc"
   },
   "repository": {

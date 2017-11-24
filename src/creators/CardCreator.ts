@@ -1,5 +1,5 @@
 import {Card} from "../structures/Card";
-import {stringToColor, stringToSubtype, stringToType, Typeline} from "../structures/Typeline";
+import {stringToColor, stringToSubtype, stringToType, Type, Typeline} from "../structures/Typeline";
 import {parsePT} from "../Utilities";
 
 export namespace CardCreator {
@@ -29,6 +29,9 @@ export namespace CardCreator {
             if (!isNaN(parsePT(w)[0])) {
                [c.power, c.toughness] = parsePT(w);
             }
+        }
+        if (c.typeline.creatureSubtypes.length > 0 && !c.typeline.types.includes(Type.Creature)) {
+            c.typeline.types.push(Type.Creature);
         }
         return c;
     }

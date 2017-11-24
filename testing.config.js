@@ -2,7 +2,7 @@ module.exports = {
     entry: "./test/scenarios.ts",
     output: {
         filename: "testbundle.js",
-        path: __dirname
+        path: __dirname + "/bundles"
     },
 
 

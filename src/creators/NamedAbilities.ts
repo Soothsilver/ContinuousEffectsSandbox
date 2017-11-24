@@ -9,11 +9,11 @@ class ScionOfTheWildModification implements SingleModification {
         return Layer.L7b_PnTSetSpecificValue;
     }
 
-    toString(plural: boolean) : string {
+    asString(plural: boolean) {
         return (plural ? "have" : "has") + " power and toughness each equal to the number of creatures you control";
     }
 
-    applyTo(target: Permanent, battlefield: Permanent[], source: Permanent) {
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
         target.power = target.toughness = battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
         target.modificationLog.ptChanged = true;
     }

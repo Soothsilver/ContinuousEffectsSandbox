@@ -43,8 +43,6 @@ export class AcquisitionCondition {
 
 
     negate() : AcquisitionCondition {
-        console.log(this);
-        console.log(this.suppressTypePlural);
         return new NegatedAcquisitionCondition(this);
     }
 
@@ -144,7 +142,15 @@ export class ComplexAcquisition extends SingleAcquisition {
         super(null, true);
     }
     toString() : string {
-        return (this.conditions.join(" "));
+        let joined = (this.conditions.join(" "));
+        let firstCreatures = joined.indexOf('creatures');
+        if (firstCreatures != -1) {
+            let secondCreatures = joined.indexOf('creatures', firstCreatures+2);
+            if (secondCreatures != -1) {
+                joined = joined.substr(0, firstCreatures) +  joined.substr(firstCreatures + 'creatures '.length);
+            }
+        }
+        return joined;
     }
     getAcquiredObjects(battlefield: Permanent[], source : Permanent) : Permanent[] {
         let filtered = shallowCopy(battlefield);

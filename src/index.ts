@@ -43,14 +43,16 @@ interface PrimaryScope extends IScope {
     openCustomCardEditor : ()=>void;
     createExample: (identifier : string) => void;
     allScenarios : Scenario[];
+    whyButtonClick : ()=> void;
     createScenario: (scenario : Scenario) => void;
 }
 
-var mainscope : PrimaryScope;
+let mainscope : PrimaryScope;
 
 function reevaluateValues() {
     const stateCheck = new StateCheck();
     stateCheck.perform(mainscope.battlefield);
+    $("#collapsibleLog").html(stateCheck.getHtmlReport());
 }
 angular.module('PrimaryApp', [])
 
@@ -62,9 +64,9 @@ angular.module('PrimaryApp', [])
    mainscope = $scope;
    $scope.abilityCreatorToString = function () {
        if (!$scope.abilityCreatorScript) {
-           return;
+           return "";
        }
-        return parseAsAbility($scope.abilityCreatorScript).toString();
+       return parseAsAbility($scope.abilityCreatorScript).toString();
    };
    $scope.createExample = (id) =>{
        Examples.createExample(id, $scope.battlefield, $scope.hand);
@@ -87,7 +89,7 @@ angular.module('PrimaryApp', [])
     });
     $scope.openCustomCardEditor = function () {
         $scope.cardCreatorTempCard = null;
-        $scope.cardCreatorScript = "Elf\n1/1 green creature";
+        $scope.cardCreatorScript = "";
         recalculateCardCreatorTempCard();
         $("#cardCreator").modal();
    };
@@ -121,6 +123,10 @@ angular.module('PrimaryApp', [])
         $scope.battlefield = scenario.createdBattlefield;
         reevaluateValues();
     };
+    $scope.whyButtonClick = function () {
+        $('#logModal').modal();
+        $('#stateCheckLog').html('<b>A</b>C');
+    }
 })
     .directive('displayPermanent', function () {
         return {
@@ -174,7 +180,7 @@ angular.module('PrimaryApp', [])
             scope.openAbilityCreator = function () {
                 mainscope.abilityCreatorCard = scope.obj;
                 mainscope.abilityCreatorCardName = scope.obj.name;
-                mainscope.abilityCreatorScript = "This\ngets\n+1/+1";
+                mainscope.abilityCreatorScript = "";
                 $("#abilityCreator").modal();
             }
         }
@@ -184,7 +190,9 @@ angular.module('PrimaryApp', [])
    return {
        templateUrl: './templates/zone.html',
        scope: {
-           caption: '@'
+           caption: '@',
+           showLogButton: '@',
+           whyButton: '&'
        },
        transclude: true,
    };

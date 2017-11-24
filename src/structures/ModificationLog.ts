@@ -11,7 +11,6 @@ export class ModificationLog {
         if (type == undefined || type == null) {
             return false;
         }
-        console.log(type);
         return this.typesAdded.includes(type.toLowerCase());
     }
 

@@ -8,9 +8,11 @@ export class StateCheck {
      * Effects that have started to apply go here. These will apply in other layers to the same objects.
      */
     private effects : Effect[];
+    private report : string;
 
     perform(battlefield : Permanent[])
     {
+        this.report = "";
         let phasedIns = [];
         for (let perm of battlefield) {
             if (!perm.phasedOut) {
@@ -36,6 +38,11 @@ export class StateCheck {
             }
         }
         this.applyLayer(Layer.L7e_PnTSwitch);
+        this.report = this.report.substr("<br>".length);
+    }
+
+    private log(line: string) {
+        this.report = this.report.concat("<br>", line);
     }
 
 
@@ -59,22 +66,31 @@ export class StateCheck {
 
     private getNextApplicableEffectForLayer(layer: Layer) : Effect {
         let ffs = this.getAllContinuousEffects();
-        for(let ff of ffs) {
+        let bestEffect : Effect = null;
+        let lowestTimestamp = Number.MAX_VALUE;
+        outerFor: for(let ff of ffs) {
             if (ff.lastAppliedInLayer < layer) {
                 for (let m of ff.modification.parts) {
                     if (m.getLayer() == layer) {
-                        ff.lastAppliedInLayer = layer;
-                        return ff;
+                        if (ff.timestamp < lowestTimestamp) {
+                            lowestTimestamp = ff.timestamp;
+                            bestEffect =ff;
+                            continue outerFor;
+                        }
                     }
                 }
             }
         }
-        return null;
+        if (bestEffect != null) {
+            bestEffect.lastAppliedInLayer = layer;
+        }
+        return bestEffect;
     }
 
     private L0_ApplyPrintedCharacteristics() {
-        for(let permanent of this.battlefield) {
-            permanent.beginStateCheck();
+        for(let i = 0; i < this.battlefield.length; i++) {
+            let permanent = this.battlefield[i];
+            permanent.beginStateCheck(i);
         }
     }
 
@@ -85,14 +101,54 @@ export class StateCheck {
             if (effect) {
                 this.effects.push(effect);
                 effect.apply(this.battlefield, layer);
+                this.logEffect(effect, layer);
              } else {
                 break;
             }
         }
     }
+
+    private logEffect(effect: Effect, layer: Layer) {
+        this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + ", timestamp " + effect.timestamp +")</small></i>");
+    }
+
+    private static layerToString(layer: Layer) : string {
+        switch (layer) {
+            case Layer.L0_NoLayer:
+                return "0";
+            case        Layer.L1_Copy:
+                return "1 (copy)";
+            case        Layer.L2_Control:
+                return "2 (control)";
+            case        Layer.L3_Text:
+                return "3 (text)";
+            case        Layer.L4_Type:
+                return "4 (type)";
+            case         Layer.L5_Color:
+                return "5 (color)";
+            case      Layer.L6_Abilities:
+                return "6 (ability)";
+            case      Layer.L7a_PnTCharacteristicDefining:
+                return "7a (CDA)";
+            case      Layer.L7b_PnTSetSpecificValue:
+                return "7b (set)";
+            case      Layer.L7c_PnTModifications:
+                return "7c (modify)";
+            case     Layer.L7d_PnTCounters:
+                return "7d (counters)";
+            case     Layer.L7e_PnTSwitch:
+                return "7e (switch)";
+            default:
+                return "UNKNOWN"
+        }
+    }
+
+    getHtmlReport() : string {
+        return this.report;
+    }
 }
 export enum Layer {
-    L0_NoLayer,
+    L0_NoLayer = 0,
     L1_Copy,
     L2_Control,
     L3_Text,
