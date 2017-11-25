@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 29);
+/******/ 	return __webpack_require__(__webpack_require__.s = 32);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -350,13 +350,13 @@ exports.version = '4.1.2';
  * Assertion Error
  */
 
-exports.AssertionError = __webpack_require__(23);
+exports.AssertionError = __webpack_require__(25);
 
 /*!
  * Utils for plugins (not exported)
  */
 
-var util = __webpack_require__(38);
+var util = __webpack_require__(40);
 
 /**
  * # .use(function)
@@ -394,35 +394,35 @@ exports.config = config;
  * Primary `Assertion` prototype
  */
 
-var assertion = __webpack_require__(56);
+var assertion = __webpack_require__(58);
 exports.use(assertion);
 
 /*!
  * Core Assertions
  */
 
-var core = __webpack_require__(57);
+var core = __webpack_require__(59);
 exports.use(core);
 
 /*!
  * Expect interface
  */
 
-var expect = __webpack_require__(58);
+var expect = __webpack_require__(60);
 exports.use(expect);
 
 /*!
  * Should interface
  */
 
-var should = __webpack_require__(59);
+var should = __webpack_require__(61);
 exports.use(should);
 
 /*!
  * Assert interface
  */
 
-var assert = __webpack_require__(60);
+var assert = __webpack_require__(62);
 exports.use(assert);
 
 
@@ -835,6 +835,7 @@ var CreatureSubtype;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const DependencySort_1 = __webpack_require__(35);
 class StateCheck {
     perform(battlefield) {
         this.report = "";
@@ -863,6 +864,9 @@ class StateCheck {
             }
         }
         this.applyLayer(Layer.L7e_PnTSwitch);
+        if (this.report.length == 0) {
+            this.report = "<br>No continuous effects modify the characteristics of permanents.";
+        }
         this.report = this.report.substr("<br>".length);
     }
     log(line) {
@@ -886,26 +890,17 @@ class StateCheck {
         return pole;
     }
     getNextApplicableEffectForLayer(layer) {
+        // Get all effects
         let ffs = this.getAllContinuousEffects();
-        let bestEffect = null;
-        let lowestTimestamp = Number.MAX_VALUE;
-        outerFor: for (let ff of ffs) {
-            if (ff.lastAppliedInLayer < layer) {
-                for (let m of ff.modification.parts) {
-                    if (m.getLayer() == layer) {
-                        if (ff.timestamp < lowestTimestamp) {
-                            lowestTimestamp = ff.timestamp;
-                            bestEffect = ff;
-                            continue outerFor;
-                        }
-                    }
-                }
-            }
-        }
-        if (bestEffect != null) {
-            bestEffect.lastAppliedInLayer = layer;
-        }
-        return bestEffect;
+        // Get only those in this layer
+        ffs = ffs.filter((effect) => {
+            return effect.lastAppliedInLayer < layer && effect.modification.parts.some((part) => part.getLayer() == layer);
+        });
+        // Order them by timestamp.
+        ffs.sort((a, b) => {
+            return a.timestamp < b.timestamp ? -1 : (a.timestamp == b.timestamp ? 0 : 1);
+        });
+        return DependencySort_1.DependencySort.determineEffectToApply(ffs, this);
     }
     L0_ApplyPrintedCharacteristics() {
         for (let i = 0; i < this.battlefield.length; i++) {
@@ -988,9 +983,9 @@ var Layer;
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
-var getName = __webpack_require__(25);
-var getProperties = __webpack_require__(26);
-var getEnumerableProperties = __webpack_require__(44);
+var getName = __webpack_require__(27);
+var getProperties = __webpack_require__(28);
+var getEnumerableProperties = __webpack_require__(46);
 var config = __webpack_require__(4);
 
 module.exports = inspect;
@@ -1474,7 +1469,7 @@ module.exports = function addLengthGuard (fn, assertionName, isChainable) {
 
 var config = __webpack_require__(4);
 var flag = __webpack_require__(0);
-var getProperties = __webpack_require__(26);
+var getProperties = __webpack_require__(28);
 var isProxyEnabled = __webpack_require__(9);
 
 /*!
@@ -1606,7 +1601,7 @@ function stringDistance(strA, strB, memo) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleCards_1 = __webpack_require__(30);
+const SampleCards_1 = __webpack_require__(33);
 const CardCreator_1 = __webpack_require__(13);
 const AbilityCreation_1 = __webpack_require__(16);
 function form(ability) {
@@ -1744,12 +1739,13 @@ exports.Counter = Counter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(1);
-const ModificationLog_1 = __webpack_require__(31);
+const ModificationLog_1 = __webpack_require__(34);
 const Utilities_1 = __webpack_require__(2);
 class Permanent {
     constructor() {
         this.abilities = [];
         this.counters = [];
+        this.ownedByOpponent = false;
         this.modificationLog = new ModificationLog_1.ModificationLog();
     }
     cssColor() {
@@ -1780,7 +1776,7 @@ class Permanent {
         this.abilities = Utilities_1.deepCopy(this.originalCard.abilities);
         this.color = Utilities_1.shallowCopy(this.originalCard.color);
         // Blank status
-        this.controlledByOpponent = false;
+        this.controlledByOpponent = this.ownedByOpponent;
         this.modificationLog = new ModificationLog_1.ModificationLog();
         this.timestamp = timestamp;
         for (let ab of this.abilities) {
@@ -1814,7 +1810,7 @@ const Effect_1 = __webpack_require__(17);
 const Modification_1 = __webpack_require__(18);
 const Acquisition_1 = __webpack_require__(22);
 const Modification_2 = __webpack_require__(18);
-const NamedAbilities_1 = __webpack_require__(32);
+const NamedAbilities_1 = __webpack_require__(36);
 class AbilityCreator {
     constructor() {
         this.ability = new Ability_1.Ability();
@@ -1887,7 +1883,23 @@ class AbilityCreator {
             this.effect.modification.parts.push(new Modification_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
         }
         else if (line.startsWith("gainscontrol:")) {
-            this.effect.modification.parts.push(new Modification_1.ControlChangeModification(line.substr("gainscontrol:".length) == "1"));
+            let controller = Modification_1.Controller.Controller;
+            let who = line.substr("gainscontrol:".length);
+            switch (who) {
+                case "1":
+                    controller = Modification_1.Controller.PlayerOne;
+                    break;
+                case "2":
+                    controller = Modification_1.Controller.PlayerTwo;
+                    break;
+                case "you":
+                    controller = Modification_1.Controller.Controller;
+                    break;
+                case "opponent":
+                    controller = Modification_1.Controller.Opponent;
+                    break;
+            }
+            this.effect.modification.parts.push(new Modification_1.ControlChangeModification(controller));
         }
         else if (line.startsWith("addability:")) {
             const innerAbility = line.substr("addability:".length).replace(";", "\n");
@@ -2027,10 +2039,12 @@ class Effect {
                 this.startedApplyingThisStateCheck = true;
             }
         }
+        this.lastAppliedInLayer = layer;
     }
     asHtmlString(layer) {
         const mainPart = Utilities_1.capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.asHtmlString(this.acquisition.multipleTargets, layer);
-        if (mainPart.substr(mainPart.length - 2, 2) == '."') {
+        if (mainPart.substr(mainPart.length - 2, 2) == '."' ||
+            mainPart.endsWith('."</b>')) {
             return mainPart;
         }
         else {
@@ -2071,9 +2085,25 @@ class PowerToughnessModification {
     }
 }
 exports.PowerToughnessModification = PowerToughnessModification;
+var Controller;
+(function (Controller) {
+    Controller[Controller["PlayerOne"] = 0] = "PlayerOne";
+    Controller[Controller["PlayerTwo"] = 1] = "PlayerTwo";
+    Controller[Controller["Controller"] = 2] = "Controller";
+    Controller[Controller["Opponent"] = 3] = "Opponent";
+})(Controller = exports.Controller || (exports.Controller = {}));
 class ControlChangeModification {
     getPlayerName() {
-        return (this.controlGoesToYou) ? "you" : "Player 2";
+        switch (this.controlGoesTo) {
+            case Controller.PlayerOne:
+                return "Player 1";
+            case Controller.PlayerTwo:
+                return "Player 2";
+            case Controller.Controller:
+                return "this permanent's controller";
+            case Controller.Opponent:
+                return "this permanent's controller's opponent";
+        }
     }
     asString(plural) {
         return (plural ? "are controlled by " : "is controlled by ") + this.getPlayerName();
@@ -2082,10 +2112,23 @@ class ControlChangeModification {
         return StateCheck_1.Layer.L2_Control;
     }
     applyTo(target, battlefield, source) {
-        target.controlledByOpponent = !this.controlGoesToYou;
+        switch (this.controlGoesTo) {
+            case Controller.Opponent:
+                target.controlledByOpponent = !source.source.controlledByOpponent;
+                break;
+            case Controller.Controller:
+                target.controlledByOpponent = source.source.controlledByOpponent;
+                break;
+            case Controller.PlayerOne:
+                target.controlledByOpponent = false;
+                break;
+            case Controller.PlayerTwo:
+                target.controlledByOpponent = true;
+                break;
+        }
     }
-    constructor(controlGoesToYou) {
-        this.controlGoesToYou = controlGoesToYou;
+    constructor(controlGoesTo) {
+        this.controlGoesTo = controlGoesTo;
     }
 }
 exports.ControlChangeModification = ControlChangeModification;
@@ -2646,7 +2689,7 @@ return typeDetect;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(41)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(43)))
 
 /***/ }),
 /* 20 */
@@ -2937,6 +2980,61 @@ exports.Acquisition = Acquisition;
 
 /***/ }),
 /* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const SampleLoader_1 = __webpack_require__(12);
+const StateCheck_1 = __webpack_require__(7);
+class Scenario {
+    constructor(name) {
+        this.battlefield = [];
+        this.createdBattlefield = [];
+        this.name = name;
+    }
+    addCard(recipe, controller = 1) {
+        let permanent = SampleLoader_1.SampleLoader.createCard(recipe).asPermanent();
+        if (controller == 2) {
+            permanent.ownedByOpponent = true;
+        }
+        this.battlefield.push(permanent);
+        return this;
+    }
+    withVerification(verificator) {
+        this.verification = verificator;
+        return this;
+    }
+    execute() {
+        const sc = new StateCheck_1.StateCheck();
+        sc.perform(this.battlefield);
+        this.createdBattlefield = this.battlefield;
+    }
+    test() {
+        this.execute();
+        this.verification(this.createdBattlefield, this);
+    }
+    find(permanentName) {
+        for (let pn of this.createdBattlefield) {
+            if (pn.name == permanentName) {
+                return pn;
+            }
+        }
+        return null;
+    }
+}
+exports.Scenario = Scenario;
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(3);
+
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3058,7 +3156,7 @@ AssertionError.prototype.toJSON = function (stack) {
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3084,7 +3182,7 @@ module.exports = function getActual(obj, args) {
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3135,7 +3233,7 @@ module.exports = getFuncName;
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3177,7 +3275,7 @@ module.exports = function getProperties(object) {
 
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -3233,7 +3331,7 @@ module.exports = function objDisplay(obj) {
 
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3266,7 +3364,49 @@ module.exports = function getOwnEnumerablePropertySymbols(obj) {
 
 
 /***/ }),
-/* 29 */
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Recipes {
+}
+Recipes.WoodlandChangeling = {
+    name: "Woodland Changeling",
+    card: "2/2 Shapeshifter green creature",
+    abilities: [["changeling"]]
+};
+Recipes.Forest = {
+    name: "Forest",
+    card: "land",
+    abilities: []
+};
+Recipes.TrainedArmodon = {
+    name: "Trained Armodon",
+    card: "3/3 green Elephant creature",
+    abilities: []
+};
+Recipes.Humility = {
+    name: "Humility",
+    card: "white enchantment",
+    abilities: [
+        ["creatures", "silence", "setpt:1/1"]
+    ]
+};
+Recipes.MycosynthLattice = {
+    name: "Mycosynth Lattice",
+    card: "artifact",
+    abilities: [
+        ["addtype:artifact"],
+        ["losecolors"]
+    ]
+};
+exports.Recipes = Recipes;
+
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3277,9 +3417,9 @@ const Card_1 = __webpack_require__(14);
 const StateCheck_1 = __webpack_require__(7);
 const AbilityCreation_1 = __webpack_require__(16);
 const CardCreator_1 = __webpack_require__(13);
-const Examples_1 = __webpack_require__(33);
+const Examples_1 = __webpack_require__(37);
 const Permanent_1 = __webpack_require__(15);
-const ScenarioLoader_1 = __webpack_require__(34);
+const ScenarioLoader_1 = __webpack_require__(38);
 function removeFromArray(pole, prvek) {
     const index = pole.indexOf(prvek);
     if (index == -1) {
@@ -3364,6 +3504,7 @@ angular.module('PrimaryApp', [])
         $('#logModal').modal();
         $('#stateCheckLog').html('<b>A</b>C');
     };
+    reevaluateValues();
 })
     .directive('displayPermanent', function () {
     return {
@@ -3437,7 +3578,7 @@ angular.module('PrimaryApp', [])
 
 
 /***/ }),
-/* 30 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3456,12 +3597,19 @@ exports.definitions = [
             ["First strike"],
             ["blue creatures", "blue artifacts", "gain", "silence"]
         ]
+    },
+    {
+        "name": "Opalescence",
+        "card": "white enchantment",
+        "abilities": [
+            ["enchantment", "addtype:creature", "setpt:5/5",]
+        ]
     }
 ];
 
 
 /***/ }),
-/* 31 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3490,7 +3638,35 @@ exports.ModificationLog = ModificationLog;
 
 
 /***/ }),
-/* 32 */
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class DependencySort {
+    /**
+    (Throughout the algorithm, memoize any dependencies (or lack of dependency) you discover.
+    INPUT: a list of continuous effects applicable in this layer in timestamp order
+    OUTPUT: the effect to apply, or null if the effects list is empty
+    1. Perform a depth-first search on the first effect.
+     If there is no dependency, then the first effect is the result.
+     If there is a dependency, and the effect transitively depends on itself, then the first effect is the result.
+     Otherwise, move on to the next effect.
+    2. Continue doing step 2 for other effects, in order, until an effect is the result.
+   */
+    static determineEffectToApply(effects, stateCheck) {
+        if (effects.length > 0) {
+            return effects[0];
+        }
+        return null;
+    }
+}
+exports.DependencySort = DependencySort;
+
+
+/***/ }),
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3535,7 +3711,7 @@ exports.NamedAbilities = NamedAbilities;
 
 
 /***/ }),
-/* 33 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3720,13 +3896,13 @@ var Examples;
 
 
 /***/ }),
-/* 34 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenarios_1 = __webpack_require__(35);
+const Scenarios_1 = __webpack_require__(39);
 class ScenarioLoader {
     static loadAllScenarios() {
         return Scenarios_1.Scenarios;
@@ -3736,17 +3912,18 @@ exports.ScenarioLoader = ScenarioLoader;
 
 
 /***/ }),
-/* 35 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(36);
-const chai_1 = __webpack_require__(37);
-const Recipes_1 = __webpack_require__(61);
+const Scenario_1 = __webpack_require__(23);
+const chai_1 = __webpack_require__(24);
+const Recipes_1 = __webpack_require__(31);
 const Typeline_1 = __webpack_require__(1);
 const CreatureSubtype_1 = __webpack_require__(6);
+const OrderOfOperationsScenarios_1 = __webpack_require__(63);
 exports.Scenarios = [
     new Scenario_1.Scenario("Smoke test")
         .addCard(Recipes_1.Recipes.TrainedArmodon)
@@ -3839,66 +4016,11 @@ exports.Scenarios = [
             chai_1.expect(scenario.find("Painter's Servant: Blue").abilities).to.be.empty;
         });
     })
-];
+].concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem());
 
 
 /***/ }),
-/* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(12);
-const StateCheck_1 = __webpack_require__(7);
-class Scenario {
-    constructor(name) {
-        this.battlefield = [];
-        this.createdBattlefield = [];
-        this.name = name;
-    }
-    addCard(recipe) {
-        this.battlefield.push(SampleLoader_1.SampleLoader.createCard(recipe));
-        return this;
-    }
-    withVerification(verificator) {
-        this.verification = verificator;
-        return this;
-    }
-    execute() {
-        const sc = new StateCheck_1.StateCheck();
-        let trueBattlefield = [];
-        for (let bf of this.battlefield) {
-            trueBattlefield.push(bf.asPermanent());
-        }
-        sc.perform(trueBattlefield);
-        this.createdBattlefield = trueBattlefield;
-    }
-    test() {
-        this.execute();
-        this.verification(this.createdBattlefield, this);
-    }
-    find(permanentName) {
-        for (let pn of this.createdBattlefield) {
-            if (pn.name == permanentName) {
-                return pn;
-            }
-        }
-        return null;
-    }
-}
-exports.Scenario = Scenario;
-
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(3);
-
-
-/***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -3911,13 +4033,13 @@ module.exports = __webpack_require__(3);
  * Dependencies that are used for multiple exports are required here only once
  */
 
-var pathval = __webpack_require__(39);
+var pathval = __webpack_require__(41);
 
 /*!
  * test utility
  */
 
-exports.test = __webpack_require__(40);
+exports.test = __webpack_require__(42);
 
 /*!
  * type utility
@@ -3928,19 +4050,19 @@ exports.type = __webpack_require__(19);
 /*!
  * expectTypes utility
  */
-exports.expectTypes = __webpack_require__(42);
+exports.expectTypes = __webpack_require__(44);
 
 /*!
  * message utility
  */
 
-exports.getMessage = __webpack_require__(43);
+exports.getMessage = __webpack_require__(45);
 
 /*!
  * actual utility
  */
 
-exports.getActual = __webpack_require__(24);
+exports.getActual = __webpack_require__(26);
 
 /*!
  * Inspect util
@@ -3952,7 +4074,7 @@ exports.inspect = __webpack_require__(8);
  * Object Display util
  */
 
-exports.objDisplay = __webpack_require__(27);
+exports.objDisplay = __webpack_require__(29);
 
 /*!
  * Flag utility
@@ -3970,7 +4092,7 @@ exports.transferFlags = __webpack_require__(5);
  * Deep equal utility
  */
 
-exports.eql = __webpack_require__(45);
+exports.eql = __webpack_require__(47);
 
 /*!
  * Deep path info
@@ -3988,67 +4110,67 @@ exports.hasProperty = pathval.hasProperty;
  * Function name
  */
 
-exports.getName = __webpack_require__(25);
+exports.getName = __webpack_require__(27);
 
 /*!
  * add Property
  */
 
-exports.addProperty = __webpack_require__(46);
+exports.addProperty = __webpack_require__(48);
 
 /*!
  * add Method
  */
 
-exports.addMethod = __webpack_require__(47);
+exports.addMethod = __webpack_require__(49);
 
 /*!
  * overwrite Property
  */
 
-exports.overwriteProperty = __webpack_require__(48);
+exports.overwriteProperty = __webpack_require__(50);
 
 /*!
  * overwrite Method
  */
 
-exports.overwriteMethod = __webpack_require__(49);
+exports.overwriteMethod = __webpack_require__(51);
 
 /*!
  * Add a chainable method
  */
 
-exports.addChainableMethod = __webpack_require__(50);
+exports.addChainableMethod = __webpack_require__(52);
 
 /*!
  * Overwrite chainable method
  */
 
-exports.overwriteChainableMethod = __webpack_require__(51);
+exports.overwriteChainableMethod = __webpack_require__(53);
 
 /*!
  * Compare by inspect method
  */
 
-exports.compareByInspect = __webpack_require__(52);
+exports.compareByInspect = __webpack_require__(54);
 
 /*!
  * Get own enumerable property symbols method
  */
 
-exports.getOwnEnumerablePropertySymbols = __webpack_require__(28);
+exports.getOwnEnumerablePropertySymbols = __webpack_require__(30);
 
 /*!
  * Get own enumerable properties method
  */
 
-exports.getOwnEnumerableProperties = __webpack_require__(53);
+exports.getOwnEnumerableProperties = __webpack_require__(55);
 
 /*!
  * Checks error against a given set of criteria
  */
 
-exports.checkError = __webpack_require__(54);
+exports.checkError = __webpack_require__(56);
 
 /*!
  * Proxify util
@@ -4072,11 +4194,11 @@ exports.isProxyEnabled = __webpack_require__(9);
  * isNaN method
  */
 
-exports.isNaN = __webpack_require__(55);
+exports.isNaN = __webpack_require__(57);
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4374,7 +4496,7 @@ module.exports = {
 
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -4408,7 +4530,7 @@ module.exports = function test(obj, args) {
 
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports) {
 
 var g;
@@ -4435,7 +4557,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -4458,7 +4580,7 @@ module.exports = g;
  * @api public
  */
 
-var AssertionError = __webpack_require__(23);
+var AssertionError = __webpack_require__(25);
 var flag = __webpack_require__(0);
 var type = __webpack_require__(19);
 
@@ -4492,7 +4614,7 @@ module.exports = function expectTypes(obj, types) {
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -4506,9 +4628,9 @@ module.exports = function expectTypes(obj, types) {
  */
 
 var flag = __webpack_require__(0)
-  , getActual = __webpack_require__(24)
+  , getActual = __webpack_require__(26)
   , inspect = __webpack_require__(8)
-  , objDisplay = __webpack_require__(27);
+  , objDisplay = __webpack_require__(29);
 
 /**
  * ### .getMessage(object, message, negateMessage)
@@ -4549,7 +4671,7 @@ module.exports = function getMessage(obj, args) {
 
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports) {
 
 /*!
@@ -4581,7 +4703,7 @@ module.exports = function getEnumerableProperties(object) {
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5043,7 +5165,7 @@ function isPrimitive(value) {
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5121,7 +5243,7 @@ module.exports = function addProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5195,7 +5317,7 @@ module.exports = function addMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5293,7 +5415,7 @@ module.exports = function overwriteProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5391,7 +5513,7 @@ module.exports = function overwriteMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5549,7 +5671,7 @@ module.exports = function addChainableMethod(ctx, name, method, chainingBehavior
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5624,7 +5746,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5661,7 +5783,7 @@ module.exports = function compareByInspect(a, b) {
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5674,7 +5796,7 @@ module.exports = function compareByInspect(a, b) {
  * Module dependancies
  */
 
-var getOwnEnumerablePropertySymbols = __webpack_require__(28);
+var getOwnEnumerablePropertySymbols = __webpack_require__(30);
 
 /**
  * ### .getOwnEnumerableProperties(object)
@@ -5696,7 +5818,7 @@ module.exports = function getOwnEnumerableProperties(obj) {
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5875,7 +5997,7 @@ module.exports = {
 
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5907,7 +6029,7 @@ module.exports = Number.isNaN || isNaN;
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6078,7 +6200,7 @@ module.exports = function (_chai, util) {
 
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9813,7 +9935,7 @@ module.exports = function (chai, _) {
 
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9853,7 +9975,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10063,7 +10185,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports) {
 
 /*!
@@ -13167,45 +13289,62 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class Recipes {
+const Scenario_1 = __webpack_require__(23);
+const Recipes_1 = __webpack_require__(31);
+const chai_1 = __webpack_require__(24);
+/**
+ * Scenarios from
+ * http://www.cranialinsertion.com/order-of-operations
+ */
+class OrderOfOperationsScenarios {
+    static getThem() {
+        return [
+            // TODO Layer 1: Copy
+            // Layer 2: Control
+            new Scenario_1.Scenario("OoO L2: Control Magic")
+                .addCard(Recipes_1.Recipes.TrainedArmodon)
+                .addCard({
+                name: "Opponent steals creatures",
+                card: "blue enchantment",
+                abilities: [["creature", "gainscontrol:2"]]
+            })
+                .addCard({
+                name: "You steal them back",
+                card: "blue enchantment",
+                abilities: [["creature", "gainscontrol:1"]]
+            })
+                .withVerification((field, scenario) => {
+                it("You control the Armodon.", () => {
+                    chai_1.expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
+                });
+            }),
+            new Scenario_1.Scenario("OoO L2: Confiscate a Confiscate")
+                .addCard(Recipes_1.Recipes.TrainedArmodon)
+                .addCard({
+                name: "You steal creatures",
+                card: "blue enchantment",
+                abilities: [["creature", "gainscontrol:you"]]
+            }, 2)
+                .addCard({
+                name: "You steal blue enchantments",
+                card: "red enchantment",
+                abilities: [["blue enchantments", "gainscontrol:you"]]
+            })
+                .withVerification((field, scenario) => {
+                it("You control the Armodon.", () => {
+                    chai_1.expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
+                });
+            })
+        ];
+    }
 }
-Recipes.WoodlandChangeling = {
-    name: "Woodland Changeling",
-    card: "2/2 Shapeshifter green creature",
-    abilities: [["changeling"]]
-};
-Recipes.Forest = {
-    name: "Forest",
-    card: "land",
-    abilities: []
-};
-Recipes.TrainedArmodon = {
-    name: "Trained Armodon",
-    card: "3/3 green Elephant creature",
-    abilities: []
-};
-Recipes.Humility = {
-    name: "Humility",
-    card: "white enchantment",
-    abilities: [
-        ["creatures", "silence", "setpt:1/1"]
-    ]
-};
-Recipes.MycosynthLattice = {
-    name: "Mycosynth Lattice",
-    card: "artifact",
-    abilities: [
-        ["addtype:artifact"],
-        ["losecolors"]
-    ]
-};
-exports.Recipes = Recipes;
+exports.OrderOfOperationsScenarios = OrderOfOperationsScenarios;
 
 
 /***/ })

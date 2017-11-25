@@ -22,7 +22,7 @@
     "pretest": "webpack --config testing.config.js",
     "test": "mocha bundles/testbundle.js",
     "watch": "mocha-typescript-watch",
-    "start" : "webpack",
+    "start": "webpack",
     "prepare": "tsc"
   },
   "repository": {

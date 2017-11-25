@@ -93,11 +93,13 @@ export class Effect implements ICopiable<Effect>{
                 this.startedApplyingThisStateCheck = true;
             }
         }
+        this.lastAppliedInLayer = layer;
     }
 
     asHtmlString(layer: Layer) {
         const mainPart = capitalizeFirstLetter(this.acquisition.toString()) + " " + this.modification.asHtmlString(this.acquisition.multipleTargets, layer);
-        if (mainPart.substr(mainPart.length -2,2) == '."') {
+        if (mainPart.substr(mainPart.length -2,2) == '."' ||
+            mainPart.endsWith('."</b>')) {
             return mainPart;
         } else {
             return mainPart+".";

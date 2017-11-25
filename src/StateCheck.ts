@@ -1,6 +1,6 @@
 import {Permanent} from "./structures/Permanent";
 import {Effect} from "./structures/Effect";
-import {deepCopy, shallowCopy} from "./Utilities";
+import {DependencySort} from "./dependencies/DependencySort";
 
 export class StateCheck {
     private battlefield : Permanent[];
@@ -38,7 +38,11 @@ export class StateCheck {
             }
         }
         this.applyLayer(Layer.L7e_PnTSwitch);
+        if (this.report.length == 0) {
+            this.report = "<br>No continuous effects modify the characteristics of permanents.";
+        }
         this.report = this.report.substr("<br>".length);
+
     }
 
     private log(line: string) {
@@ -65,26 +69,18 @@ export class StateCheck {
     }
 
     private getNextApplicableEffectForLayer(layer: Layer) : Effect {
+        // Get all effects
         let ffs = this.getAllContinuousEffects();
-        let bestEffect : Effect = null;
-        let lowestTimestamp = Number.MAX_VALUE;
-        outerFor: for(let ff of ffs) {
-            if (ff.lastAppliedInLayer < layer) {
-                for (let m of ff.modification.parts) {
-                    if (m.getLayer() == layer) {
-                        if (ff.timestamp < lowestTimestamp) {
-                            lowestTimestamp = ff.timestamp;
-                            bestEffect =ff;
-                            continue outerFor;
-                        }
-                    }
-                }
-            }
-        }
-        if (bestEffect != null) {
-            bestEffect.lastAppliedInLayer = layer;
-        }
-        return bestEffect;
+        // Get only those in this layer
+        ffs = ffs.filter((effect: Effect) => {
+            return effect.lastAppliedInLayer < layer && effect.modification.parts.some((part) => part.getLayer() == layer);
+        });
+        // Order them by timestamp.
+        ffs.sort((a, b) => {
+            return a.timestamp < b.timestamp ? -1 : (a.timestamp == b.timestamp ? 0 : 1);
+        });
+
+        return DependencySort.determineEffectToApply(ffs, this);
     }
 
     private L0_ApplyPrintedCharacteristics() {

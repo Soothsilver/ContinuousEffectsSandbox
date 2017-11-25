@@ -13,5 +13,12 @@ export const definitions : CardRecipe[] = [
       ["First strike"],
       ["blue creatures", "blue artifacts", "gain", "silence"]
     ]
+  },
+  {
+      "name": "Opalescence",
+      "card": "white enchantment",
+      "abilities": [
+          ["enchantment", "addtype:creature", "setpt:5/5",]
+      ]
   }
 ];

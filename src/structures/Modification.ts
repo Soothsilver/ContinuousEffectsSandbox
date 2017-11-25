@@ -32,11 +32,26 @@ export class PowerToughnessModification implements SingleModification {
 
     }
 }
+export enum Controller {
+    PlayerOne,
+    PlayerTwo,
+    Controller,
+    Opponent
+}
 export class ControlChangeModification implements SingleModification {
-    controlGoesToYou: boolean;
+    controlGoesTo: Controller;
 
     private getPlayerName() : string {
-        return (this.controlGoesToYou) ? "you" : "Player 2";
+        switch (this.controlGoesTo){
+            case Controller.PlayerOne:
+                return "Player 1";
+            case Controller.PlayerTwo:
+                return "Player 2";
+            case Controller.Controller:
+                return "this permanent's controller";
+            case Controller.Opponent:
+                return "this permanent's controller's opponent";
+        }
     }
 
     asString(plural: boolean) {
@@ -47,11 +62,23 @@ export class ControlChangeModification implements SingleModification {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.controlledByOpponent = !this.controlGoesToYou;
-
+        switch (this.controlGoesTo){
+            case Controller.Opponent:
+                target.controlledByOpponent = !source.source.controlledByOpponent;
+                break;
+            case Controller.Controller:
+                target.controlledByOpponent = source.source.controlledByOpponent;
+                break;
+            case Controller.PlayerOne:
+                target.controlledByOpponent = false;
+                break;
+            case Controller.PlayerTwo:
+                target.controlledByOpponent = true;
+                break;
+        }
     }
-    constructor(controlGoesToYou : boolean) {
-        this.controlGoesToYou = controlGoesToYou;
+    constructor(controlGoesTo : Controller) {
+        this.controlGoesTo = controlGoesTo;
 
     }
 }

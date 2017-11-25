@@ -126,7 +126,9 @@ angular.module('PrimaryApp', [])
     $scope.whyButtonClick = function () {
         $('#logModal').modal();
         $('#stateCheckLog').html('<b>A</b>C');
-    }
+    };
+
+    reevaluateValues();
 })
     .directive('displayPermanent', function () {
         return {

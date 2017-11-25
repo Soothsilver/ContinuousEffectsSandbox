@@ -4,7 +4,7 @@ import {Permanent} from "../structures/Permanent";
 import {StateCheck} from "../StateCheck";
 
 export class Scenario {
-    private battlefield : Card[] = [];
+    private battlefield : Permanent[] = [];
     private verification: (battlefield : Permanent[], self : Scenario) => void;
     public createdBattlefield : Permanent[] = [];
     name : string;
@@ -13,8 +13,12 @@ export class Scenario {
         this.name = name;
     }
 
-    public addCard(recipe : CardRecipe) : Scenario {
-        this.battlefield.push(SampleLoader.createCard(recipe));
+    public addCard(recipe : CardRecipe, controller : number = 1) : Scenario {
+        let permanent = SampleLoader.createCard(recipe).asPermanent();
+        if (controller == 2) {
+            permanent.ownedByOpponent = true;
+        }
+        this.battlefield.push(permanent);
         return this;
     }
     public withVerification(verificator : (battlefield : Permanent[], self : Scenario) => void) : Scenario{
@@ -24,12 +28,8 @@ export class Scenario {
 
     public execute() : void {
         const sc = new StateCheck();
-        let trueBattlefield : Permanent[] = [];
-        for (let bf of this.battlefield) {
-            trueBattlefield.push(bf.asPermanent());
-        }
-        sc.perform(trueBattlefield);
-        this.createdBattlefield = trueBattlefield;
+        sc.perform(this.battlefield);
+        this.createdBattlefield = this.battlefield;
     }
 
     public test() : void {

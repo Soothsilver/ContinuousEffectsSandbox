@@ -3,6 +3,7 @@ import {expect} from "chai";
 import {Recipes} from "./Recipes";
 import {Color, Type} from "../structures/Typeline";
 import {CreatureSubtype} from "../structures/CreatureSubtype";
+import {OrderOfOperationsScenarios} from "./OrderOfOperationsScenarios";
 
 export const Scenarios : Scenario[] = [
     new Scenario("Smoke test")
@@ -96,4 +97,4 @@ export const Scenarios : Scenario[] = [
                expect(scenario.find("Painter's Servant: Blue").abilities).to.be.empty;
             });
         })
-];
+].concat(OrderOfOperationsScenarios.getThem());

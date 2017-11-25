@@ -9,7 +9,7 @@ import {
     SwitchPTModification,
     LosePrimitiveModification,
     ControlChangeModification,
-    ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification
+    ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller
 } from "../structures/Modification";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
@@ -86,7 +86,15 @@ class AbilityCreator {
             this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));
         }
         else if (line.startsWith("gainscontrol:")) {
-            this.effect.modification.parts.push(new ControlChangeModification(line.substr("gainscontrol:".length) == "1"));
+            let controller : Controller = Controller.Controller;
+            let who = line.substr("gainscontrol:".length);
+            switch (who){
+                case "1": controller = Controller.PlayerOne; break;
+                case "2": controller = Controller.PlayerTwo; break;
+                case "you": controller = Controller.Controller; break;
+                case "opponent": controller = Controller.Opponent; break;
+            }
+            this.effect.modification.parts.push(new ControlChangeModification(controller));
         }
         else if (line.startsWith("addability:")) {
             const innerAbility = line.substr("addability:".length).replace(";", "\n");

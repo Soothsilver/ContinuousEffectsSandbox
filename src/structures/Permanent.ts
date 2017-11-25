@@ -16,6 +16,7 @@ export class Permanent {
     abilities: Ability[] = [];
     phasedOut: boolean;
     counters: Counter[] = [];
+    ownedByOpponent : boolean = false;
     modificationLog: ModificationLog = new ModificationLog();
     timestamp: number;
 
@@ -50,7 +51,7 @@ export class Permanent {
         this.abilities = deepCopy(this.originalCard.abilities);
         this.color = shallowCopy(this.originalCard.color);
         // Blank status
-        this.controlledByOpponent = false;
+        this.controlledByOpponent = this.ownedByOpponent;
         this.modificationLog = new ModificationLog();
         this.timestamp = timestamp;
         for (let ab of this.abilities) {
