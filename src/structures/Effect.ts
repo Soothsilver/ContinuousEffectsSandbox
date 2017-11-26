@@ -1,71 +1,45 @@
-import { Permanent} from "./Permanent";
-import {AddAbilityModification, PowerToughnessModification} from "./Modification";
-import {Ability} from "./Ability";
+import {Permanent} from "./Permanent";
 import {Acquisition} from "./Acquisition";
-import {Layer} from "../StateCheck";
-import {capitalizeFirstLetter, ICopiable, joinList, shallowCopy} from "../Utilities";
-
-export interface SingleModification {
-     getLayer() : Layer;
-
-    asString(plural: boolean);
-     applyTo(target: Permanent, battlefield: Permanent[], source: Effect);
-}
-
-export class Modification  {
-    parts: SingleModification[] = [];
-
-    toString(multipleTargets : boolean) : string {
-        let strs : string[] = [];
-        for (let i = 0; i < this.parts.length; i++) {
-            strs.push(this.parts[i].asString(multipleTargets));
-        }
-        return joinList(strs);
-    }
-
-    addPTModification(power: number, toughness: number) {
-        this.parts.push(new PowerToughnessModification(power, toughness));
-    }
-
-    addGrantPrimitiveAbility(ab: Ability) {
-        this.parts.push(new AddAbilityModification(ab));
-    }
-
-    asHtmlString(multipleTargets: boolean, layer: Layer) {
-        let strs : string[] = [];
-        for (let i = 0; i < this.parts.length; i++) {
-            let prt = this.parts[i].asString(multipleTargets);
-            if (this.parts[i].getLayer() == layer) {
-                prt = "<b>" + prt + "</b>";
-            }
-            strs.push(prt);
-        }
-        return joinList(strs);
-    }
-}
+import {Layer} from "../enumerations/Layer";
+import {capitalizeFirstLetter, ICopiable, shallowCopy} from "../Utilities";
+import {Modification} from "./Modification";
 
 export class Effect implements ICopiable<Effect>{
-
+    // Permanent features
     acquisition : Acquisition = new Acquisition();
     modification : Modification = new Modification();
-    startedApplyingThisStateCheck: boolean;
-    lastAppliedInLayer : Layer;
+    // Instance-specific features
     source : Permanent;
     timestamp: number;
+    // Transient fields
+    startedApplyingThisStateCheck: boolean;
+    lastAppliedInLayer : Layer;
+    dependsOn: Effect[];
+    originalLink : Effect;
+
     /**
      * The objects this effect applies to during the current state check. If this is null, then these haven't yet
      * been determined.
      */
     acquisitionResults: Permanent[];
 
+    blankTransientFields() {
+        this.acquisitionResults = null;
+        this.lastAppliedInLayer = Layer.L0_NoLayer;
+        this.startedApplyingThisStateCheck = false;
+        this.dependsOn = null;
+        this.originalLink = null;
+    }
     copy(): Effect {
         let ff = new Effect();
         ff.acquisition = this.acquisition;
         ff.modification = this.modification;
         ff.startedApplyingThisStateCheck = false;
         ff.acquisitionResults = shallowCopy(this.acquisitionResults);
-        ff.lastAppliedInLayer = Layer.L0_NoLayer;
+        ff.lastAppliedInLayer = this.lastAppliedInLayer;
         ff.timestamp = this.timestamp;
+        ff.dependsOn = shallowCopy(this.dependsOn);
+        ff.originalLink = this.originalLink;
         return ff;
     }
     toString() : string {
@@ -84,10 +58,9 @@ export class Effect implements ICopiable<Effect>{
         if (this.acquisitionResults == null) {
             this.acquisitionResults = this.acquisition.getAcquiredObjects(battlefield, this.source);
         }
-        let affectedObjects : Permanent[] = this.acquisitionResults;
         for (let m  of this.modification.parts) {
             if (m.getLayer() == layer) {
-                for (let o  of affectedObjects) {
+                for (let o  of this.acquisitionResults) {
                     m.applyTo(o, battlefield, this);
                 }
                 this.startedApplyingThisStateCheck = true;
@@ -104,5 +77,14 @@ export class Effect implements ICopiable<Effect>{
         } else {
             return mainPart+".";
         }
+    }
+
+
+    createLinkedCopy() : Effect {
+        let linkedCopy = new Effect();
+        linkedCopy.acquisition = this.acquisition;
+        linkedCopy.modification = this.modification;
+        // TODO a link map is needed
+        return this;
     }
 }

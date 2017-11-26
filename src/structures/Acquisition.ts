@@ -40,6 +40,7 @@ export class AcquisitionCondition {
     suppressTypePlural: boolean = false;
     mustBeControlledByYou: boolean = false;
     mustBeControlledByOpponent: boolean = false;
+    nonself: boolean = false;
 
 
     negate() : AcquisitionCondition {
@@ -67,6 +68,9 @@ export class AcquisitionCondition {
         }
         if (this.mustBeControlledByOpponent) {
             return "you don't control";
+        }
+        if (this.nonself) {
+            return "other";
         }
     }
 
@@ -96,6 +100,11 @@ export class AcquisitionCondition {
                 return false;
             }
         }
+        if (this.nonself) {
+            if (target == source) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -115,6 +124,12 @@ export class AcquisitionCondition {
         let ac = new AcquisitionCondition();
         if (you) ac.mustBeControlledByYou = true;
         else ac.mustBeControlledByOpponent = true;
+        return ac;
+    }
+
+    static nonself() {
+        let ac = new AcquisitionCondition();
+        ac.nonself = true;
         return ac;
     }
 }

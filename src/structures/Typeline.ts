@@ -87,10 +87,10 @@ export class Typeline {
         return tl;
     }
 
-    stringifyType(type : string) {
+    stringifyType(type : Type) : string {
         return Type[type];
     }
-    stringifySubtype(type : string) {
+    stringifySubtype(type : CreatureSubtype) : string {
         return CreatureSubtype[type];
     }
 

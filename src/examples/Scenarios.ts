@@ -96,5 +96,32 @@ export const Scenarios : Scenario[] = [
             it ("Servant has no ability.", ()=>{
                expect(scenario.find("Painter's Servant: Blue").abilities).to.be.empty;
             });
+        }),
+    /*With a Humility and two Opalescences on the battlefield, if Humility has the latest timestamp, then all creatures are 1/1 with no abilities. If the timestamp order is Opalescence, Humility, Opalescence, the second Opalescence is 1/1, and the Humility and first Opalescence are 4/4. If Humility has the earliest timestamp, then everything is 4/4.*/
+    new Scenario("2x Opalescence, 1x Humility")
+        .addCard(Recipes.Opalescence)
+        .addCard(Recipes.Humility)
+        .addCard(Recipes.Opalescence)
+        .withVerification((field, scenario) => {
+            it ("First Opalescence is 5/5", ()=>{
+                expect(field[0].power).to.equal(5);
+            });
+            it ("Humility is 5/5", ()=>{
+                expect(field[1].power).to.equal(5);
+            });
+            it ("Second Opalescence is 1/1", ()=>{
+                expect(field[2].power).to.equal(1);
+            });
+            it ("Nothing has any abilities", ()=>{
+                expect(field[0].abilities).to.be.empty;
+                expect(field[1].abilities).to.be.empty;
+                expect(field[2].abilities).to.be.empty;
+            });
+            it ("Everything is a creature.", () => {
+                expect(field[0].typeline.types).to.include(Type.Creature)
+                expect(field[1].typeline.types).to.include(Type.Creature)
+                expect(field[2].typeline.types).to.include(Type.Creature)
+            })
         })
+
 ].concat(OrderOfOperationsScenarios.getThem());

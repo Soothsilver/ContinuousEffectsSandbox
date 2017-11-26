@@ -30,5 +30,12 @@ export class Recipes {
             ["addtype:artifact"],
             ["losecolors"]
         ]
-    }
+    };
+    static Opalescence: CardRecipe =  {
+        "name": "Opalescence",
+        "card": "white enchantment",
+        "abilities": [
+            ["other enchantment", "addtype:creature", "setpt:5/5"]
+        ]
+    };
 }

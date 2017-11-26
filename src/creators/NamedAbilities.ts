@@ -1,16 +1,23 @@
 import {Ability} from "../structures/Ability";
-import {Effect, SingleModification} from "../structures/Effect";
+import {Effect} from "../structures/Effect";
 import {Acquisition} from "../structures/Acquisition";
-import {Layer} from "../StateCheck";
+import {Layer} from "../enumerations/Layer";
 import {Permanent} from "../structures/Permanent";
+import {SingleModificationBase} from "../structures/SingleModificationBase";
+import {SingleModification} from "../structures/SingleModification";
 
-class ScionOfTheWildModification implements SingleModification {
+class ScionOfTheWildModification extends SingleModificationBase {
     getLayer(): Layer {
         return Layer.L7b_PnTSetSpecificValue;
     }
 
     asString(plural: boolean) {
         return (plural ? "have" : "has") + " power and toughness each equal to the number of creatures you control";
+    }
+
+
+    whatItDoes(target: Permanent, battlefield: Permanent[], source: Effect): string {
+        return "SETPT:" + battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {

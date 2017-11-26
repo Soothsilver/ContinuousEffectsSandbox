@@ -1,15 +1,31 @@
 import {Permanent} from "./structures/Permanent";
 import {Effect} from "./structures/Effect";
 import {DependencySort} from "./dependencies/DependencySort";
+import {Layer} from "./enumerations/Layer";
 
 export class StateCheck {
-    private battlefield : Permanent[];
+    get effects(): Effect[] {
+        return this._effects;
+    }
+    /**
+     * All permanents on the battlefield.
+     */
+    private _battlefield : Permanent[];
     /**
      * Effects that have started to apply go here. These will apply in other layers to the same objects.
      */
-    private effects : Effect[];
+    private _effects : Effect[];
+    /** Human-readable explanation of how effects were applied. */
     private report : string;
 
+    get battlefield(): Permanent[] {
+        return this._battlefield;
+    }
+
+    constructor(field : Permanent[] = undefined, effects : Effect[] = undefined) {
+        this._effects = effects;
+        this._battlefield = field;
+    }
     perform(battlefield : Permanent[])
     {
         this.report = "";
@@ -19,8 +35,8 @@ export class StateCheck {
                 phasedIns.push(perm);
             }
         }
-        this.effects = [];
-        this.battlefield = phasedIns;
+        this._effects = [];
+        this._battlefield = phasedIns;
         this.L0_ApplyPrintedCharacteristics();
         this.applyLayer(Layer.L1_Copy);
         this.applyLayer(Layer.L2_Control);
@@ -50,12 +66,12 @@ export class StateCheck {
     }
 
 
-    private getAllContinuousEffects() : Effect[] {
+    public getAllContinuousEffects() : Effect[] {
         let pole : Effect[] = [];
-        for (let ff of this.effects) {
+        for (let ff of this._effects) {
             pole.push(ff);
         }
-        for (let p of this.battlefield) {
+        for (let p of this._battlefield) {
             for (let ab of p.abilities) {
                 if (ab.hasEffect()) {
                     let ff = ab.effect;
@@ -79,13 +95,12 @@ export class StateCheck {
         ffs.sort((a, b) => {
             return a.timestamp < b.timestamp ? -1 : (a.timestamp == b.timestamp ? 0 : 1);
         });
-
-        return DependencySort.determineEffectToApply(ffs, this);
+        return DependencySort.determineEffectToApply(ffs, this, layer);
     }
 
     private L0_ApplyPrintedCharacteristics() {
-        for(let i = 0; i < this.battlefield.length; i++) {
-            let permanent = this.battlefield[i];
+        for(let i = 0; i < this._battlefield.length; i++) {
+            let permanent = this._battlefield[i];
             permanent.beginStateCheck(i);
         }
     }
@@ -95,8 +110,10 @@ export class StateCheck {
         while (true) {
             let effect: Effect = this.getNextApplicableEffectForLayer(layer);
             if (effect) {
-                this.effects.push(effect);
-                effect.apply(this.battlefield, layer);
+                if (!this._effects.includes(effect)) {
+                    this._effects.push(effect);
+                }
+                effect.apply(this._battlefield, layer);
                 this.logEffect(effect, layer);
              } else {
                 break;
@@ -142,18 +159,4 @@ export class StateCheck {
     getHtmlReport() : string {
         return this.report;
     }
-}
-export enum Layer {
-    L0_NoLayer = 0,
-    L1_Copy,
-    L2_Control,
-    L3_Text,
-    L4_Type,
-    L5_Color,
-    L6_Abilities,
-    L7a_PnTCharacteristicDefining,
-    L7b_PnTSetSpecificValue,
-    L7c_PnTModifications,
-    L7d_PnTCounters,
-    L7e_PnTSwitch
 }

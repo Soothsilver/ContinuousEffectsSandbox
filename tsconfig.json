@@ -4,7 +4,10 @@
     "target": "es2016",
     "sourceMap": true,
     "outDir": "dist",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "allowUnreachableCode": true
   },
   "exclude": [
     "node_modules"

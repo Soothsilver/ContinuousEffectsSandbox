@@ -1,276 +1,51 @@
-import {Permanent} from "./Permanent";
-import {Effect, SingleModification} from "./Effect";
-import {Layer} from "../StateCheck";
-import {Color, Type} from "./Typeline";
 import {Ability} from "./Ability";
-import {EnumEx} from "../utils/EnumEx";
-import {CreatureSubtype} from "./CreatureSubtype";
+import {Layer} from "../enumerations/Layer";
+import {Permanent} from "./Permanent";
+import {Effect} from "./Effect";
+import {SingleModification} from "./SingleModification";
+import {joinList} from "../Utilities";
+import {AddAbilityModification, PowerToughnessModification} from "./Modifications";
 
-export class PowerToughnessModification implements SingleModification {
+export class Modification {
+    parts: SingleModification[] = [];
 
-
-    power : number;
-    toughness : number;
-
-    asString(plural: boolean) {
-        return (plural ? "get" : "gets") + " " + (this.power >= 0 ? "+" : "") + this.power + "/" +
-            (this.toughness >= 0 ? "+" : "") + this.toughness;
-    }
-    getLayer() : Layer {
-        return Layer.L7c_PnTModifications;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.power += this.power;
-        target.toughness += this.toughness;
-        target.modificationLog.ptChanged = true;
-
-    }
-    constructor(power : number, toughness : number) {
-        this.power = power;
-        this.toughness = toughness;
-
-    }
-}
-export enum Controller {
-    PlayerOne,
-    PlayerTwo,
-    Controller,
-    Opponent
-}
-export class ControlChangeModification implements SingleModification {
-    controlGoesTo: Controller;
-
-    private getPlayerName() : string {
-        switch (this.controlGoesTo){
-            case Controller.PlayerOne:
-                return "Player 1";
-            case Controller.PlayerTwo:
-                return "Player 2";
-            case Controller.Controller:
-                return "this permanent's controller";
-            case Controller.Opponent:
-                return "this permanent's controller's opponent";
+    toString(multipleTargets: boolean): string {
+        let strs: string[] = [];
+        for (let i = 0; i < this.parts.length; i++) {
+            strs.push(this.parts[i].asString(multipleTargets));
         }
+        return joinList(strs);
     }
 
-    asString(plural: boolean) {
-        return (plural ? "are controlled by " : "is controlled by ") + this.getPlayerName();
-    }
-    getLayer() : Layer {
-        return Layer.L2_Control;
+    addPTModification(power: number, toughness: number) {
+        this.parts.push(new PowerToughnessModification(power, toughness));
     }
 
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        switch (this.controlGoesTo){
-            case Controller.Opponent:
-                target.controlledByOpponent = !source.source.controlledByOpponent;
-                break;
-            case Controller.Controller:
-                target.controlledByOpponent = source.source.controlledByOpponent;
-                break;
-            case Controller.PlayerOne:
-                target.controlledByOpponent = false;
-                break;
-            case Controller.PlayerTwo:
-                target.controlledByOpponent = true;
-                break;
+    addGrantPrimitiveAbility(ab: Ability) {
+        this.parts.push(new AddAbilityModification(ab));
+    }
+
+    asHtmlString(multipleTargets: boolean, layer: Layer) {
+        let strs: string[] = [];
+        for (let i = 0; i < this.parts.length; i++) {
+            let prt = this.parts[i].asString(multipleTargets);
+            if (this.parts[i].getLayer() == layer) {
+                prt = "<b>" + prt + "</b>";
+            }
+            strs.push(prt);
         }
-    }
-    constructor(controlGoesTo : Controller) {
-        this.controlGoesTo = controlGoesTo;
-
-    }
-}
-export class SilenceModification implements SingleModification {
-    asString(plural: boolean) {
-        return (plural ? "lose all abilities" : "loses all abilities");
+        return joinList(strs);
     }
 
-    getLayer(): Layer {
-        return Layer.L6_Abilities;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        for (let ab of target.abilities) {
-            target.modificationLog.addStrickenAbility(ab);
+    whatItDoes(battlefield: Permanent[], source: Effect, whatItAppliesTo: Permanent[], layer: Layer): string {
+        let dryRun = "";
+        for (let part of this.parts) {
+            if (part.getLayer() == layer) {
+                for (let trg of whatItAppliesTo) {
+                    dryRun += part.whatItDoes(trg, battlefield, source) + ";"
+                }
+            }
         }
-        target.abilities.length = 0;
+        return dryRun;
     }
-}
-export class LosePrimitiveModification implements SingleModification {
-    private abilityname: string;
-    constructor(abilityname : string) {
-        this.abilityname = abilityname;
-    }
-
-    getLayer(): Layer {
-        return Layer.L6_Abilities;
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "lose" : "loses") + " " + this.abilityname.toLowerCase();
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        let remainingAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
-        let removedAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() == this.abilityname.toLowerCase());
-        target.abilities = remainingAbilities;
-        for (let ab of removedAbilities) {
-            target.modificationLog.addStrickenAbility(ab);
-        }
-    }
-
-}
-export class AddColorModification implements SingleModification {
-    private clr: Color;
-
-    constructor(clr : Color) {
-        this.clr = clr;
-    }
-
-    getLayer(): Layer {
-        return Layer.L5_Color;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        if (target.color.includes(this.clr)) return;
-        target.color.push(this.clr);
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase() + " in addition to " + (plural ? "their" : "its") + " other colors";
-    }
-}
-export class SetColorToModification implements SingleModification {
-    private clr: Color;
-
-    constructor(clr : Color) {
-        this.clr = clr;
-    }
-
-    getLayer(): Layer {
-        return Layer.L5_Color;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.color = [this.clr];
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "are" : "is") + " " + Color[this.clr].toLowerCase();
-    }
-}
-export class SetPowerToughnessModification implements SingleModification {
-    private power: number;
-    private toughness: number;
-
-    constructor(power : number, toughness: number) {
-        this.power = power;
-        this.toughness = toughness;
-    }
-
-    getLayer(): Layer {
-        return Layer.L7b_PnTSetSpecificValue;
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "have base power and toughness" : "has base power and toughness") + " " + this.power + "/" + this.toughness;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.power = this.power;
-        target.toughness = this.toughness;
-        target.modificationLog.ptChanged = true;
-    }
-}
-export class ChangelingModification implements  SingleModification {
-    getLayer(): Layer {
-        return Layer.L4_Type;
-    }
-
-    asString(plural: boolean) {
-        return (plural ?"are" :"is") +" every creature type";
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.typeline.creatureSubtypes.length = 0;
-        for (let subtype of EnumEx.getValues(CreatureSubtype)) {
-            target.typeline.creatureSubtypes.push(subtype);
-            target.modificationLog.addType(CreatureSubtype[subtype]);
-        }
-    }
-}
-export class AddTypeModification implements  SingleModification {
-    private type: Type;
-
-    constructor(type : Type) {
-        this.type = type;
-    }
-
-    getLayer(): Layer {
-        return Layer.L4_Type;
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "are" : "is a") + " " + Type[this.type].toLowerCase() + (plural ? "s in addition to their other types" : " in addition to its other types");
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        if (target.typeline.types.includes(this.type)) return;
-        target.typeline.types.push(this.type);
-        target.modificationLog.addType(Type[this.type]);
-    }
-}
-export class LoseColorsModification implements SingleModification {
-    getLayer(): Layer {
-        return Layer.L5_Color;
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "lose all colors" : "loses all colors");
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        target.color = [];
-    }
-
-}
-export class AddAbilityModification implements SingleModification {
-
-    asString(plural: boolean) {
-        let abilityDescription = this.addWhat.toString();
-        return (plural ? "have" : "has") + " " + (this.addWhat.primitiveName != null ? abilityDescription.toLowerCase() : ("\"" + abilityDescription + "\""));
-    }
-
-    addWhat: Ability;
-
-    getLayer() : Layer {
-        return Layer.L6_Abilities;
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect)  {
-        target.addAbility(this.addWhat.copyAndInitialize(target), source);
-    }
-    constructor(addWhat :Ability) {
-        this.addWhat = addWhat;
-    }
-
-}
-export class SwitchPTModification implements SingleModification {
-    getLayer(): Layer {
-        return Layer.L7e_PnTSwitch;
-    }
-
-    asString(plural: boolean) {
-        return (plural ? "have their power and toughness switched" : "has its power and toughness switched");
-    }
-
-    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
-        const swap = target.toughness;
-        target.toughness = target.power;
-        target.power = swap;
-        target.modificationLog.ptChanged = true;
-    }
-
 }

@@ -10,11 +10,11 @@ import {
     LosePrimitiveModification,
     ControlChangeModification,
     ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller
-} from "../structures/Modification";
+} from "../structures/Modifications";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
 import {SingleAcquisition} from "../structures/Acquisition";
-import {SilenceModification} from "../structures/Modification";
+import {SilenceModification} from "../structures/Modifications";
 import {NamedAbilities} from "./NamedAbilities";
 
 
@@ -125,6 +125,7 @@ class AbilityCreator {
             else if (word == "nocontrol") ca.conditions.push(AcquisitionCondition.controller(false));
             else if (word.startsWith("non") && stringToType(word.substr(3)) != null) ca.conditions.push(AcquisitionCondition.type(stringToType(word.substr(3))).negate());
             else if (word.startsWith("non") && stringToColor(word.substr(3)) != null) ca.conditions.push(AcquisitionCondition.color(stringToColor(word.substr(3))).negate());
+            else if (word == "other") ca.conditions.push(AcquisitionCondition.nonself());
             else return null;
         }
         return ca;

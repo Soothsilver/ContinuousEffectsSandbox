@@ -12,6 +12,8 @@
       <w>loseprimitive</w>
       <w>namedability</w>
       <w>nocontrol</w>
+      <w>nonprinted</w>
+      <w>oldtarget</w>
       <w>runeclaw</w>
       <w>setcolor</w>
       <w>setpt</w>

@@ -4,32 +4,35 @@ import {ModificationLog} from "./ModificationLog";
 import {Card, Counter} from "./Card";
 import {capitalizeFirstLetter, deepCopy, getCssColor, joinList, shallowCopy} from "../Utilities";
 import {Effect} from "./Effect";
+import {Layer} from "../enumerations/Layer";
 
 export class Permanent {
+    // Permanent features
     originalCard: Card;
-    name: string;
-    power: number;
-    color: Color[];
-    toughness: number;
-    typeline: Typeline;
-    controlledByOpponent: boolean;
-    abilities: Ability[] = [];
+    ownedByOpponent : boolean = false;
     phasedOut: boolean;
     counters: Counter[] = [];
-    ownedByOpponent : boolean = false;
-    modificationLog: ModificationLog = new ModificationLog();
     timestamp: number;
+    // Characteristics
+    name: string;
+    power: number;
+    toughness: number;
+    color: Color[];
+    typeline: Typeline;
+    abilities: Ability[] = [];
+    controlledByOpponent: boolean;
+    // Transient
+    modificationLog: ModificationLog = new ModificationLog();
+    originalLink : Permanent = null;
 
     cssColor(): string {
         return getCssColor(this.color);
     }
-
     static fromCard(card: Card): Permanent {
         let p = new Permanent();
         p.originalCard = card;
         return p;
     }
-
     /**
      * Adds an ability to this permanent during a state check.
      * @param {Ability} ability The ability that's being add.
@@ -41,23 +44,30 @@ export class Permanent {
         ability.effect.timestamp = Math.max(this.timestamp, source.timestamp);
         this.abilities.push(ability);
     }
-
+    /**
+     * Initializes a permanent at the beginning of a state check/
+     * @param {number} timestamp The timestamp of this permanent.
+     */
     beginStateCheck(timestamp : number) {
         // Copy card
         this.name = this.originalCard.name;
-        this.toughness = this.originalCard.toughness;
         this.power = this.originalCard.power;
+        this.toughness = this.originalCard.toughness;
+        this.color = shallowCopy(this.originalCard.color);
         this.typeline = this.originalCard.typeline.copy();
         this.abilities = deepCopy(this.originalCard.abilities);
-        this.color = shallowCopy(this.originalCard.color);
         // Blank status
         this.controlledByOpponent = this.ownedByOpponent;
         this.modificationLog = new ModificationLog();
+        this.originalLink = null;
+        // Timestamp
         this.timestamp = timestamp;
+        // Effects
         for (let ab of this.abilities) {
             ab.effect.source = this;
-            ab.effect.acquisitionResults = null;
             ab.effect.timestamp = timestamp;
+            // Blank transient fields
+            ab.effect.blankTransientFields();
         }
     }
     describeColors() : string {

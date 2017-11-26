@@ -2,9 +2,9 @@
 import {capitalizeFirstLetter, ICopiable} from "../Utilities";
 import {Effect} from "./Effect";
 import {Permanent} from "./Permanent";
+import {Layer} from "../enumerations/Layer";
 
 export class Ability implements ICopiable<Ability> {
-
 
     primitiveName : string = null;
     parseError : string = null;
@@ -45,6 +45,10 @@ export class Ability implements ICopiable<Ability> {
     copyAndInitialize(target: Permanent) : Ability {
         let ab = this.copy();
         ab.effect.source = target;
+        ab.effect.acquisitionResults = null;
+        ab.effect.dependsOn = null;
+        ab.effect.lastAppliedInLayer = Layer.L0_NoLayer;
+        ab.effect.timestamp = 9999; // Must be overwritten later!
         return ab;
     }
 
