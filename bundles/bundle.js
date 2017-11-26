@@ -109,7 +109,7 @@ module.exports = function flag(obj, key, value) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 const EnumEx_1 = __webpack_require__(21);
 var Type;
 (function (Type) {
@@ -584,6 +584,30 @@ module.exports = function transferFlags(assertion, object, includeAll) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Layer;
+(function (Layer) {
+    Layer[Layer["L0_NoLayer"] = 0] = "L0_NoLayer";
+    Layer[Layer["L1_Copy"] = 1] = "L1_Copy";
+    Layer[Layer["L2_Control"] = 2] = "L2_Control";
+    Layer[Layer["L3_Text"] = 3] = "L3_Text";
+    Layer[Layer["L4_Type"] = 4] = "L4_Type";
+    Layer[Layer["L5_Color"] = 5] = "L5_Color";
+    Layer[Layer["L6_Abilities"] = 6] = "L6_Abilities";
+    Layer[Layer["L7a_PnTCharacteristicDefining"] = 7] = "L7a_PnTCharacteristicDefining";
+    Layer[Layer["L7b_PnTSetSpecificValue"] = 8] = "L7b_PnTSetSpecificValue";
+    Layer[Layer["L7c_PnTModifications"] = 9] = "L7c_PnTModifications";
+    Layer[Layer["L7d_PnTCounters"] = 10] = "L7d_PnTCounters";
+    Layer[Layer["L7e_PnTSwitch"] = 11] = "L7e_PnTSwitch";
+})(Layer = exports.Layer || (exports.Layer = {}));
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var CreatureSubtype;
 (function (CreatureSubtype) {
     CreatureSubtype[CreatureSubtype["Advisor"] = 0] = "Advisor";
@@ -826,30 +850,6 @@ var CreatureSubtype;
     CreatureSubtype[CreatureSubtype["Zubera"] = 237] = "Zubera";
 })(CreatureSubtype = exports.CreatureSubtype || (exports.CreatureSubtype = {}));
 ;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Layer;
-(function (Layer) {
-    Layer[Layer["L0_NoLayer"] = 0] = "L0_NoLayer";
-    Layer[Layer["L1_Copy"] = 1] = "L1_Copy";
-    Layer[Layer["L2_Control"] = 2] = "L2_Control";
-    Layer[Layer["L3_Text"] = 3] = "L3_Text";
-    Layer[Layer["L4_Type"] = 4] = "L4_Type";
-    Layer[Layer["L5_Color"] = 5] = "L5_Color";
-    Layer[Layer["L6_Abilities"] = 6] = "L6_Abilities";
-    Layer[Layer["L7a_PnTCharacteristicDefining"] = 7] = "L7a_PnTCharacteristicDefining";
-    Layer[Layer["L7b_PnTSetSpecificValue"] = 8] = "L7b_PnTSetSpecificValue";
-    Layer[Layer["L7c_PnTModifications"] = 9] = "L7c_PnTModifications";
-    Layer[Layer["L7d_PnTCounters"] = 10] = "L7d_PnTCounters";
-    Layer[Layer["L7e_PnTSwitch"] = 11] = "L7e_PnTSwitch";
-})(Layer = exports.Layer || (exports.Layer = {}));
 
 
 /***/ }),
@@ -1673,7 +1673,7 @@ var CardCreator;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(1);
 const Utilities_1 = __webpack_require__(2);
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 const Permanent_1 = __webpack_require__(8);
 class Card {
     constructor() {
@@ -1892,7 +1892,7 @@ exports.parseAsAbility = parseAsAbility;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Acquisition_1 = __webpack_require__(23);
-const Layer_1 = __webpack_require__(7);
+const Layer_1 = __webpack_require__(6);
 const Utilities_1 = __webpack_require__(2);
 const Modification_1 = __webpack_require__(37);
 class Effect {
@@ -1965,6 +1965,15 @@ class Effect {
         linkedCopy.startedApplyingThisStateCheck = this.startedApplyingThisStateCheck;
         linkedCopy.lastAppliedInLayer = this.lastAppliedInLayer;
         linkedCopy.originalLink = this;
+        linkedCopy.acquisitionResults = null;
+        console.info(this.acquisitionResults);
+        if (this.acquisitionResults) {
+            linkedCopy.acquisitionResults = [];
+            for (let perm of this.acquisitionResults) {
+                linkedCopy.acquisitionResults.push(map.getCopiedPermanent(perm));
+            }
+        }
+        console.error(linkedCopy.acquisitionResults);
         map.linkEffects(this, linkedCopy);
         return linkedCopy;
     }
@@ -1979,10 +1988,10 @@ exports.Effect = Effect;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Layer_1 = __webpack_require__(7);
+const Layer_1 = __webpack_require__(6);
 const Typeline_1 = __webpack_require__(1);
 const EnumEx_1 = __webpack_require__(21);
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 const SingleModificationBase_1 = __webpack_require__(24);
 class PowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
     asString(plural) {
@@ -2233,7 +2242,7 @@ exports.SwitchPTModification = SwitchPTModification;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const DependencySort_1 = __webpack_require__(39);
-const Layer_1 = __webpack_require__(7);
+const Layer_1 = __webpack_require__(6);
 class StateCheck {
     get effects() {
         return this._effects;
@@ -2335,7 +2344,7 @@ class StateCheck {
         this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + ", timestamp " + effect.timestamp + ")</small></i>");
     }
     logSkippedEffect(effect, layer) {
-        this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", dependent)</small></i>");
+        this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", depends on " + effect.dependsOn[0].source.name + ")</small></i>");
     }
     static layerToString(layer) {
         switch (layer) {
@@ -2802,7 +2811,7 @@ exports.EnumEx = EnumEx;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
 const Effect_1 = __webpack_require__(17);
-const Layer_1 = __webpack_require__(7);
+const Layer_1 = __webpack_require__(6);
 class Ability {
     constructor() {
         this.primitiveName = null;
@@ -2879,7 +2888,7 @@ exports.Ability = Ability;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
 const Typeline_1 = __webpack_require__(1);
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 class SingleAcquisition {
     constructor(key, plural) {
         this.keyword = null;
@@ -3528,6 +3537,13 @@ Recipes.MycosynthLattice = {
         ["losecolors"]
     ]
 };
+Recipes.TitaniasSong = {
+    name: "Titania's Song",
+    card: "green enchantment",
+    abilities: [
+        ["noncreature artifact", "silence", "addtype:creature", "setpt:4/4"]
+    ]
+};
 Recipes.Opalescence = {
     "name": "Opalescence",
     "card": "white enchantment",
@@ -3831,7 +3847,7 @@ exports.Modification = Modification;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Ability_1 = __webpack_require__(22);
 const Effect_1 = __webpack_require__(17);
-const Layer_1 = __webpack_require__(7);
+const Layer_1 = __webpack_require__(6);
 const SingleModificationBase_1 = __webpack_require__(24);
 class ScionOfTheWildModification extends SingleModificationBase_1.SingleModificationBase {
     getLayer() {
@@ -3879,6 +3895,7 @@ exports.NamedAbilities = NamedAbilities;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const StateCheck_1 = __webpack_require__(19);
+const Layer_1 = __webpack_require__(6);
 const Permanent_1 = __webpack_require__(8);
 const LinkMap_1 = __webpack_require__(40);
 class DependencySort {
@@ -3911,7 +3928,7 @@ class DependencySort {
             }
         }
         // Remove cycles
-        // TODO remove cycles (in case of dependency loops
+        // TODO remove cycles (in case of dependency loops)
         for (let ff of effects) {
             if (ff.dependsOn.length == 0) {
                 return ff;
@@ -3945,9 +3962,7 @@ class DependencySort {
         }
         let whatItDoes = mainEffect.modification.whatItDoes(stateCheck.battlefield, mainEffect, whatItAppliesTo, layer);
         // Apply the other effect to a copy of the battlefield
-        console.log(stateCheck);
         let stateCheckCopy = DependencySort.createCopiedLinkedGameState(stateCheck);
-        console.log(stateCheckCopy);
         let battlefieldCopy = stateCheckCopy.battlefield;
         let effectsInTheNewBattlefield_beforeSubEffect = stateCheckCopy.getAllContinuousEffects();
         let subEffectInTheNewBattlefield = effectsInTheNewBattlefield_beforeSubEffect.find((ff) => ff.originalLink == dependsOnThis);
@@ -3961,6 +3976,8 @@ class DependencySort {
         // Determine what has happened
         // (b) change the text or cause it to not exist
         if (mainEffectInTheNewBattlefield == undefined) {
+            if (layer == Layer_1.Layer.L7e_PnTSwitch)
+                console.warn("Dependent because existence loss.");
             return true;
         }
         // (b) change what it applies to
@@ -3969,6 +3986,11 @@ class DependencySort {
             whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisition.getAcquiredObjects(battlefieldCopy, mainEffectInTheNewBattlefield.source);
         }
         if (whatItAppliesTo2.length != whatItAppliesTo.length) {
+            if (layer == Layer_1.Layer.L7e_PnTSwitch) {
+                console.warn("Dependent because different number of items. (first original, second copy)");
+                console.log(whatItAppliesTo);
+                console.warn(whatItAppliesTo2);
+            }
             return true;
         }
         for (let subject of whatItAppliesTo2) {
@@ -3976,20 +3998,22 @@ class DependencySort {
                 // ok
             }
             else {
+                if (layer == Layer_1.Layer.L7e_PnTSwitch)
+                    console.warn("Dependent because different items.");
                 return true;
             }
         }
         // (b) change what it does to those things
         let whatItDoes2 = mainEffectInTheNewBattlefield.modification.whatItDoes(battlefieldCopy, mainEffectInTheNewBattlefield, whatItAppliesTo2, layer);
         if (whatItDoes != whatItDoes2) {
+            if (layer == Layer_1.Layer.L7e_PnTSwitch)
+                console.warn("Dependent because of what it does.");
             return true;
         }
         // No dependency found.
         return false;
     }
     static createCopiedLinkedGameState(original) {
-        //return new StateCheck([],[]);
-        // TODO do this
         let map = new LinkMap_1.LinkMap();
         let originalEffects = original.effects;
         let originalField = original.battlefield;
@@ -4272,7 +4296,7 @@ const Scenario_1 = __webpack_require__(25);
 const chai_1 = __webpack_require__(26);
 const Recipes_1 = __webpack_require__(33);
 const Typeline_1 = __webpack_require__(1);
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 const OrderOfOperationsScenarios_1 = __webpack_require__(67);
 exports.Scenarios = [
     new Scenario_1.Scenario("Smoke test")
@@ -4390,6 +4414,33 @@ exports.Scenarios = [
             chai_1.expect(field[0].typeline.types).to.include(Typeline_1.Type.Creature);
             chai_1.expect(field[1].typeline.types).to.include(Typeline_1.Type.Creature);
             chai_1.expect(field[2].typeline.types).to.include(Typeline_1.Type.Creature);
+        });
+    }),
+    new Scenario_1.Scenario("Three switchers")
+        .addCard({
+        name: "Spider",
+        card: "green 1/4 Spider",
+        abilities: []
+    })
+        .addCard({
+        name: "Switcher",
+        card: "artifact",
+        abilities: [["creatures", "switch"]]
+    })
+        .addCard({
+        name: "Switcher2",
+        card: "blue enchantment",
+        abilities: [["creatures", "switch"]]
+    })
+        .addCard({
+        name: "Switcher3",
+        card: "green enchantment",
+        abilities: [["creatures", "switch"]]
+    })
+        .withVerification((field, scenario) => {
+        it("The spider is switched", () => {
+            chai_1.expect(field[0].power).to.equal(4);
+            chai_1.expect(field[0].toughness).to.equal(1);
         });
     })
 ].concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem());
@@ -13674,6 +13725,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Scenario_1 = __webpack_require__(25);
 const Recipes_1 = __webpack_require__(33);
 const chai_1 = __webpack_require__(26);
+const Typeline_1 = __webpack_require__(1);
 /**
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
@@ -13715,6 +13767,30 @@ class OrderOfOperationsScenarios {
                 .withVerification((field, scenario) => {
                 it("You control the Armodon.", () => {
                     chai_1.expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
+                });
+            }),
+            // TODO L3 text-changing
+            new Scenario_1.Scenario("OoO L4: Titania's Song + Mycosynth Lattice dependency")
+                .addCard(Recipes_1.Recipes.TitaniasSong)
+                .addCard(Recipes_1.Recipes.MycosynthLattice)
+                .withVerification((field, scenario) => {
+                it("Titania's Song is an artifact creature.", () => {
+                    chai_1.expect(field[0].typeline.types).to.contain(Typeline_1.Type.Creature);
+                    chai_1.expect(field[0].typeline.types).to.contain(Typeline_1.Type.Artifact);
+                });
+                it("All permanents are 4/4.", () => {
+                    for (let perm of field) {
+                        chai_1.expect(perm.power).to.equal(4);
+                    }
+                });
+            }),
+            new Scenario_1.Scenario("Titania's Song + Opalescence + Mycosynth Lattice")
+                .addCard(Recipes_1.Recipes.TitaniasSong)
+                .addCard(Recipes_1.Recipes.Opalescence)
+                .addCard(Recipes_1.Recipes.MycosynthLattice)
+                .withVerification((field, scenario) => {
+                it("A", () => {
+                    chai_1.expect(true).to.equal(false);
                 });
             })
         ];

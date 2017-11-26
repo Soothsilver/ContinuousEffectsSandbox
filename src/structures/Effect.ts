@@ -90,6 +90,15 @@ export class Effect implements ICopiable<Effect>{
         linkedCopy.startedApplyingThisStateCheck = this.startedApplyingThisStateCheck;
         linkedCopy.lastAppliedInLayer = this.lastAppliedInLayer;
         linkedCopy.originalLink = this;
+        linkedCopy.acquisitionResults = null;
+        console.info(this.acquisitionResults);
+        if (this.acquisitionResults) {
+            linkedCopy.acquisitionResults = [];
+            for (let perm of this.acquisitionResults) {
+                linkedCopy.acquisitionResults.push(map.getCopiedPermanent(perm));
+            }
+        }
+        console.error(linkedCopy.acquisitionResults);
         map.linkEffects(this, linkedCopy);
 
         return linkedCopy;

@@ -2,6 +2,7 @@ import {Scenario} from "./Scenario";
 import {CardRecipe} from "./SampleLoader";
 import {Recipes} from "./Recipes";
 import {expect} from "chai";
+import {Type} from "../structures/Typeline";
 
 /**
  * Scenarios from
@@ -44,6 +45,30 @@ export class OrderOfOperationsScenarios {
                 .withVerification((field, scenario)=>{
                     it ("You control the Armodon.", ()=> {
                         expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
+                    });
+                }),
+            // TODO L3 text-changing
+            new Scenario("OoO L4: Titania's Song + Mycosynth Lattice dependency")
+                .addCard(Recipes.TitaniasSong)
+                .addCard(Recipes.MycosynthLattice)
+                .withVerification((field, scenario)=>{
+                    it ("Titania's Song is an artifact creature.", ()=>{
+                        expect(field[0].typeline.types).to.contain(Type.Creature);
+                        expect(field[0].typeline.types).to.contain(Type.Artifact);
+                    });
+                    it ("All permanents are 4/4.", ()=>{
+                        for (let perm of field) {
+                            expect(perm.power).to.equal(4);
+                        }
+                    });
+                }),
+            new Scenario("Titania's Song + Opalescence + Mycosynth Lattice")
+                .addCard(Recipes.TitaniasSong)
+                .addCard(Recipes.Opalescence)
+                .addCard(Recipes.MycosynthLattice)
+                .withVerification((field,scenario)=>{
+                    it ("A", ()=>{
+                        expect(true).to.equal(false);
                     });
                 })
         ];

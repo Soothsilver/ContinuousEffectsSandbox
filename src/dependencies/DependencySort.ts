@@ -23,7 +23,7 @@ export class DependencySort {
             return effects[0];
         }
         // Calculate dependency graph
-        for(let main  of effects) {
+        for(let main of effects) {
             main.dependsOn = [];
             for(let on of effects) {
                 if (main != on) {
@@ -34,7 +34,7 @@ export class DependencySort {
             }
         }
         // Remove cycles
-        // TODO remove cycles (in case of dependency loops
+        // TODO remove cycles (in case of dependency loops)
 
         for (let ff of effects) {
             if (ff.dependsOn.length == 0) {
@@ -71,9 +71,7 @@ export class DependencySort {
         let whatItDoes = mainEffect.modification.whatItDoes(stateCheck.battlefield, mainEffect, whatItAppliesTo, layer);
 
         // Apply the other effect to a copy of the battlefield
-        console.log(stateCheck);
         let stateCheckCopy = DependencySort.createCopiedLinkedGameState(stateCheck);
-        console.log(stateCheckCopy);
         let battlefieldCopy = stateCheckCopy.battlefield;
         let effectsInTheNewBattlefield_beforeSubEffect : Effect[] = stateCheckCopy.getAllContinuousEffects();
         let subEffectInTheNewBattlefield : Effect = effectsInTheNewBattlefield_beforeSubEffect.find((ff)=>ff.originalLink == dependsOnThis);
@@ -88,6 +86,7 @@ export class DependencySort {
         // Determine what has happened
         // (b) change the text or cause it to not exist
         if (mainEffectInTheNewBattlefield == undefined) {
+            if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because existence loss.");
             return true;
         }
 
@@ -97,18 +96,25 @@ export class DependencySort {
             whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisition.getAcquiredObjects(battlefieldCopy, mainEffectInTheNewBattlefield.source);
         }
         if (whatItAppliesTo2.length != whatItAppliesTo.length) {
+            if (layer == Layer.L7e_PnTSwitch)  {
+                console.warn("Dependent because different number of items. (first original, second copy)");
+                console.log(whatItAppliesTo);
+                console.warn(whatItAppliesTo2);
+            }
             return true;
         }
         for (let subject of whatItAppliesTo2) {
             if (whatItAppliesTo.some((oldtarget)=> subject.originalLink == oldtarget)) {
                 // ok
             } else {
+                if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because different items.");
                 return true;
             }
         }
         // (b) change what it does to those things
         let whatItDoes2 = mainEffectInTheNewBattlefield.modification.whatItDoes(battlefieldCopy, mainEffectInTheNewBattlefield, whatItAppliesTo2, layer);
         if (whatItDoes != whatItDoes2) {
+            if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because of what it does.");
             return true;
         }
 
@@ -117,9 +123,6 @@ export class DependencySort {
     }
 
     private static createCopiedLinkedGameState(original: StateCheck) : StateCheck {
-        //return new StateCheck([],[]);
-        // TODO do this
-
         let map = new LinkMap();
         let originalEffects = original.effects;
         let originalField = original.battlefield;

@@ -31,6 +31,13 @@ export class Recipes {
             ["losecolors"]
         ]
     };
+    static TitaniasSong : CardRecipe = {
+        name : "Titania's Song",
+        card : "green enchantment",
+        abilities : [
+            ["noncreature artifact", "silence", "addtype:creature", "setpt:4/4"]
+        ]
+    };
     static Opalescence: CardRecipe =  {
         "name": "Opalescence",
         "card": "white enchantment",

@@ -122,6 +122,34 @@ export const Scenarios : Scenario[] = [
                 expect(field[1].typeline.types).to.include(Type.Creature)
                 expect(field[2].typeline.types).to.include(Type.Creature)
             })
+        }),
+    new Scenario("Three switchers")
+        .addCard({
+            name: "Spider",
+            card: "green 1/4 Spider",
+            abilities: []
         })
+        .addCard({
+            name: "Switcher",
+            card: "artifact",
+            abilities: [["creatures","switch"]]
+        })
+        .addCard({
+            name: "Switcher2",
+            card: "blue enchantment",
+            abilities: [["creatures","switch"]]
+        })
+        .addCard({
+            name: "Switcher3",
+            card: "green enchantment",
+            abilities: [["creatures","switch"]]
+        })
+        .withVerification((field, scenario)=>{
+            it ("The spider is switched", ()=>{
+                expect(field[0].power).to.equal(4);
+                expect(field[0].toughness).to.equal(1);
+            });
+        })
+    // TODO (elsewhere) scenario with a permanent that becomes just "blue"
 
 ].concat(OrderOfOperationsScenarios.getThem());
