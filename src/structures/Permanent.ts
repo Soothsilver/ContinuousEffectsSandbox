@@ -5,6 +5,7 @@ import {Card, Counter} from "./Card";
 import {capitalizeFirstLetter, deepCopy, getCssColor, joinList, shallowCopy} from "../Utilities";
 import {Effect} from "./Effect";
 import {Layer} from "../enumerations/Layer";
+import {LinkMap} from "../dependencies/LinkMap";
 
 export class Permanent {
     // Permanent features
@@ -76,5 +77,45 @@ export class Permanent {
             scolors.push(Color[clr].toLowerCase());
         }
         return capitalizeFirstLetter(joinList(scolors));
+    }
+
+    createdLinkedCopy(map: LinkMap) {
+        let linkedCopy : Permanent = map.getCopiedPermanent(this);
+        /*// Permanent features
+    originalCard: Card;
+    ownedByOpponent : boolean = false;
+    phasedOut: boolean;
+    counters: Counter[] = [];
+    timestamp: number;
+    // Characteristics
+    name: string;
+    power: number;
+    toughness: number;
+    color: Color[];
+    typeline: Typeline;
+    abilities: Ability[] = [];
+    controlledByOpponent: boolean;
+    // Transient
+    modificationLog: ModificationLog = new ModificationLog();
+    originalLink : Permanent = null;*/
+    }
+
+    assumeCharacteristicsOfOriginal(map: LinkMap) {
+        let original = this.originalLink;
+        this.originalCard = original.originalCard;
+        this.ownedByOpponent = original.ownedByOpponent;
+        this.phasedOut = original.phasedOut;
+        this.counters = original.counters;
+        this.timestamp = original.timestamp;
+        this.name = original.name;
+        this.power = original.power;
+        this.toughness = original.toughness;
+        this.color = shallowCopy(original.color);
+        this.typeline = original.typeline.copy();
+        this.controlledByOpponent = original.controlledByOpponent;
+        this.abilities = [];
+        for (let ab of original.abilities) {
+            this.abilities.push(ab.createdLinkedAbility(map));
+        }
     }
 }

@@ -124,6 +124,9 @@ export class StateCheck {
     private logEffect(effect: Effect, layer: Layer) {
         this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + ", timestamp " + effect.timestamp +")</small></i>");
     }
+    public logSkippedEffect(effect: Effect, layer: Layer) {
+        this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", dependent)</small></i>");
+    }
 
     private static layerToString(layer: Layer) : string {
         switch (layer) {

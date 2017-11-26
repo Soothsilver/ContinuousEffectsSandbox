@@ -3,6 +3,7 @@ import {Acquisition} from "./Acquisition";
 import {Layer} from "../enumerations/Layer";
 import {capitalizeFirstLetter, ICopiable, shallowCopy} from "../Utilities";
 import {Modification} from "./Modification";
+import {LinkMap} from "../dependencies/LinkMap";
 
 export class Effect implements ICopiable<Effect>{
     // Permanent features
@@ -80,11 +81,17 @@ export class Effect implements ICopiable<Effect>{
     }
 
 
-    createLinkedCopy() : Effect {
+    createLinkedCopy(map : LinkMap) : Effect {
         let linkedCopy = new Effect();
         linkedCopy.acquisition = this.acquisition;
         linkedCopy.modification = this.modification;
-        // TODO a link map is needed
-        return this;
+        linkedCopy.source = map.getCopiedPermanent(this.source);
+        linkedCopy.timestamp = this.timestamp;
+        linkedCopy.startedApplyingThisStateCheck = this.startedApplyingThisStateCheck;
+        linkedCopy.lastAppliedInLayer = this.lastAppliedInLayer;
+        linkedCopy.originalLink = this;
+        map.linkEffects(this, linkedCopy);
+
+        return linkedCopy;
     }
 }

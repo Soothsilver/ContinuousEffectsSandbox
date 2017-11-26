@@ -2,6 +2,7 @@ import {Effect} from "../structures/Effect";
 import {StateCheck} from "../StateCheck";
 import {Layer} from "../enumerations/Layer";
 import {Permanent} from "../structures/Permanent";
+import {LinkMap} from "./LinkMap";
 
 export class DependencySort {
     /**
@@ -38,6 +39,8 @@ export class DependencySort {
         for (let ff of effects) {
             if (ff.dependsOn.length == 0) {
                 return ff;
+            } else {
+                stateCheck.logSkippedEffect(ff, layer);
             }
         }
         console.error("There is an unresolvable dependency loop. This is a bug.");
@@ -68,7 +71,9 @@ export class DependencySort {
         let whatItDoes = mainEffect.modification.whatItDoes(stateCheck.battlefield, mainEffect, whatItAppliesTo, layer);
 
         // Apply the other effect to a copy of the battlefield
+        console.log(stateCheck);
         let stateCheckCopy = DependencySort.createCopiedLinkedGameState(stateCheck);
+        console.log(stateCheckCopy);
         let battlefieldCopy = stateCheckCopy.battlefield;
         let effectsInTheNewBattlefield_beforeSubEffect : Effect[] = stateCheckCopy.getAllContinuousEffects();
         let subEffectInTheNewBattlefield : Effect = effectsInTheNewBattlefield_beforeSubEffect.find((ff)=>ff.originalLink == dependsOnThis);
@@ -112,23 +117,27 @@ export class DependencySort {
     }
 
     private static createCopiedLinkedGameState(original: StateCheck) : StateCheck {
-        return new StateCheck([],[]);
+        //return new StateCheck([],[]);
         // TODO do this
-        /*
+
+        let map = new LinkMap();
         let originalEffects = original.effects;
         let originalField = original.battlefield;
         let newEffects  : Effect[] = [];
         let newField : Permanent[] = [];
-
+        for (let perm of originalField) {
+            let copy = new Permanent();
+            map.linkPermanents(perm, copy);
+            newField.push(copy);
+        }
         for (let originalFx of originalEffects) {
-            newEffects.push(originalFx.createLinkedCopy());
+            let newFx = originalFx.createLinkedCopy(map);
+            newEffects.push(newFx);
         }
 
-        for (let originalPermanent of originalField) {
-            let newPermanent = originalPermanent.createdLinkedCopy(originalEffects, newEffects);
+        for (let perm of newField) {
+            perm.assumeCharacteristicsOfOriginal(map);
         }
-
-*/
-      //  return new StateCheck(newField, newEffects);
+        return new StateCheck(newField, newEffects);
     }
 }

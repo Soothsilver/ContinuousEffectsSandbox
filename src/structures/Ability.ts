@@ -3,6 +3,7 @@ import {capitalizeFirstLetter, ICopiable} from "../Utilities";
 import {Effect} from "./Effect";
 import {Permanent} from "./Permanent";
 import {Layer} from "../enumerations/Layer";
+import {LinkMap} from "../dependencies/LinkMap";
 
 export class Ability implements ICopiable<Ability> {
 
@@ -54,5 +55,19 @@ export class Ability implements ICopiable<Ability> {
 
     hasEffect() : boolean {
         return this.primitiveName == null && this.parseError == null && this.effect != null;
+    }
+
+    createdLinkedAbility(map: LinkMap) : Ability {
+        let linkedAbility = new Ability();
+        linkedAbility.primitiveName = this.primitiveName;
+        linkedAbility.parseError = this.parseError;
+        linkedAbility.nonprinted = this.nonprinted;
+        let maybeEffectAlreadyExists = map.getCopiedEffect(this.effect);
+        if (maybeEffectAlreadyExists != null) {
+            linkedAbility.effect = maybeEffectAlreadyExists;
+        } else {
+            linkedAbility.effect = this.effect.createLinkedCopy(map);
+        }
+        return linkedAbility;
     }
 }
