@@ -235,6 +235,50 @@ export class AddTypeModification  extends SingleModificationBase {
         target.modificationLog.addType(Type[this.type]);
     }
 }
+export class AddSubtypeModification  extends SingleModificationBase {
+    private type: CreatureSubtype;
+
+    constructor(type : CreatureSubtype) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    asString(plural: boolean) {
+        return (plural ? "are" : "is a") + " " + CreatureSubtype[this.type] + (plural ? "s in addition to their other types" : " in addition to its other types");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
+        if (target.typeline.creatureSubtypes.includes(this.type)) return;
+        target.typeline.creatureSubtypes.push(this.type);
+        target.modificationLog.addType(CreatureSubtype[this.type]);
+    }
+}
+export class SetSubtypeModification  extends SingleModificationBase {
+    private type: CreatureSubtype;
+
+    constructor(type : CreatureSubtype) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    asString(plural: boolean) {
+        return (plural ? "are" : "is a") + " " + CreatureSubtype[this.type] + (plural ? "s" : "");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
+        target.typeline.creatureSubtypes.length = 0;
+        target.typeline.creatureSubtypes.push(this.type);
+        target.modificationLog.addType(CreatureSubtype[this.type]);
+    }
+}
 export class LoseColorsModification  extends SingleModificationBase {
     getLayer(): Layer {
         return Layer.L5_Color;

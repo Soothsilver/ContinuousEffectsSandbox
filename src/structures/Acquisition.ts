@@ -30,6 +30,10 @@ export class SingleAcquisition {
         return [];
     }
 
+    public isSelf() {
+        return this.keyword == "self";
+    }
+
 }
 
 

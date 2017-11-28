@@ -86,7 +86,6 @@ export class DependencySort {
         // Determine what has happened
         // (b) change the text or cause it to not exist
         if (mainEffectInTheNewBattlefield == undefined) {
-            if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because existence loss.");
             return true;
         }
 
@@ -96,25 +95,18 @@ export class DependencySort {
             whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisition.getAcquiredObjects(battlefieldCopy, mainEffectInTheNewBattlefield.source);
         }
         if (whatItAppliesTo2.length != whatItAppliesTo.length) {
-            if (layer == Layer.L7e_PnTSwitch)  {
-                console.warn("Dependent because different number of items. (first original, second copy)");
-                console.log(whatItAppliesTo);
-                console.warn(whatItAppliesTo2);
-            }
             return true;
         }
         for (let subject of whatItAppliesTo2) {
             if (whatItAppliesTo.some((oldtarget)=> subject.originalLink == oldtarget)) {
                 // ok
             } else {
-                if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because different items.");
                 return true;
             }
         }
         // (b) change what it does to those things
         let whatItDoes2 = mainEffectInTheNewBattlefield.modification.whatItDoes(battlefieldCopy, mainEffectInTheNewBattlefield, whatItAppliesTo2, layer);
         if (whatItDoes != whatItDoes2) {
-            if (layer == Layer.L7e_PnTSwitch) console.warn("Dependent because of what it does.");
             return true;
         }
 

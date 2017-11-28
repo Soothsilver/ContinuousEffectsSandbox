@@ -9,7 +9,8 @@ import {
     SwitchPTModification,
     LosePrimitiveModification,
     ControlChangeModification,
-    ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller
+    ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller,
+    SetSubtypeModification, AddSubtypeModification
 } from "../structures/Modifications";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
@@ -81,6 +82,12 @@ class AbilityCreator {
         }
         else if (line.startsWith("addtype:")) {
             this.effect.modification.parts.push(new AddTypeModification(stringToType(line.substr("addtype:".length))));
+        }
+        else if (line.startsWith("setsubtype:")) {
+            this.effect.modification.parts.push(new SetSubtypeModification(stringToSubtype(line.substr("setsubtype:".length))));
+        }
+        else if (line.startsWith("addsubtype:")) {
+            this.effect.modification.parts.push(new AddSubtypeModification(stringToSubtype(line.substr("addsubtype:".length))));
         }
         else if (line.startsWith("loseprimitive:")) {
             this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));

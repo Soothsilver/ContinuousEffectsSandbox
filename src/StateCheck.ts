@@ -91,6 +91,9 @@ export class StateCheck {
         ffs = ffs.filter((effect: Effect) => {
             return effect.lastAppliedInLayer < layer && effect.modification.parts.some((part) => part.getLayer() == layer);
         });
+        if (ffs.some(ff => ff.isCharacteristicDefiningAbility())) {
+            ffs = ffs.filter(ff => ff.isCharacteristicDefiningAbility());
+        }
         // Order them by timestamp.
         ffs.sort((a, b) => {
             return a.timestamp < b.timestamp ? -1 : (a.timestamp == b.timestamp ? 0 : 1);
@@ -122,7 +125,7 @@ export class StateCheck {
     }
 
     private logEffect(effect: Effect, layer: Layer) {
-        this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + ", timestamp " + effect.timestamp +")</small></i>");
+        this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + (effect.isCharacteristicDefiningAbility() ? ', CDA' : '') + ", timestamp " + effect.timestamp +")</small></i>");
     }
     public logSkippedEffect(effect: Effect, layer: Layer) {
         this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", depends on " + effect.dependsOn[0].source.name + ")</small></i>");

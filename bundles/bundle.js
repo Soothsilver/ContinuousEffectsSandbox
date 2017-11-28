@@ -109,7 +109,7 @@ module.exports = function flag(obj, key, value) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const CreatureSubtype_1 = __webpack_require__(7);
+const CreatureSubtype_1 = __webpack_require__(6);
 const EnumEx_1 = __webpack_require__(21);
 var Type;
 (function (Type) {
@@ -584,30 +584,6 @@ module.exports = function transferFlags(assertion, object, includeAll) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Layer;
-(function (Layer) {
-    Layer[Layer["L0_NoLayer"] = 0] = "L0_NoLayer";
-    Layer[Layer["L1_Copy"] = 1] = "L1_Copy";
-    Layer[Layer["L2_Control"] = 2] = "L2_Control";
-    Layer[Layer["L3_Text"] = 3] = "L3_Text";
-    Layer[Layer["L4_Type"] = 4] = "L4_Type";
-    Layer[Layer["L5_Color"] = 5] = "L5_Color";
-    Layer[Layer["L6_Abilities"] = 6] = "L6_Abilities";
-    Layer[Layer["L7a_PnTCharacteristicDefining"] = 7] = "L7a_PnTCharacteristicDefining";
-    Layer[Layer["L7b_PnTSetSpecificValue"] = 8] = "L7b_PnTSetSpecificValue";
-    Layer[Layer["L7c_PnTModifications"] = 9] = "L7c_PnTModifications";
-    Layer[Layer["L7d_PnTCounters"] = 10] = "L7d_PnTCounters";
-    Layer[Layer["L7e_PnTSwitch"] = 11] = "L7e_PnTSwitch";
-})(Layer = exports.Layer || (exports.Layer = {}));
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
 var CreatureSubtype;
 (function (CreatureSubtype) {
     CreatureSubtype[CreatureSubtype["Advisor"] = 0] = "Advisor";
@@ -853,6 +829,30 @@ var CreatureSubtype;
 
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Layer;
+(function (Layer) {
+    Layer[Layer["L0_NoLayer"] = 0] = "L0_NoLayer";
+    Layer[Layer["L1_Copy"] = 1] = "L1_Copy";
+    Layer[Layer["L2_Control"] = 2] = "L2_Control";
+    Layer[Layer["L3_Text"] = 3] = "L3_Text";
+    Layer[Layer["L4_Type"] = 4] = "L4_Type";
+    Layer[Layer["L5_Color"] = 5] = "L5_Color";
+    Layer[Layer["L6_Abilities"] = 6] = "L6_Abilities";
+    Layer[Layer["L7a_PnTCharacteristicDefining"] = 7] = "L7a_PnTCharacteristicDefining";
+    Layer[Layer["L7b_PnTSetSpecificValue"] = 8] = "L7b_PnTSetSpecificValue";
+    Layer[Layer["L7c_PnTModifications"] = 9] = "L7c_PnTModifications";
+    Layer[Layer["L7d_PnTCounters"] = 10] = "L7d_PnTCounters";
+    Layer[Layer["L7e_PnTSwitch"] = 11] = "L7e_PnTSwitch";
+})(Layer = exports.Layer || (exports.Layer = {}));
+
+
+/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -967,6 +967,296 @@ exports.Permanent = Permanent;
 
 /***/ }),
 /* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Layer_1 = __webpack_require__(7);
+const Typeline_1 = __webpack_require__(1);
+const EnumEx_1 = __webpack_require__(21);
+const CreatureSubtype_1 = __webpack_require__(6);
+const SingleModificationBase_1 = __webpack_require__(24);
+class PowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
+    asString(plural) {
+        return (plural ? "get" : "gets") + " " + (this.power >= 0 ? "+" : "") + this.power + "/" +
+            (this.toughness >= 0 ? "+" : "") + this.toughness;
+    }
+    getLayer() {
+        return Layer_1.Layer.L7c_PnTModifications;
+    }
+    applyTo(target, battlefield, source) {
+        target.power += this.power;
+        target.toughness += this.toughness;
+        target.modificationLog.ptChanged = true;
+    }
+    constructor(power, toughness) {
+        super();
+        this.power = power;
+        this.toughness = toughness;
+    }
+}
+exports.PowerToughnessModification = PowerToughnessModification;
+var Controller;
+(function (Controller) {
+    Controller[Controller["PlayerOne"] = 0] = "PlayerOne";
+    Controller[Controller["PlayerTwo"] = 1] = "PlayerTwo";
+    Controller[Controller["Controller"] = 2] = "Controller";
+    Controller[Controller["Opponent"] = 3] = "Opponent";
+})(Controller = exports.Controller || (exports.Controller = {}));
+class ControlChangeModification extends SingleModificationBase_1.SingleModificationBase {
+    getPlayerName() {
+        switch (this.controlGoesTo) {
+            case Controller.PlayerOne:
+                return "Player 1";
+            case Controller.PlayerTwo:
+                return "Player 2";
+            case Controller.Controller:
+                return "this permanent's controller";
+            case Controller.Opponent:
+                return "this permanent's controller's opponent";
+        }
+    }
+    asString(plural) {
+        return (plural ? "are controlled by " : "is controlled by ") + this.getPlayerName();
+    }
+    getLayer() {
+        return Layer_1.Layer.L2_Control;
+    }
+    giveControlToOpponent(self) {
+        switch (this.controlGoesTo) {
+            case Controller.Opponent:
+                return !self.controlledByOpponent;
+            case Controller.Controller:
+                return self.controlledByOpponent;
+            case Controller.PlayerOne:
+                return false;
+            case Controller.PlayerTwo:
+                return true;
+        }
+        throw new Error("Bad value");
+    }
+    whatItDoes(target, battlefield, source) {
+        return this.giveControlToOpponent(source.source) ? "GIVE_CONTROL_TO_PLAYER_TWO" : "GIVE_CONTROL_TO_PLAYER_ONE";
+    }
+    applyTo(target, battlefield, source) {
+        target.controlledByOpponent = this.giveControlToOpponent(source.source);
+    }
+    constructor(controlGoesTo) {
+        super();
+        this.controlGoesTo = controlGoesTo;
+    }
+}
+exports.ControlChangeModification = ControlChangeModification;
+class SilenceModification extends SingleModificationBase_1.SingleModificationBase {
+    asString(plural) {
+        return (plural ? "lose all abilities" : "loses all abilities");
+    }
+    getLayer() {
+        return Layer_1.Layer.L6_Abilities;
+    }
+    applyTo(target, battlefield, source) {
+        for (let ab of target.abilities) {
+            target.modificationLog.addStrickenAbility(ab);
+        }
+        target.abilities.length = 0;
+    }
+}
+exports.SilenceModification = SilenceModification;
+class LosePrimitiveModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(abilityname) {
+        super();
+        this.abilityname = abilityname;
+    }
+    getLayer() {
+        return Layer_1.Layer.L6_Abilities;
+    }
+    asString(plural) {
+        return (plural ? "lose" : "loses") + " " + this.abilityname.toLowerCase();
+    }
+    applyTo(target, battlefield, source) {
+        let remainingAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
+        let removedAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() == this.abilityname.toLowerCase());
+        target.abilities = remainingAbilities;
+        for (let ab of removedAbilities) {
+            target.modificationLog.addStrickenAbility(ab);
+        }
+    }
+}
+exports.LosePrimitiveModification = LosePrimitiveModification;
+class AddColorModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(clr) {
+        super();
+        this.clr = clr;
+    }
+    getLayer() {
+        return Layer_1.Layer.L5_Color;
+    }
+    applyTo(target, battlefield, source) {
+        if (target.color.includes(this.clr))
+            return;
+        target.color.push(this.clr);
+    }
+    asString(plural) {
+        return (plural ? "are" : "is") + " " + Typeline_1.Color[this.clr].toLowerCase() + " in addition to " + (plural ? "their" : "its") + " other colors";
+    }
+}
+exports.AddColorModification = AddColorModification;
+class SetColorToModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(clr) {
+        super();
+        this.clr = clr;
+    }
+    getLayer() {
+        return Layer_1.Layer.L5_Color;
+    }
+    applyTo(target, battlefield, source) {
+        target.color = [this.clr];
+    }
+    asString(plural) {
+        return (plural ? "are" : "is") + " " + Typeline_1.Color[this.clr].toLowerCase();
+    }
+}
+exports.SetColorToModification = SetColorToModification;
+class SetPowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(power, toughness) {
+        super();
+        this.power = power;
+        this.toughness = toughness;
+    }
+    getLayer() {
+        return Layer_1.Layer.L7b_PnTSetSpecificValue;
+    }
+    asString(plural) {
+        return (plural ? "have base power and toughness" : "has base power and toughness") + " " + this.power + "/" + this.toughness;
+    }
+    applyTo(target, battlefield, source) {
+        target.power = this.power;
+        target.toughness = this.toughness;
+        target.modificationLog.ptChanged = true;
+    }
+}
+exports.SetPowerToughnessModification = SetPowerToughnessModification;
+class ChangelingModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is") + " every creature type";
+    }
+    applyTo(target, battlefield, source) {
+        target.typeline.creatureSubtypes.length = 0;
+        for (let subtype of EnumEx_1.EnumEx.getValues(CreatureSubtype_1.CreatureSubtype)) {
+            target.typeline.creatureSubtypes.push(subtype);
+            target.modificationLog.addType(CreatureSubtype_1.CreatureSubtype[subtype]);
+        }
+    }
+}
+exports.ChangelingModification = ChangelingModification;
+class AddTypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is a") + " " + Typeline_1.Type[this.type].toLowerCase() + (plural ? "s in addition to their other types" : " in addition to its other types");
+    }
+    applyTo(target, battlefield, source) {
+        if (target.typeline.types.includes(this.type))
+            return;
+        target.typeline.types.push(this.type);
+        target.modificationLog.addType(Typeline_1.Type[this.type]);
+    }
+}
+exports.AddTypeModification = AddTypeModification;
+class AddSubtypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is a") + " " + CreatureSubtype_1.CreatureSubtype[this.type] + (plural ? "s in addition to their other types" : " in addition to its other types");
+    }
+    applyTo(target, battlefield, source) {
+        if (target.typeline.creatureSubtypes.includes(this.type))
+            return;
+        target.typeline.creatureSubtypes.push(this.type);
+        target.modificationLog.addType(CreatureSubtype_1.CreatureSubtype[this.type]);
+    }
+}
+exports.AddSubtypeModification = AddSubtypeModification;
+class SetSubtypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is a") + " " + CreatureSubtype_1.CreatureSubtype[this.type] + (plural ? "s" : "");
+    }
+    applyTo(target, battlefield, source) {
+        target.typeline.creatureSubtypes.length = 0;
+        target.typeline.creatureSubtypes.push(this.type);
+        target.modificationLog.addType(CreatureSubtype_1.CreatureSubtype[this.type]);
+    }
+}
+exports.SetSubtypeModification = SetSubtypeModification;
+class LoseColorsModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L5_Color;
+    }
+    asString(plural) {
+        return (plural ? "lose all colors" : "loses all colors");
+    }
+    applyTo(target, battlefield, source) {
+        target.color = [];
+    }
+}
+exports.LoseColorsModification = LoseColorsModification;
+class AddAbilityModification extends SingleModificationBase_1.SingleModificationBase {
+    asString(plural) {
+        let abilityDescription = this.addWhat.toString();
+        return (plural ? "have" : "has") + " " + (this.addWhat.primitiveName != null ? abilityDescription.toLowerCase() : ("\"" + abilityDescription + "\""));
+    }
+    getLayer() {
+        return Layer_1.Layer.L6_Abilities;
+    }
+    applyTo(target, battlefield, source) {
+        target.addAbility(this.addWhat.copyAndInitialize(target), source);
+    }
+    constructor(addWhat) {
+        super();
+        this.addWhat = addWhat;
+    }
+}
+exports.AddAbilityModification = AddAbilityModification;
+class SwitchPTModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L7e_PnTSwitch;
+    }
+    asString(plural) {
+        return (plural ? "have their power and toughness switched" : "has its power and toughness switched");
+    }
+    applyTo(target, battlefield, source) {
+        const swap = target.toughness;
+        target.toughness = target.power;
+        target.power = swap;
+        target.modificationLog.ptChanged = true;
+    }
+}
+exports.SwitchPTModification = SwitchPTModification;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // This is (almost) directly from Node.js utils
@@ -1355,7 +1645,7 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
@@ -1385,7 +1675,7 @@ module.exports = function isProxyEnabled() {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
@@ -1453,13 +1743,13 @@ module.exports = function addLengthGuard (fn, assertionName, isChainable) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
 var flag = __webpack_require__(0);
 var getProperties = __webpack_require__(30);
-var isProxyEnabled = __webpack_require__(10);
+var isProxyEnabled = __webpack_require__(11);
 
 /*!
  * Chai - proxify utility
@@ -1584,15 +1874,15 @@ function stringDistance(strA, strB, memo) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const SampleCards_1 = __webpack_require__(35);
-const CardCreator_1 = __webpack_require__(14);
-const AbilityCreation_1 = __webpack_require__(16);
+const CardCreator_1 = __webpack_require__(15);
+const AbilityCreation_1 = __webpack_require__(17);
 function form(ability) {
     return ability.join("\n");
 }
@@ -1617,13 +1907,13 @@ var SampleLoader;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Card_1 = __webpack_require__(15);
+const Card_1 = __webpack_require__(16);
 const Typeline_1 = __webpack_require__(1);
 const Utilities_1 = __webpack_require__(2);
 var CardCreator;
@@ -1665,7 +1955,7 @@ var CardCreator;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1673,7 +1963,7 @@ var CardCreator;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(1);
 const Utilities_1 = __webpack_require__(2);
-const CreatureSubtype_1 = __webpack_require__(7);
+const CreatureSubtype_1 = __webpack_require__(6);
 const Permanent_1 = __webpack_require__(8);
 class Card {
     constructor() {
@@ -1721,7 +2011,7 @@ exports.Counter = Counter;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1730,10 +2020,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
 const Typeline_1 = __webpack_require__(1);
 const Ability_1 = __webpack_require__(22);
-const Effect_1 = __webpack_require__(17);
-const Modifications_1 = __webpack_require__(18);
+const Effect_1 = __webpack_require__(18);
+const Modifications_1 = __webpack_require__(9);
 const Acquisition_1 = __webpack_require__(23);
-const Modifications_2 = __webpack_require__(18);
+const Modifications_2 = __webpack_require__(9);
 const NamedAbilities_1 = __webpack_require__(38);
 class AbilityCreator {
     constructor() {
@@ -1802,6 +2092,12 @@ class AbilityCreator {
         }
         else if (line.startsWith("addtype:")) {
             this.effect.modification.parts.push(new Modifications_1.AddTypeModification(Typeline_1.stringToType(line.substr("addtype:".length))));
+        }
+        else if (line.startsWith("setsubtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.SetSubtypeModification(Typeline_1.stringToSubtype(line.substr("setsubtype:".length))));
+        }
+        else if (line.startsWith("addsubtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddSubtypeModification(Typeline_1.stringToSubtype(line.substr("addsubtype:".length))));
         }
         else if (line.startsWith("loseprimitive:")) {
             this.effect.modification.parts.push(new Modifications_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
@@ -1885,16 +2181,17 @@ exports.parseAsAbility = parseAsAbility;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Acquisition_1 = __webpack_require__(23);
-const Layer_1 = __webpack_require__(6);
+const Layer_1 = __webpack_require__(7);
 const Utilities_1 = __webpack_require__(2);
 const Modification_1 = __webpack_require__(37);
+const Modifications_1 = __webpack_require__(9);
 class Effect {
     constructor() {
         // Permanent features
@@ -1966,272 +2263,64 @@ class Effect {
         linkedCopy.lastAppliedInLayer = this.lastAppliedInLayer;
         linkedCopy.originalLink = this;
         linkedCopy.acquisitionResults = null;
-        console.info(this.acquisitionResults);
         if (this.acquisitionResults) {
             linkedCopy.acquisitionResults = [];
             for (let perm of this.acquisitionResults) {
                 linkedCopy.acquisitionResults.push(map.getCopiedPermanent(perm));
             }
         }
-        console.error(linkedCopy.acquisitionResults);
         map.linkEffects(this, linkedCopy);
         return linkedCopy;
     }
+    isCharacteristicDefiningAbility() {
+        console.log(this);
+        // 604.3a A static ability is a characteristic-defining ability if it meets the following criteria:
+        // (1) It defines an object’s colors, subtypes, power, or toughness;
+        // (5) it does not set the values of such characteristics only if certain conditions are met.
+        let hasAGoodModification = false;
+        for (let modif of this.modification.parts) {
+            if (modif instanceof Modifications_1.SetColorToModification ||
+                modif instanceof Modifications_1.SetSubtypeModification ||
+                modif instanceof Modifications_1.SetPowerToughnessModification ||
+                modif instanceof Modifications_1.ChangelingModification) {
+                hasAGoodModification = true;
+            }
+            else {
+                console.log("Not correct modify.");
+                return false;
+            }
+        }
+        if (!hasAGoodModification)
+            return false;
+        // (3) it does not directly affect the characteristics of any other objects;
+        if (this.acquisition.parts.length == 0)
+            return false;
+        for (let acq of this.acquisition.parts) {
+            if (!acq.isSelf()) {
+                console.log("Not correct acquire.");
+                return false;
+            }
+        }
+        // (2) it is printed on the card it affects, it was granted to the token it affects by the effect that created the token,
+        //     or it was acquired by the object it affects as the result of a copy effect or text-changing effect;
+        // (4) it is not an ability that an object grants to itself; and
+        let abilityThatGeneratesThis = null;
+        for (let ability of this.source.abilities) {
+            if (ability.effect == this) {
+                abilityThatGeneratesThis = ability;
+                break;
+            }
+        }
+        if (abilityThatGeneratesThis == null) {
+            console.error("This effect is not generated by an ability of the permanent it's on!");
+        }
+        if (abilityThatGeneratesThis.nonprinted) {
+            return false;
+        }
+        return true;
+    }
 }
 exports.Effect = Effect;
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Layer_1 = __webpack_require__(6);
-const Typeline_1 = __webpack_require__(1);
-const EnumEx_1 = __webpack_require__(21);
-const CreatureSubtype_1 = __webpack_require__(7);
-const SingleModificationBase_1 = __webpack_require__(24);
-class PowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
-    asString(plural) {
-        return (plural ? "get" : "gets") + " " + (this.power >= 0 ? "+" : "") + this.power + "/" +
-            (this.toughness >= 0 ? "+" : "") + this.toughness;
-    }
-    getLayer() {
-        return Layer_1.Layer.L7c_PnTModifications;
-    }
-    applyTo(target, battlefield, source) {
-        target.power += this.power;
-        target.toughness += this.toughness;
-        target.modificationLog.ptChanged = true;
-    }
-    constructor(power, toughness) {
-        super();
-        this.power = power;
-        this.toughness = toughness;
-    }
-}
-exports.PowerToughnessModification = PowerToughnessModification;
-var Controller;
-(function (Controller) {
-    Controller[Controller["PlayerOne"] = 0] = "PlayerOne";
-    Controller[Controller["PlayerTwo"] = 1] = "PlayerTwo";
-    Controller[Controller["Controller"] = 2] = "Controller";
-    Controller[Controller["Opponent"] = 3] = "Opponent";
-})(Controller = exports.Controller || (exports.Controller = {}));
-class ControlChangeModification extends SingleModificationBase_1.SingleModificationBase {
-    getPlayerName() {
-        switch (this.controlGoesTo) {
-            case Controller.PlayerOne:
-                return "Player 1";
-            case Controller.PlayerTwo:
-                return "Player 2";
-            case Controller.Controller:
-                return "this permanent's controller";
-            case Controller.Opponent:
-                return "this permanent's controller's opponent";
-        }
-    }
-    asString(plural) {
-        return (plural ? "are controlled by " : "is controlled by ") + this.getPlayerName();
-    }
-    getLayer() {
-        return Layer_1.Layer.L2_Control;
-    }
-    giveControlToOpponent(self) {
-        switch (this.controlGoesTo) {
-            case Controller.Opponent:
-                return !self.controlledByOpponent;
-            case Controller.Controller:
-                return self.controlledByOpponent;
-            case Controller.PlayerOne:
-                return false;
-            case Controller.PlayerTwo:
-                return true;
-        }
-        throw new Error("Bad value");
-    }
-    whatItDoes(target, battlefield, source) {
-        return this.giveControlToOpponent(source.source) ? "GIVE_CONTROL_TO_PLAYER_TWO" : "GIVE_CONTROL_TO_PLAYER_ONE";
-    }
-    applyTo(target, battlefield, source) {
-        target.controlledByOpponent = this.giveControlToOpponent(source.source);
-    }
-    constructor(controlGoesTo) {
-        super();
-        this.controlGoesTo = controlGoesTo;
-    }
-}
-exports.ControlChangeModification = ControlChangeModification;
-class SilenceModification extends SingleModificationBase_1.SingleModificationBase {
-    asString(plural) {
-        return (plural ? "lose all abilities" : "loses all abilities");
-    }
-    getLayer() {
-        return Layer_1.Layer.L6_Abilities;
-    }
-    applyTo(target, battlefield, source) {
-        for (let ab of target.abilities) {
-            target.modificationLog.addStrickenAbility(ab);
-        }
-        target.abilities.length = 0;
-    }
-}
-exports.SilenceModification = SilenceModification;
-class LosePrimitiveModification extends SingleModificationBase_1.SingleModificationBase {
-    constructor(abilityname) {
-        super();
-        this.abilityname = abilityname;
-    }
-    getLayer() {
-        return Layer_1.Layer.L6_Abilities;
-    }
-    asString(plural) {
-        return (plural ? "lose" : "loses") + " " + this.abilityname.toLowerCase();
-    }
-    applyTo(target, battlefield, source) {
-        let remainingAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() != this.abilityname.toLowerCase());
-        let removedAbilities = target.abilities.filter(ability => ability.primitiveName.toLowerCase() == this.abilityname.toLowerCase());
-        target.abilities = remainingAbilities;
-        for (let ab of removedAbilities) {
-            target.modificationLog.addStrickenAbility(ab);
-        }
-    }
-}
-exports.LosePrimitiveModification = LosePrimitiveModification;
-class AddColorModification extends SingleModificationBase_1.SingleModificationBase {
-    constructor(clr) {
-        super();
-        this.clr = clr;
-    }
-    getLayer() {
-        return Layer_1.Layer.L5_Color;
-    }
-    applyTo(target, battlefield, source) {
-        if (target.color.includes(this.clr))
-            return;
-        target.color.push(this.clr);
-    }
-    asString(plural) {
-        return (plural ? "are" : "is") + " " + Typeline_1.Color[this.clr].toLowerCase() + " in addition to " + (plural ? "their" : "its") + " other colors";
-    }
-}
-exports.AddColorModification = AddColorModification;
-class SetColorToModification extends SingleModificationBase_1.SingleModificationBase {
-    constructor(clr) {
-        super();
-        this.clr = clr;
-    }
-    getLayer() {
-        return Layer_1.Layer.L5_Color;
-    }
-    applyTo(target, battlefield, source) {
-        target.color = [this.clr];
-    }
-    asString(plural) {
-        return (plural ? "are" : "is") + " " + Typeline_1.Color[this.clr].toLowerCase();
-    }
-}
-exports.SetColorToModification = SetColorToModification;
-class SetPowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
-    constructor(power, toughness) {
-        super();
-        this.power = power;
-        this.toughness = toughness;
-    }
-    getLayer() {
-        return Layer_1.Layer.L7b_PnTSetSpecificValue;
-    }
-    asString(plural) {
-        return (plural ? "have base power and toughness" : "has base power and toughness") + " " + this.power + "/" + this.toughness;
-    }
-    applyTo(target, battlefield, source) {
-        target.power = this.power;
-        target.toughness = this.toughness;
-        target.modificationLog.ptChanged = true;
-    }
-}
-exports.SetPowerToughnessModification = SetPowerToughnessModification;
-class ChangelingModification extends SingleModificationBase_1.SingleModificationBase {
-    getLayer() {
-        return Layer_1.Layer.L4_Type;
-    }
-    asString(plural) {
-        return (plural ? "are" : "is") + " every creature type";
-    }
-    applyTo(target, battlefield, source) {
-        target.typeline.creatureSubtypes.length = 0;
-        for (let subtype of EnumEx_1.EnumEx.getValues(CreatureSubtype_1.CreatureSubtype)) {
-            target.typeline.creatureSubtypes.push(subtype);
-            target.modificationLog.addType(CreatureSubtype_1.CreatureSubtype[subtype]);
-        }
-    }
-}
-exports.ChangelingModification = ChangelingModification;
-class AddTypeModification extends SingleModificationBase_1.SingleModificationBase {
-    constructor(type) {
-        super();
-        this.type = type;
-    }
-    getLayer() {
-        return Layer_1.Layer.L4_Type;
-    }
-    asString(plural) {
-        return (plural ? "are" : "is a") + " " + Typeline_1.Type[this.type].toLowerCase() + (plural ? "s in addition to their other types" : " in addition to its other types");
-    }
-    applyTo(target, battlefield, source) {
-        if (target.typeline.types.includes(this.type))
-            return;
-        target.typeline.types.push(this.type);
-        target.modificationLog.addType(Typeline_1.Type[this.type]);
-    }
-}
-exports.AddTypeModification = AddTypeModification;
-class LoseColorsModification extends SingleModificationBase_1.SingleModificationBase {
-    getLayer() {
-        return Layer_1.Layer.L5_Color;
-    }
-    asString(plural) {
-        return (plural ? "lose all colors" : "loses all colors");
-    }
-    applyTo(target, battlefield, source) {
-        target.color = [];
-    }
-}
-exports.LoseColorsModification = LoseColorsModification;
-class AddAbilityModification extends SingleModificationBase_1.SingleModificationBase {
-    asString(plural) {
-        let abilityDescription = this.addWhat.toString();
-        return (plural ? "have" : "has") + " " + (this.addWhat.primitiveName != null ? abilityDescription.toLowerCase() : ("\"" + abilityDescription + "\""));
-    }
-    getLayer() {
-        return Layer_1.Layer.L6_Abilities;
-    }
-    applyTo(target, battlefield, source) {
-        target.addAbility(this.addWhat.copyAndInitialize(target), source);
-    }
-    constructor(addWhat) {
-        super();
-        this.addWhat = addWhat;
-    }
-}
-exports.AddAbilityModification = AddAbilityModification;
-class SwitchPTModification extends SingleModificationBase_1.SingleModificationBase {
-    getLayer() {
-        return Layer_1.Layer.L7e_PnTSwitch;
-    }
-    asString(plural) {
-        return (plural ? "have their power and toughness switched" : "has its power and toughness switched");
-    }
-    applyTo(target, battlefield, source) {
-        const swap = target.toughness;
-        target.toughness = target.power;
-        target.power = swap;
-        target.modificationLog.ptChanged = true;
-    }
-}
-exports.SwitchPTModification = SwitchPTModification;
 
 
 /***/ }),
@@ -2242,7 +2331,7 @@ exports.SwitchPTModification = SwitchPTModification;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const DependencySort_1 = __webpack_require__(39);
-const Layer_1 = __webpack_require__(6);
+const Layer_1 = __webpack_require__(7);
 class StateCheck {
     get effects() {
         return this._effects;
@@ -2313,6 +2402,9 @@ class StateCheck {
         ffs = ffs.filter((effect) => {
             return effect.lastAppliedInLayer < layer && effect.modification.parts.some((part) => part.getLayer() == layer);
         });
+        if (ffs.some(ff => ff.isCharacteristicDefiningAbility())) {
+            ffs = ffs.filter(ff => ff.isCharacteristicDefiningAbility());
+        }
         // Order them by timestamp.
         ffs.sort((a, b) => {
             return a.timestamp < b.timestamp ? -1 : (a.timestamp == b.timestamp ? 0 : 1);
@@ -2341,7 +2433,7 @@ class StateCheck {
         }
     }
     logEffect(effect, layer) {
-        this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + ", timestamp " + effect.timestamp + ")</small></i>");
+        this.log("L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + " <i><small>(" + effect.source.name + (effect.isCharacteristicDefiningAbility() ? ', CDA' : '') + ", timestamp " + effect.timestamp + ")</small></i>");
     }
     logSkippedEffect(effect, layer) {
         this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", depends on " + effect.dependsOn[0].source.name + ")</small></i>");
@@ -2810,8 +2902,8 @@ exports.EnumEx = EnumEx;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
-const Effect_1 = __webpack_require__(17);
-const Layer_1 = __webpack_require__(6);
+const Effect_1 = __webpack_require__(18);
+const Layer_1 = __webpack_require__(7);
 class Ability {
     constructor() {
         this.primitiveName = null;
@@ -2888,7 +2980,7 @@ exports.Ability = Ability;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
 const Typeline_1 = __webpack_require__(1);
-const CreatureSubtype_1 = __webpack_require__(7);
+const CreatureSubtype_1 = __webpack_require__(6);
 class SingleAcquisition {
     constructor(key, plural) {
         this.keyword = null;
@@ -2910,6 +3002,9 @@ class SingleAcquisition {
             return [source];
         }
         return [];
+    }
+    isSelf() {
+        return this.keyword == "self";
     }
 }
 exports.SingleAcquisition = SingleAcquisition;
@@ -3120,7 +3215,7 @@ exports.SingleModificationBase = SingleModificationBase;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(13);
+const SampleLoader_1 = __webpack_require__(14);
 const StateCheck_1 = __webpack_require__(19);
 class Scenario {
     constructor(name) {
@@ -3423,7 +3518,7 @@ module.exports = function getProperties(object) {
  * Module dependancies
  */
 
-var inspect = __webpack_require__(9);
+var inspect = __webpack_require__(10);
 var config = __webpack_require__(4);
 
 /**
@@ -3561,11 +3656,11 @@ exports.Recipes = Recipes;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(13);
-const Card_1 = __webpack_require__(15);
+const SampleLoader_1 = __webpack_require__(14);
+const Card_1 = __webpack_require__(16);
 const StateCheck_1 = __webpack_require__(19);
-const AbilityCreation_1 = __webpack_require__(16);
-const CardCreator_1 = __webpack_require__(14);
+const AbilityCreation_1 = __webpack_require__(17);
+const CardCreator_1 = __webpack_require__(15);
 const Examples_1 = __webpack_require__(41);
 const Permanent_1 = __webpack_require__(8);
 const ScenarioLoader_1 = __webpack_require__(42);
@@ -3794,7 +3889,7 @@ exports.ModificationLog = ModificationLog;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
-const Modifications_1 = __webpack_require__(18);
+const Modifications_1 = __webpack_require__(9);
 class Modification {
     constructor() {
         this.parts = [];
@@ -3846,8 +3941,8 @@ exports.Modification = Modification;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Ability_1 = __webpack_require__(22);
-const Effect_1 = __webpack_require__(17);
-const Layer_1 = __webpack_require__(6);
+const Effect_1 = __webpack_require__(18);
+const Layer_1 = __webpack_require__(7);
 const SingleModificationBase_1 = __webpack_require__(24);
 class ScionOfTheWildModification extends SingleModificationBase_1.SingleModificationBase {
     getLayer() {
@@ -3895,7 +3990,6 @@ exports.NamedAbilities = NamedAbilities;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const StateCheck_1 = __webpack_require__(19);
-const Layer_1 = __webpack_require__(6);
 const Permanent_1 = __webpack_require__(8);
 const LinkMap_1 = __webpack_require__(40);
 class DependencySort {
@@ -3976,8 +4070,6 @@ class DependencySort {
         // Determine what has happened
         // (b) change the text or cause it to not exist
         if (mainEffectInTheNewBattlefield == undefined) {
-            if (layer == Layer_1.Layer.L7e_PnTSwitch)
-                console.warn("Dependent because existence loss.");
             return true;
         }
         // (b) change what it applies to
@@ -3986,11 +4078,6 @@ class DependencySort {
             whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisition.getAcquiredObjects(battlefieldCopy, mainEffectInTheNewBattlefield.source);
         }
         if (whatItAppliesTo2.length != whatItAppliesTo.length) {
-            if (layer == Layer_1.Layer.L7e_PnTSwitch) {
-                console.warn("Dependent because different number of items. (first original, second copy)");
-                console.log(whatItAppliesTo);
-                console.warn(whatItAppliesTo2);
-            }
             return true;
         }
         for (let subject of whatItAppliesTo2) {
@@ -3998,16 +4085,12 @@ class DependencySort {
                 // ok
             }
             else {
-                if (layer == Layer_1.Layer.L7e_PnTSwitch)
-                    console.warn("Dependent because different items.");
                 return true;
             }
         }
         // (b) change what it does to those things
         let whatItDoes2 = mainEffectInTheNewBattlefield.modification.whatItDoes(battlefieldCopy, mainEffectInTheNewBattlefield, whatItAppliesTo2, layer);
         if (whatItDoes != whatItDoes2) {
-            if (layer == Layer_1.Layer.L7e_PnTSwitch)
-                console.warn("Dependent because of what it does.");
             return true;
         }
         // No dependency found.
@@ -4091,10 +4174,10 @@ exports.LinkMap = LinkMap;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Card_1 = __webpack_require__(15);
-const AbilityCreation_1 = __webpack_require__(16);
-const CardCreator_1 = __webpack_require__(14);
-const SampleLoader_1 = __webpack_require__(13);
+const Card_1 = __webpack_require__(16);
+const AbilityCreation_1 = __webpack_require__(17);
+const CardCreator_1 = __webpack_require__(15);
+const SampleLoader_1 = __webpack_require__(14);
 const Permanent_1 = __webpack_require__(8);
 var Examples;
 (function (Examples) {
@@ -4296,7 +4379,7 @@ const Scenario_1 = __webpack_require__(25);
 const chai_1 = __webpack_require__(26);
 const Recipes_1 = __webpack_require__(33);
 const Typeline_1 = __webpack_require__(1);
-const CreatureSubtype_1 = __webpack_require__(7);
+const CreatureSubtype_1 = __webpack_require__(6);
 const OrderOfOperationsScenarios_1 = __webpack_require__(67);
 exports.Scenarios = [
     new Scenario_1.Scenario("Smoke test")
@@ -4443,6 +4526,7 @@ exports.Scenarios = [
             chai_1.expect(field[0].toughness).to.equal(1);
         });
     })
+    // TODO (elsewhere) scenario with a permanent that becomes just "blue"
 ].concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem());
 
 
@@ -4495,7 +4579,7 @@ exports.getActual = __webpack_require__(28);
  * Inspect util
  */
 
-exports.inspect = __webpack_require__(9);
+exports.inspect = __webpack_require__(10);
 
 /*!
  * Object Display util
@@ -4603,19 +4687,19 @@ exports.checkError = __webpack_require__(60);
  * Proxify util
  */
 
-exports.proxify = __webpack_require__(12);
+exports.proxify = __webpack_require__(13);
 
 /*!
  * addLengthGuard util
  */
 
-exports.addLengthGuard = __webpack_require__(11);
+exports.addLengthGuard = __webpack_require__(12);
 
 /*!
  * isProxyEnabled helper
  */
 
-exports.isProxyEnabled = __webpack_require__(10);
+exports.isProxyEnabled = __webpack_require__(11);
 
 /*!
  * isNaN method
@@ -5056,7 +5140,7 @@ module.exports = function expectTypes(obj, types) {
 
 var flag = __webpack_require__(0)
   , getActual = __webpack_require__(28)
-  , inspect = __webpack_require__(9)
+  , inspect = __webpack_require__(10)
   , objDisplay = __webpack_require__(31);
 
 /**
@@ -5603,7 +5687,7 @@ function isPrimitive(value) {
 
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(0);
-var isProxyEnabled = __webpack_require__(10);
+var isProxyEnabled = __webpack_require__(11);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -5679,10 +5763,10 @@ module.exports = function addProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(11);
+var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(0);
-var proxify = __webpack_require__(12);
+var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -5755,7 +5839,7 @@ module.exports = function addMethod(ctx, name, method) {
 
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(0);
-var isProxyEnabled = __webpack_require__(10);
+var isProxyEnabled = __webpack_require__(11);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -5851,10 +5935,10 @@ module.exports = function overwriteProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(11);
+var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(0);
-var proxify = __webpack_require__(12);
+var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -5953,10 +6037,10 @@ module.exports = function overwriteMethod(ctx, name, method) {
  * Module dependencies
  */
 
-var addLengthGuard = __webpack_require__(11);
+var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(0);
-var proxify = __webpack_require__(12);
+var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
 /*!
@@ -6186,7 +6270,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
  * Module dependancies
  */
 
-var inspect = __webpack_require__(9);
+var inspect = __webpack_require__(10);
 
 /**
  * ### .compareByInspect(mixed, mixed)
@@ -13726,6 +13810,7 @@ const Scenario_1 = __webpack_require__(25);
 const Recipes_1 = __webpack_require__(33);
 const chai_1 = __webpack_require__(26);
 const Typeline_1 = __webpack_require__(1);
+const CreatureSubtype_1 = __webpack_require__(6);
 /**
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
@@ -13789,8 +13874,48 @@ class OrderOfOperationsScenarios {
                 .addCard(Recipes_1.Recipes.Opalescence)
                 .addCard(Recipes_1.Recipes.MycosynthLattice)
                 .withVerification((field, scenario) => {
-                it("A", () => {
-                    chai_1.expect(true).to.equal(false);
+                it("Titania's Song retains its ability.", () => {
+                    chai_1.expect(scenario.find("Titania's Song").abilities).not.to.be.empty;
+                });
+                it("Titania's Song is 5/5", () => {
+                    chai_1.expect(scenario.find("Titania's Song").power).to.equal(5);
+                });
+                it("Others are 4/4", () => {
+                    chai_1.expect(scenario.find("Opalescence").power).to.equal(4);
+                    chai_1.expect(scenario.find("Mycosynth Lattice").power).to.equal(4);
+                });
+                it("Everything is an artifact creature.", () => {
+                    for (let perm of field) {
+                        chai_1.expect(perm.typeline.types).to.contain(Typeline_1.Type.Artifact);
+                        chai_1.expect(perm.typeline.types).to.contain(Typeline_1.Type.Creature);
+                    }
+                });
+            }),
+            new Scenario_1.Scenario("OoO L4: Changeling + Humility")
+                .addCard(Recipes_1.Recipes.WoodlandChangeling)
+                .addCard(Recipes_1.Recipes.Humility)
+                .withVerification((field, scenario) => {
+                it("The changeling still has types, but no ability.", () => {
+                    chai_1.expect(scenario.find("Woodland Changeling").typeline.creatureSubtypes.length)
+                        .to.be.greaterThan(50);
+                    chai_1.expect(scenario.find("Woodland Changeling").abilities).to.be.empty;
+                });
+            }),
+            new Scenario_1.Scenario("OoO L4: Unnatural Selection + Changeling")
+                .addCard({
+                name: "Creature Type Modifier",
+                card: "blue enchantment",
+                abilities: [
+                    ["green creature", "setsubtype:Goat"]
+                ]
+            })
+                .addCard(Recipes_1.Recipes.WoodlandChangeling)
+                .withVerification((field, scenario) => {
+                it("The changeling is just a Goat.", () => {
+                    chai_1.expect(scenario.find("Woodland Changeling").typeline.creatureSubtypes.length)
+                        .to.equal(1);
+                    chai_1.expect(scenario.find("Woodland Changeling").typeline.creatureSubtypes)
+                        .includes(CreatureSubtype_1.CreatureSubtype.Goat);
                 });
             })
         ];
