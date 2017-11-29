@@ -1,5 +1,6 @@
 import {CardRecipe} from "./SampleLoader";
 import {Color} from "../structures/Typeline";
+import {LandType} from "../enumerations/LandType";
 
 export class Recipes {
     static WoodlandChangeling : CardRecipe = {
@@ -46,6 +47,11 @@ export class Recipes {
             ["other enchantment", "addtype:creature", "setpt:5/5"]
         ]
     };
+    static ZodiacHorse: CardRecipe = {
+        name: "Zodiac Horse",
+        card: "3/3 green Horse",
+        abilities: [["islandwalk"]]
+    };
 
     static PaintersServant(color: Color) {
         return {
@@ -53,6 +59,18 @@ export class Recipes {
             "card" : "artifact creature Scarecrow",
             "abilities" : [
                 ["addcolor:" + Color[color].toLowerCase()]
+            ]
+        }
+    }
+
+    static MindBend(from: LandType, to: LandType) : CardRecipe {
+        return {
+            "name": "Mind Bend",
+            "card": "blue enchantment",
+            "abilities": [
+                [
+                    "creatures", "changetype:" + LandType[from].toLowerCase() + "=>" + LandType[to].toLowerCase()
+                ]
             ]
         }
     }

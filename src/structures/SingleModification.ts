@@ -1,8 +1,9 @@
 import {Layer} from "../enumerations/Layer";
 import {Permanent} from "./Permanent";
 import {Effect} from "./Effect";
+import {ICopiable} from "../Utilities";
 
-export interface SingleModification {
+export interface SingleModification extends ICopiable<SingleModification> {
     getLayer(): Layer;
 
     asString(plural: boolean): string;

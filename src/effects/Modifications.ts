@@ -1,11 +1,13 @@
-import {Permanent} from "./Permanent";
-import {Effect} from "./Effect";
+import {Permanent} from "../structures/Permanent";
+import {Effect} from "../structures/Effect";
 import {Layer} from "../enumerations/Layer";
-import {Color, Type} from "./Typeline";
-import {Ability} from "./Ability";
+import {Color, Type} from "../structures/Typeline";
+import {Ability} from "../structures/Ability";
 import {EnumEx} from "../utils/EnumEx";
-import {CreatureSubtype} from "./CreatureSubtype";
-import {SingleModificationBase} from "./SingleModificationBase";
+import {CreatureSubtype} from "../structures/CreatureSubtype";
+import {SingleModificationBase} from "../structures/SingleModificationBase";
+import {LandType} from "../enumerations/LandType";
+import {SingleModification} from "../structures/SingleModification";
 
 export class PowerToughnessModification extends SingleModificationBase{
 
@@ -314,6 +316,10 @@ export class AddAbilityModification  extends SingleModificationBase {
         this.addWhat = addWhat;
     }
 
+
+    copy(): SingleModification {
+        return new AddAbilityModification(this.addWhat.copy());
+    }
 }
 export class SwitchPTModification  extends SingleModificationBase {
     getLayer(): Layer {
@@ -331,4 +337,55 @@ export class SwitchPTModification  extends SingleModificationBase {
         target.modificationLog.ptChanged = true;
     }
 
+}
+export class ChangeLandTypeModification extends SingleModificationBase {
+    private from: LandType;
+    private to: LandType;
+
+    constructor(from : LandType, to: LandType) {
+        super();
+        this.from = from;
+        this.to = to;
+    }
+
+    getLayer(): Layer {
+        return Layer.L3_Text;
+    }
+
+    asString(plural: boolean): string {
+        return (plural ? "have" : "has") + " all instances of the word '" + LandType[this.from] + "' replaced by '" + LandType[this.to] + "'";
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect): void {
+        for (let ab of target.abilities) {
+            this.recursivelyUpdateText(target, ab, this.from, this.to);
+        }
+    }
+
+    /**
+     * Copying types into parameters is necessary in case this effect modifies itself.
+     */
+    private recursivelyUpdateText(target : Permanent, ab: Ability, from: LandType, to: LandType) {
+        if (ab.landwalk == from) {
+            ab.landwalk = to;
+            ab.modified = true;
+        }
+        for (let modif of ab.effect.modification.parts) {
+            if (modif instanceof AddAbilityModification) {
+                let aam : AddAbilityModification = modif;
+                this.recursivelyUpdateText(target, aam.addWhat, from, to);
+            }
+            if (modif instanceof ChangeLandTypeModification) {
+                let cltm : ChangeLandTypeModification = modif;
+                if (cltm.from == from) cltm.from = to;
+                if (cltm.to == from) cltm.to = to;
+                ab.modified = true;
+            }
+        }
+    }
+
+
+    copy(): SingleModification {
+        return new ChangeLandTypeModification(this.from, this.to);
+    }
 }

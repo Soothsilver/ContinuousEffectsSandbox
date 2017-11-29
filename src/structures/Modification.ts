@@ -3,8 +3,8 @@ import {Layer} from "../enumerations/Layer";
 import {Permanent} from "./Permanent";
 import {Effect} from "./Effect";
 import {SingleModification} from "./SingleModification";
-import {joinList} from "../Utilities";
-import {AddAbilityModification, PowerToughnessModification} from "./Modifications";
+import {deepCopy, joinList} from "../Utilities";
+import {AddAbilityModification, PowerToughnessModification} from "../effects/Modifications";
 
 export class Modification {
     parts: SingleModification[] = [];
@@ -16,13 +16,11 @@ export class Modification {
         }
         return joinList(strs);
     }
-
-    addPTModification(power: number, toughness: number) {
-        this.parts.push(new PowerToughnessModification(power, toughness));
-    }
-
-    addGrantPrimitiveAbility(ab: Ability) {
-        this.parts.push(new AddAbilityModification(ab));
+    copy() : Modification {
+        let pparts : SingleModification[] = deepCopy(this.parts);
+        let m = new Modification();
+        m.parts = pparts;
+        return m;
     }
 
     asHtmlString(multipleTargets: boolean, layer: Layer) {
@@ -48,4 +46,5 @@ export class Modification {
         }
         return dryRun;
     }
+
 }

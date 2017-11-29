@@ -1,5 +1,7 @@
 import {CreatureSubtype} from "./CreatureSubtype";
 import {EnumEx} from "../utils/EnumEx";
+import {LandType} from "../enumerations/LandType";
+import {WordParser} from "../utils/WordParser";
 
 export enum Type {
     Artifact,
@@ -33,13 +35,6 @@ export enum ArtifactSubtype {
     Equipment,
     Vehicle
 }
-export enum LandSubtype {
-    Plains,
-    Island,
-    Swamp,
-    Mountain,
-    Forest
-}
 export enum Color {
     Red,
     Green,
@@ -57,6 +52,9 @@ export function stringToColor(word: string) : Color {
         case "black": return Color.Black;
         default: return null;
     }
+}
+export function stringToLandType(word: string) : LandType {
+    return WordParser.parseLandType(word);
 }
 export class Typeline {
     types : Type[] = [];

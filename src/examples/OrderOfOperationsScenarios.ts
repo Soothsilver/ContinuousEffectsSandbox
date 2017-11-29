@@ -4,6 +4,7 @@ import {Recipes} from "./Recipes";
 import {expect} from "chai";
 import {Color, Type} from "../structures/Typeline";
 import {CreatureSubtype} from "../structures/CreatureSubtype";
+import {LandType} from "../enumerations/LandType";
 
 /**
  * Scenarios from
@@ -48,7 +49,35 @@ export class OrderOfOperationsScenarios {
                         expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
                     });
                 }),
-            // TODO L3 text-changing
+            // TODO L3 Volrath's Shapeshifter
+            // TODO change actual land types on a land (elsewhere)
+            // TODO landtype-changing effects (elsewhere)
+            // TODO L3 dependencies and scenarios
+            // TODO text change dependency
+            new Scenario("OoO L3: Mind Bend + Zodiac Horse")
+                .addCard(Recipes.ZodiacHorse)
+                .addCard(Recipes.MindBend(LandType.Island, LandType.Forest))
+                .addCard(Recipes.MindBend(LandType.Forest, LandType.Swamp))
+                .addCard(Recipes.MindBend(LandType.Swamp, LandType.Mountain))
+                .withVerification((f,s)=>{
+                    it("Zodiac Horse now has mountainwalk and nothing else", ()=>{
+                        expect(f[0].abilities.length).to.equal(1);
+                        expect(f[0].abilities[0].toCapitalizedString()).to.equal("Mountainwalk");
+                    });
+                }),
+            new Scenario("OoO L3: Mind Bend + non-dependency")
+                .addCard({
+                    name: "Grayscaled Gharial",
+                    card: "1/1 blue Crocodile",
+                    abilities: [["islandwalk"]]
+                })
+                .addCard(Recipes.MindBend(LandType.Swamp, LandType.Forest))
+                .addCard(Recipes.MindBend(LandType.Island, LandType.Swamp))
+                .withVerification((f,s)=>{
+                    it ("It has swampwalk, not forestwalk", ()=>{
+                       expect(f[0].abilities[0].landwalk).to.equal(LandType.Swamp);
+                    });
+                }),
             new Scenario("OoO L4: Titania's Song + Mycosynth Lattice dependency")
                 .addCard(Recipes.TitaniasSong)
                 .addCard(Recipes.MycosynthLattice)
@@ -125,7 +154,7 @@ export class OrderOfOperationsScenarios {
                        expect(f[0].abilities).to.be.empty;
                     });
                 }),
-            new Scenario("OoO L6: Recoloring")
+            new Scenario("OoO L5: Recoloring")
                 .addCard(Recipes.TrainedArmodon)
                 .addCard({
                     name: "Sort of like Runes of the Deus",

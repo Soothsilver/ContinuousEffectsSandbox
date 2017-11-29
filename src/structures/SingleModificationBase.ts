@@ -12,4 +12,7 @@ export abstract class SingleModificationBase implements SingleModification {
         return "ConstantEffect";
     }
 
+    copy() : SingleModification {
+        return this;
+    }
 }

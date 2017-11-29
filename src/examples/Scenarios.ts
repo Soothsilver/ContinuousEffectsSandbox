@@ -4,6 +4,7 @@ import {Recipes} from "./Recipes";
 import {Color, Type} from "../structures/Typeline";
 import {CreatureSubtype} from "../structures/CreatureSubtype";
 import {OrderOfOperationsScenarios} from "./OrderOfOperationsScenarios";
+import {LandType} from "../enumerations/LandType";
 
 export const Scenarios : Scenario[] = [
     new Scenario("Smoke test")
@@ -148,6 +149,48 @@ export const Scenarios : Scenario[] = [
             it ("The spider is switched", ()=>{
                 expect(field[0].power).to.equal(4);
                 expect(field[0].toughness).to.equal(1);
+            });
+        }),
+    new Scenario("Dependency: Swampwalk")
+        .addCard(Recipes.ZodiacHorse)
+        .addCard(Recipes.MindBend(LandType.Island, LandType.Mountain))
+        .addCard({
+            name: "Enchantment changer",
+            card: "artifact",
+            abilities: [ [
+                "enchantments", "changetype:mountain=>swamp"
+            ] ]
+        })
+        .withVerification((f,s)=>{
+            it("Zodiac Horse has swampwalk", ()=>{
+                expect(f[0].abilities[0].toCapitalizedString()).to.equal("Swampwalk");
+            });
+            it("Mind Bend has its ability changed.", () =>{
+                expect(f[1].abilities[0].modified).to.be.true;
+            });
+        }),
+    new Scenario("Dependency loop: Mind Bend")
+        .addCard(Recipes.ZodiacHorse)
+        .addCard({
+            name: "Changer 1",
+            card: "red enchantment",
+            abilities: [["other enchantments", "changetype:island=>mountain"]]
+        })
+        .addCard({
+            name: "Changer 2",
+            card: "blue enchantment",
+            abilities: [["other enchantments", "changetype:mountain=>island"]]
+        })
+        .addCard({
+            name: "Nyx Horse",
+            card: "2/2 enchantment green creature Horse",
+            abilities: [["islandwalk"], ["mountainwalk"], ["forestwalk"]]
+        })
+        .withVerification((f,s)=>{
+            it ("Nyx Horse had everything changed to mountainwalk", ()=> {
+                expect(s.find("Nyx Horse").abilities[0].toCapitalizedString()).to.equal("Mountainwalk");
+                expect(s.find("Nyx Horse").abilities[1].toCapitalizedString()).to.equal("Mountainwalk");
+                expect(s.find("Nyx Horse").abilities[2].toCapitalizedString()).to.equal("Forestwalk");
             });
         })
     // TODO (elsewhere) scenario with a permanent that becomes just "blue"

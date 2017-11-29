@@ -8,7 +8,7 @@ import {Ability} from "./Ability";
 import {
     ChangelingModification, SetColorToModification, SetPowerToughnessModification,
     SetSubtypeModification
-} from "./Modifications";
+} from "../effects/Modifications";
 
 export class Effect implements ICopiable<Effect>{
     // Permanent features
@@ -39,7 +39,7 @@ export class Effect implements ICopiable<Effect>{
     copy(): Effect {
         let ff = new Effect();
         ff.acquisition = this.acquisition;
-        ff.modification = this.modification;
+        ff.modification = this.modification.copy();
         ff.startedApplyingThisStateCheck = false;
         ff.acquisitionResults = shallowCopy(this.acquisitionResults);
         ff.lastAppliedInLayer = this.lastAppliedInLayer;
@@ -89,7 +89,7 @@ export class Effect implements ICopiable<Effect>{
     createLinkedCopy(map : LinkMap) : Effect {
         let linkedCopy = new Effect();
         linkedCopy.acquisition = this.acquisition;
-        linkedCopy.modification = this.modification;
+        linkedCopy.modification = this.modification.copy();
         linkedCopy.source = map.getCopiedPermanent(this.source);
         linkedCopy.timestamp = this.timestamp;
         linkedCopy.startedApplyingThisStateCheck = this.startedApplyingThisStateCheck;

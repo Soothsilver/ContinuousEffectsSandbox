@@ -3,6 +3,7 @@ import {StateCheck} from "../StateCheck";
 import {Layer} from "../enumerations/Layer";
 import {Permanent} from "../structures/Permanent";
 import {LinkMap} from "./LinkMap";
+import {shallowCopy} from "../Utilities";
 
 export class DependencySort {
     /**
@@ -33,8 +34,9 @@ export class DependencySort {
                 }
             }
         }
+
         // Remove cycles
-        // TODO remove cycles (in case of dependency loops)
+        DependencySort.removeCycles(effects, stateCheck);
 
         for (let ff of effects) {
             if (ff.dependsOn.length == 0) {
@@ -46,6 +48,31 @@ export class DependencySort {
         console.error("There is an unresolvable dependency loop. This is a bug.");
         return effects[0];
     }
+
+    private static removeCycles(effects: Effect[], stateCheck : StateCheck) {
+        // First, mark all edges to be removed.
+        let markededges : [Effect,Effect][] = [];
+
+        for (let root of effects) {
+            let fx2 = shallowCopy(effects);
+            DependencySort.removeFromArray(fx2, root);
+            DependencySort.removeRecursively([root], fx2, markededges, stateCheck);
+        }
+
+        // Second, remove them
+        for (let pair of markededges) {
+            let indexOfOther = pair[0].dependsOn.indexOf(pair[1]);
+            if (indexOfOther != -1) {
+                pair[0].dependsOn.splice(indexOfOther, 1);
+            }
+        }
+    }
+
+    private static removeFromArray(effects : Effect[], what : Effect) {
+        let index = effects.indexOf(what);
+        effects.splice(index, 1);
+    }
+
 
     /**
      * 613.7a An effect is said to “depend on” another if
@@ -63,12 +90,13 @@ export class DependencySort {
     private static dependsOn(mainEffect: Effect, dependsOnThis: Effect, stateCheck: StateCheck, layer : Layer) : boolean {
 
         // (a) already determined above
-        // (c) TODO characteristic-defining -- but do it above
+        // (c) already determined above
         let whatItAppliesTo = mainEffect.acquisitionResults;
         if (whatItAppliesTo == null) {
             whatItAppliesTo = mainEffect.acquisition.getAcquiredObjects(stateCheck.battlefield, mainEffect.source);
         }
         let whatItDoes = mainEffect.modification.whatItDoes(stateCheck.battlefield, mainEffect, whatItAppliesTo, layer);
+        let oldText = mainEffect.toString();
 
         // Apply the other effect to a copy of the battlefield
         let stateCheckCopy = DependencySort.createCopiedLinkedGameState(stateCheck);
@@ -84,12 +112,19 @@ export class DependencySort {
         let mainEffectInTheNewBattlefield : Effect = effectsInTheNewBattlefield.find((ff)=> ff.originalLink == mainEffect);
 
         // Determine what has happened
-        // (b) change the text or cause it to not exist
+
+        // (b) cause it to not exist...
         if (mainEffectInTheNewBattlefield == undefined) {
             return true;
         }
+        // (b) ...change the text...
+        let newText = mainEffectInTheNewBattlefield.toString();
+        if (newText != oldText) {
+            return true;
+        }
 
-        // (b) change what it applies to
+
+        // (b) ...change what it applies to...
         let whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisitionResults;
         if (whatItAppliesTo2 == null) {
             whatItAppliesTo2 = mainEffectInTheNewBattlefield.acquisition.getAcquiredObjects(battlefieldCopy, mainEffectInTheNewBattlefield.source);
@@ -104,7 +139,7 @@ export class DependencySort {
                 return true;
             }
         }
-        // (b) change what it does to those things
+        // (b) ...change what it does to those things
         let whatItDoes2 = mainEffectInTheNewBattlefield.modification.whatItDoes(battlefieldCopy, mainEffectInTheNewBattlefield, whatItAppliesTo2, layer);
         if (whatItDoes != whatItDoes2) {
             return true;
@@ -134,5 +169,30 @@ export class DependencySort {
             perm.assumeCharacteristicsOfOriginal(map);
         }
         return new StateCheck(newField, newEffects);
+    }
+
+    private static removeRecursively(prefix: Effect[], unusedVertices: Effect[], markedEdges: [Effect, Effect][], stateCheck : StateCheck) {
+        let root = prefix[0];
+        for (let edge of prefix[prefix.length - 1].dependsOn) {
+            if (edge == root) {
+                // Dependency found.
+                for(let i = 0; i < prefix.length; i++) {
+                    if (i < prefix.length - 1) {
+                        markedEdges.push([prefix[i], prefix[i+1]]);
+                    } else {
+                        markedEdges.push([prefix[i], root]);
+                    }
+                }
+                stateCheck.logDependencyLoop(prefix);
+            } else {
+                for (let vtx of unusedVertices) {
+                    let prefix2 = shallowCopy(prefix);
+                    let unused2 = shallowCopy(unusedVertices);
+                    DependencySort.removeFromArray(unused2, vtx);
+                    prefix2.push(vtx);
+                    DependencySort.removeRecursively(prefix2, unused2, markedEdges, stateCheck);
+                }
+            }
+        }
     }
 }

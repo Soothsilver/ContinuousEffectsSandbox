@@ -11,7 +11,7 @@
             <p class="invisibleText" ng-if="obj.ownedByOpponent">(Owned by your opponent.)</p>
             <p class="invisibleText" ng-if="obj.controlledByOpponent">(Controlled by your opponent.)</p>
             <p class="invisibleText" ng-if="obj.color.length > 1">({{obj.describeColors()}})</p>
-            <p ng-repeat="ab in obj.abilities" ng-class="ab.nonprinted ? 'changedText' : ''">{{ ab.toCapitalizedString() }}</p>
+            <p ng-repeat="ab in obj.abilities" ng-class="(ab.nonprinted || ab.modified) ? 'changedText' : ''">{{ ab.toCapitalizedString() }}</p>
             <p ng-repeat="ab in obj.modificationLog.strickenAbilities" class='strickenText''">{{ ab.toCapitalizedString() }}</p>
             <p ng-if="obj.typeline.isCreature()" ng-class="obj.modificationLog.ptChanged ? 'changedText' : ''">{{ obj.power}} / {{obj.toughness}}</p>
             <p ng-if="obj.counters.length > 0">Counters: {{ obj.counters.join(", ") }}</p>

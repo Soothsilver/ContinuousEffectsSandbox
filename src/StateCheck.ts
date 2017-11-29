@@ -2,6 +2,7 @@ import {Permanent} from "./structures/Permanent";
 import {Effect} from "./structures/Effect";
 import {DependencySort} from "./dependencies/DependencySort";
 import {Layer} from "./enumerations/Layer";
+import {joinList} from "./Utilities";
 
 export class StateCheck {
     get effects(): Effect[] {
@@ -130,6 +131,10 @@ export class StateCheck {
     public logSkippedEffect(effect: Effect, layer: Layer) {
         this.log("<del>L" + StateCheck.layerToString(layer) + ": " + effect.asHtmlString(layer) + "</del> <i><small>(" + effect.source.name + ", depends on " + effect.dependsOn[0].source.name + ")</small></i>");
     }
+    logDependencyLoop(loop: Effect[]) {
+        let strs : string[] = loop.map(fx => "<b>" + fx.source.name + "</b>");
+        this.log("<i>Dependency loop ignored between " + joinList(strs) + ".</i>");
+    }
 
     private static layerToString(layer: Layer) : string {
         switch (layer) {
@@ -165,4 +170,5 @@ export class StateCheck {
     getHtmlReport() : string {
         return this.report;
     }
+
 }

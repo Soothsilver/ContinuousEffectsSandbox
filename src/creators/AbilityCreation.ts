@@ -1,5 +1,5 @@
 import {capitalizeFirstLetter, parsePT} from "../Utilities";
-import {stringToColor, stringToSubtype, stringToType} from "../structures/Typeline";
+import {stringToColor, stringToLandType, stringToSubtype, stringToType} from "../structures/Typeline";
 import {Ability} from "../structures/Ability";
 import {Effect} from "../structures/Effect";
 import {
@@ -10,14 +10,15 @@ import {
     LosePrimitiveModification,
     ControlChangeModification,
     ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller,
-    SetSubtypeModification, AddSubtypeModification
-} from "../structures/Modifications";
+    SetSubtypeModification, AddSubtypeModification, PowerToughnessModification, ChangeLandTypeModification
+} from "../effects/Modifications";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
 import {SingleAcquisition} from "../structures/Acquisition";
-import {SilenceModification} from "../structures/Modifications";
+import {SilenceModification} from "../effects/Modifications";
 import {NamedAbilities} from "./NamedAbilities";
 import {primitiveAbilities} from "./PrimitiveAbilities";
+import {LandType} from "../enumerations/LandType";
 
 
 class AbilityCreator {
@@ -29,6 +30,9 @@ class AbilityCreator {
         if (primitiveAbilities.includes(script.trim())) {
             this.ability.primitiveName = capitalizeFirstLetter(script.trim());
             return;
+        }
+        if (script.trim().endsWith("walk") && !script.includes("\n")) {
+            this.ability.landwalk = stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
         }
         if (script.trim() == "changeling") {
             this.ability.effect.acquisition.addSubjectThis();
@@ -48,7 +52,7 @@ class AbilityCreator {
         if (primitiveAbilities.includes(line)) {
             let a = new Ability();
             a.primitiveName = line;
-            this.effect.modification.addGrantPrimitiveAbility(a);
+            this.effect.modification.parts.push(new AddAbilityModification(a));
         }
         else if (["this", "cardname"].includes(line)) {
             this.effect.acquisition.addSubjectThis();
@@ -58,7 +62,7 @@ class AbilityCreator {
         }
         else if (line.includes("/") && !isNaN(parsePT(line)[0]) && !isNaN(parsePT(line)[1])) {
             let [power, toughness] = parsePT(line);
-            this.effect.modification.addPTModification(power, toughness);
+            this.effect.modification.parts.push(new PowerToughnessModification(power, toughness));
         }
         else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
             this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
@@ -81,6 +85,13 @@ class AbilityCreator {
         }
         else if (line.startsWith("addsubtype:")) {
             this.effect.modification.parts.push(new AddSubtypeModification(stringToSubtype(line.substr("addsubtype:".length))));
+        }
+        else if (line.startsWith("changetype:")) {
+            const res = line.substr("changetype:".length);
+            const split = res.split("=>");
+            const from = stringToLandType(split[0]);
+            const to = stringToLandType(split[1]);
+            this.effect.modification.parts.push(new ChangeLandTypeModification(from, to));
         }
         else if (line.startsWith("loseprimitive:")) {
             this.effect.modification.parts.push(new LosePrimitiveModification(line.substr("loseprimitive:".length)));

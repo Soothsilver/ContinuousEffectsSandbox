@@ -4,6 +4,7 @@ import {Effect} from "./Effect";
 import {Permanent} from "./Permanent";
 import {Layer} from "../enumerations/Layer";
 import {LinkMap} from "../dependencies/LinkMap";
+import {LandType} from "../enumerations/LandType";
 
 export class Ability implements ICopiable<Ability> {
 
@@ -11,6 +12,8 @@ export class Ability implements ICopiable<Ability> {
     parseError : string = null;
     effect : Effect = new Effect();
     nonprinted : boolean = false;
+    landwalk : LandType = null;
+    modified: boolean;
 
     copy(): Ability {
         let copie = new Ability();
@@ -18,6 +21,8 @@ export class Ability implements ICopiable<Ability> {
         copie.parseError = this.parseError;
         copie.nonprinted = this.nonprinted;
         copie.effect = this.effect.copy();
+        copie.modified = this.modified;
+        copie.landwalk = this.landwalk;
         return copie;
     }
 
@@ -28,6 +33,8 @@ export class Ability implements ICopiable<Ability> {
     toString() : string {
         if (this.primitiveName != null) {
             return this.primitiveName;
+        } else if (this.landwalk != null) {
+            return LandType[this.landwalk] + "walk";
         } else if (this.parseError != null) {
             return "[[" + this.parseError + "]]";
         } else if (this.effect != null) {
@@ -35,12 +42,6 @@ export class Ability implements ICopiable<Ability> {
         } else {
             return "substance";
         }
-    }
-
-    static flying() : Ability {
-        let a = new Ability();
-        a.primitiveName = "flying";
-        return a;
     }
 
     copyAndInitialize(target: Permanent) : Ability {
@@ -62,6 +63,8 @@ export class Ability implements ICopiable<Ability> {
         linkedAbility.primitiveName = this.primitiveName;
         linkedAbility.parseError = this.parseError;
         linkedAbility.nonprinted = this.nonprinted;
+        linkedAbility.modified = this.modified;
+        linkedAbility.landwalk = this.landwalk;
         let maybeEffectAlreadyExists = map.getCopiedEffect(this.effect);
         if (maybeEffectAlreadyExists != null) {
             linkedAbility.effect = maybeEffectAlreadyExists;
