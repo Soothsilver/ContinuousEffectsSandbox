@@ -2,7 +2,7 @@ import {Scenario} from "./Scenario";
 import {CardRecipe} from "./SampleLoader";
 import {Recipes} from "./Recipes";
 import {expect} from "chai";
-import {Type} from "../structures/Typeline";
+import {Color, Type} from "../structures/Typeline";
 import {CreatureSubtype} from "../structures/CreatureSubtype";
 
 /**
@@ -113,7 +113,37 @@ export class OrderOfOperationsScenarios {
                         expect(scenario.find("Woodland Changeling").typeline.creatureSubtypes)
                             .includes(CreatureSubtype.Goat);
                     });
+                }),
+            new Scenario("OoO L5: Painter's Servant + Humility")
+                .addCard(Recipes.PaintersServant(Color.Black))
+                .addCard(Recipes.Humility)
+                .withVerification((f,s)=>{
+                    it("Humility is black", ()=>{
+                        expect(s.find("Humility").color).includes(Color.Black);
+                    });
+                    it ("Painter's Servant has no abilities", ()=>{
+                       expect(f[0].abilities).to.be.empty;
+                    });
+                }),
+            new Scenario("OoO L6: Recoloring")
+                .addCard(Recipes.TrainedArmodon)
+                .addCard({
+                    name: "Sort of like Runes of the Deus",
+                    card: "green enchantment",
+                    abilities: [["green creatures", "+1/+1", "trample"]]
                 })
+                .addCard({
+                    name: "Sort of like Niveous Wisps",
+                    card: "white enchantment",
+                    abilities: [["creatures youcontrol","setcolor:white"]]
+                })
+                .withVerification((f,s)=>{
+                    expect(f[0].color).includes(Color.White);
+                    expect(f[0].color.length).to.equal(1);
+                    expect(f[0].power).to.equal(3);
+                    expect(f[0].abilities.length).to.equal(0);
+                })
+
 
         ];
     }

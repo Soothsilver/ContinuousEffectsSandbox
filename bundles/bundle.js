@@ -65,45 +65,6 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-/*!
- * Chai - flag utility
- * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
- * MIT Licensed
- */
-
-/**
- * ### .flag(object, key, [value])
- *
- * Get or set a flag value on an object. If a
- * value is provided it will be set, else it will
- * return the currently set value or `undefined` if
- * the value is not set.
- *
- *     utils.flag(this, 'foo', 'bar'); // setter
- *     utils.flag(this, 'foo'); // getter, returns `bar`
- *
- * @param {Object} object constructed Assertion
- * @param {String} key
- * @param {Mixed} value (optional)
- * @namespace Utils
- * @name flag
- * @api private
- */
-
-module.exports = function flag(obj, key, value) {
-  var flags = obj.__flags || (obj.__flags = Object.create(null));
-  if (arguments.length === 3) {
-    flags[key] = value;
-  } else {
-    return flags[key];
-  }
-};
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -221,13 +182,52 @@ exports.Typeline = Typeline;
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+/*!
+ * Chai - flag utility
+ * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
+ * MIT Licensed
+ */
+
+/**
+ * ### .flag(object, key, [value])
+ *
+ * Get or set a flag value on an object. If a
+ * value is provided it will be set, else it will
+ * return the currently set value or `undefined` if
+ * the value is not set.
+ *
+ *     utils.flag(this, 'foo', 'bar'); // setter
+ *     utils.flag(this, 'foo'); // getter, returns `bar`
+ *
+ * @param {Object} object constructed Assertion
+ * @param {String} key
+ * @param {Mixed} value (optional)
+ * @namespace Utils
+ * @name flag
+ * @api private
+ */
+
+module.exports = function flag(obj, key, value) {
+  var flags = obj.__flags || (obj.__flags = Object.create(null));
+  if (arguments.length === 3) {
+    flags[key] = value;
+  } else {
+    return flags[key];
+  }
+};
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 function capitalizeFirstLetter(s) {
     if (s.length == 0) {
         return "";
@@ -356,7 +356,7 @@ exports.AssertionError = __webpack_require__(27);
  * Utils for plugins (not exported)
  */
 
-var util = __webpack_require__(44);
+var util = __webpack_require__(45);
 
 /**
  * # .use(function)
@@ -394,35 +394,35 @@ exports.config = config;
  * Primary `Assertion` prototype
  */
 
-var assertion = __webpack_require__(62);
+var assertion = __webpack_require__(63);
 exports.use(assertion);
 
 /*!
  * Core Assertions
  */
 
-var core = __webpack_require__(63);
+var core = __webpack_require__(64);
 exports.use(core);
 
 /*!
  * Expect interface
  */
 
-var expect = __webpack_require__(64);
+var expect = __webpack_require__(65);
 exports.use(expect);
 
 /*!
  * Should interface
  */
 
-var should = __webpack_require__(65);
+var should = __webpack_require__(66);
 exports.use(should);
 
 /*!
  * Assert interface
  */
 
-var assert = __webpack_require__(66);
+var assert = __webpack_require__(67);
 exports.use(assert);
 
 
@@ -859,7 +859,7 @@ var Layer;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const ModificationLog_1 = __webpack_require__(36);
 const Utilities_1 = __webpack_require__(2);
 class Permanent {
@@ -973,7 +973,7 @@ exports.Permanent = Permanent;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Layer_1 = __webpack_require__(7);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const EnumEx_1 = __webpack_require__(21);
 const CreatureSubtype_1 = __webpack_require__(6);
 const SingleModificationBase_1 = __webpack_require__(24);
@@ -1264,7 +1264,7 @@ exports.SwitchPTModification = SwitchPTModification;
 
 var getName = __webpack_require__(29);
 var getProperties = __webpack_require__(30);
-var getEnumerableProperties = __webpack_require__(50);
+var getEnumerableProperties = __webpack_require__(51);
 var config = __webpack_require__(4);
 
 module.exports = inspect;
@@ -1747,7 +1747,7 @@ module.exports = function addLengthGuard (fn, assertionName, isChainable) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var getProperties = __webpack_require__(30);
 var isProxyEnabled = __webpack_require__(11);
 
@@ -1914,7 +1914,7 @@ var SampleLoader;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Card_1 = __webpack_require__(16);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const Utilities_1 = __webpack_require__(2);
 var CardCreator;
 (function (CardCreator) {
@@ -1961,7 +1961,7 @@ var CardCreator;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const Utilities_1 = __webpack_require__(2);
 const CreatureSubtype_1 = __webpack_require__(6);
 const Permanent_1 = __webpack_require__(8);
@@ -2018,13 +2018,14 @@ exports.Counter = Counter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const Ability_1 = __webpack_require__(22);
 const Effect_1 = __webpack_require__(18);
 const Modifications_1 = __webpack_require__(9);
 const Acquisition_1 = __webpack_require__(23);
 const Modifications_2 = __webpack_require__(9);
 const NamedAbilities_1 = __webpack_require__(38);
+const PrimitiveAbilities_1 = __webpack_require__(39);
 class AbilityCreator {
     constructor() {
         this.ability = new Ability_1.Ability();
@@ -2033,16 +2034,8 @@ class AbilityCreator {
     }
     parseScript(script) {
         let lines = script.split("\n");
-        if (script.trim() == "flying") {
-            this.ability.primitiveName = "Flying";
-            return;
-        }
-        if (script.trim() == "haste") {
-            this.ability.primitiveName = "Haste";
-            return;
-        }
-        if (script.trim() == "first strike") {
-            this.ability.primitiveName = "First strike";
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(script.trim())) {
+            this.ability.primitiveName = Utilities_1.capitalizeFirstLetter(script.trim());
             return;
         }
         if (script.trim() == "changeling") {
@@ -2062,7 +2055,7 @@ class AbilityCreator {
             return;
         if (this.checkForMiddleLine(line))
             return;
-        if (["flying", "first strike", "haste"].includes(line)) {
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(line)) {
             let a = new Ability_1.Ability();
             a.primitiveName = line;
             this.effect.modification.addGrantPrimitiveAbility(a);
@@ -2273,7 +2266,6 @@ class Effect {
         return linkedCopy;
     }
     isCharacteristicDefiningAbility() {
-        console.log(this);
         // 604.3a A static ability is a characteristic-defining ability if it meets the following criteria:
         // (1) It defines an object’s colors, subtypes, power, or toughness;
         // (5) it does not set the values of such characteristics only if certain conditions are met.
@@ -2286,7 +2278,6 @@ class Effect {
                 hasAGoodModification = true;
             }
             else {
-                console.log("Not correct modify.");
                 return false;
             }
         }
@@ -2297,7 +2288,6 @@ class Effect {
             return false;
         for (let acq of this.acquisition.parts) {
             if (!acq.isSelf()) {
-                console.log("Not correct acquire.");
                 return false;
             }
         }
@@ -2330,7 +2320,7 @@ exports.Effect = Effect;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const DependencySort_1 = __webpack_require__(39);
+const DependencySort_1 = __webpack_require__(40);
 const Layer_1 = __webpack_require__(7);
 class StateCheck {
     get effects() {
@@ -2868,7 +2858,7 @@ return typeDetect;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
 
 /***/ }),
 /* 21 */
@@ -2979,7 +2969,7 @@ exports.Ability = Ability;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(2);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const CreatureSubtype_1 = __webpack_require__(6);
 class SingleAcquisition {
     constructor(key, plural) {
@@ -3600,7 +3590,17 @@ module.exports = function getOwnEnumerablePropertySymbols(obj) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const Typeline_1 = __webpack_require__(0);
 class Recipes {
+    static PaintersServant(color) {
+        return {
+            "name": "Painter's Servant",
+            "card": "artifact creature Scarecrow",
+            "abilities": [
+                ["addcolor:" + Typeline_1.Color[color].toLowerCase()]
+            ]
+        };
+    }
 }
 Recipes.WoodlandChangeling = {
     name: "Woodland Changeling",
@@ -3661,9 +3661,9 @@ const Card_1 = __webpack_require__(16);
 const StateCheck_1 = __webpack_require__(19);
 const AbilityCreation_1 = __webpack_require__(17);
 const CardCreator_1 = __webpack_require__(15);
-const Examples_1 = __webpack_require__(41);
+const Examples_1 = __webpack_require__(42);
 const Permanent_1 = __webpack_require__(8);
-const ScenarioLoader_1 = __webpack_require__(42);
+const ScenarioLoader_1 = __webpack_require__(43);
 function removeFromArray(pole, prvek) {
     const index = pole.indexOf(prvek);
     if (index == -1) {
@@ -3989,9 +3989,26 @@ exports.NamedAbilities = NamedAbilities;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.primitiveAbilities = [
+    "flying",
+    "first strike",
+    "haste",
+    "vigilance",
+    "double strike",
+    "trample"
+];
+
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 const StateCheck_1 = __webpack_require__(19);
 const Permanent_1 = __webpack_require__(8);
-const LinkMap_1 = __webpack_require__(40);
+const LinkMap_1 = __webpack_require__(41);
 class DependencySort {
     /**
     (Throughout the algorithm, memoize any dependencies (or lack of dependency) you discover.
@@ -4121,7 +4138,7 @@ exports.DependencySort = DependencySort;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4168,7 +4185,7 @@ exports.LinkMap = LinkMap;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4353,13 +4370,13 @@ var Examples;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenarios_1 = __webpack_require__(43);
+const Scenarios_1 = __webpack_require__(44);
 class ScenarioLoader {
     static loadAllScenarios() {
         return Scenarios_1.Scenarios;
@@ -4369,7 +4386,7 @@ exports.ScenarioLoader = ScenarioLoader;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4378,9 +4395,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Scenario_1 = __webpack_require__(25);
 const chai_1 = __webpack_require__(26);
 const Recipes_1 = __webpack_require__(33);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const CreatureSubtype_1 = __webpack_require__(6);
-const OrderOfOperationsScenarios_1 = __webpack_require__(67);
+const OrderOfOperationsScenarios_1 = __webpack_require__(68);
 exports.Scenarios = [
     new Scenario_1.Scenario("Smoke test")
         .addCard(Recipes_1.Recipes.TrainedArmodon)
@@ -4531,7 +4548,7 @@ exports.Scenarios = [
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -4544,13 +4561,13 @@ exports.Scenarios = [
  * Dependencies that are used for multiple exports are required here only once
  */
 
-var pathval = __webpack_require__(45);
+var pathval = __webpack_require__(46);
 
 /*!
  * test utility
  */
 
-exports.test = __webpack_require__(46);
+exports.test = __webpack_require__(47);
 
 /*!
  * type utility
@@ -4561,13 +4578,13 @@ exports.type = __webpack_require__(20);
 /*!
  * expectTypes utility
  */
-exports.expectTypes = __webpack_require__(48);
+exports.expectTypes = __webpack_require__(49);
 
 /*!
  * message utility
  */
 
-exports.getMessage = __webpack_require__(49);
+exports.getMessage = __webpack_require__(50);
 
 /*!
  * actual utility
@@ -4591,7 +4608,7 @@ exports.objDisplay = __webpack_require__(31);
  * Flag utility
  */
 
-exports.flag = __webpack_require__(0);
+exports.flag = __webpack_require__(1);
 
 /*!
  * Flag transferring utility
@@ -4603,7 +4620,7 @@ exports.transferFlags = __webpack_require__(5);
  * Deep equal utility
  */
 
-exports.eql = __webpack_require__(51);
+exports.eql = __webpack_require__(52);
 
 /*!
  * Deep path info
@@ -4627,43 +4644,43 @@ exports.getName = __webpack_require__(29);
  * add Property
  */
 
-exports.addProperty = __webpack_require__(52);
+exports.addProperty = __webpack_require__(53);
 
 /*!
  * add Method
  */
 
-exports.addMethod = __webpack_require__(53);
+exports.addMethod = __webpack_require__(54);
 
 /*!
  * overwrite Property
  */
 
-exports.overwriteProperty = __webpack_require__(54);
+exports.overwriteProperty = __webpack_require__(55);
 
 /*!
  * overwrite Method
  */
 
-exports.overwriteMethod = __webpack_require__(55);
+exports.overwriteMethod = __webpack_require__(56);
 
 /*!
  * Add a chainable method
  */
 
-exports.addChainableMethod = __webpack_require__(56);
+exports.addChainableMethod = __webpack_require__(57);
 
 /*!
  * Overwrite chainable method
  */
 
-exports.overwriteChainableMethod = __webpack_require__(57);
+exports.overwriteChainableMethod = __webpack_require__(58);
 
 /*!
  * Compare by inspect method
  */
 
-exports.compareByInspect = __webpack_require__(58);
+exports.compareByInspect = __webpack_require__(59);
 
 /*!
  * Get own enumerable property symbols method
@@ -4675,13 +4692,13 @@ exports.getOwnEnumerablePropertySymbols = __webpack_require__(32);
  * Get own enumerable properties method
  */
 
-exports.getOwnEnumerableProperties = __webpack_require__(59);
+exports.getOwnEnumerableProperties = __webpack_require__(60);
 
 /*!
  * Checks error against a given set of criteria
  */
 
-exports.checkError = __webpack_require__(60);
+exports.checkError = __webpack_require__(61);
 
 /*!
  * Proxify util
@@ -4705,11 +4722,11 @@ exports.isProxyEnabled = __webpack_require__(11);
  * isNaN method
  */
 
-exports.isNaN = __webpack_require__(61);
+exports.isNaN = __webpack_require__(62);
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5007,7 +5024,7 @@ module.exports = {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5020,7 +5037,7 @@ module.exports = {
  * Module dependancies
  */
 
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 
 /**
  * ### .test(object, expression)
@@ -5041,7 +5058,7 @@ module.exports = function test(obj, args) {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 var g;
@@ -5068,7 +5085,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5092,7 +5109,7 @@ module.exports = g;
  */
 
 var AssertionError = __webpack_require__(27);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var type = __webpack_require__(20);
 
 module.exports = function expectTypes(obj, types) {
@@ -5125,7 +5142,7 @@ module.exports = function expectTypes(obj, types) {
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5138,7 +5155,7 @@ module.exports = function expectTypes(obj, types) {
  * Module dependancies
  */
 
-var flag = __webpack_require__(0)
+var flag = __webpack_require__(1)
   , getActual = __webpack_require__(28)
   , inspect = __webpack_require__(10)
   , objDisplay = __webpack_require__(31);
@@ -5182,7 +5199,7 @@ module.exports = function getMessage(obj, args) {
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5214,7 +5231,7 @@ module.exports = function getEnumerableProperties(object) {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5676,7 +5693,7 @@ function isPrimitive(value) {
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5686,7 +5703,7 @@ function isPrimitive(value) {
  */
 
 var chai = __webpack_require__(3);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var isProxyEnabled = __webpack_require__(11);
 var transferFlags = __webpack_require__(5);
 
@@ -5754,7 +5771,7 @@ module.exports = function addProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5765,7 +5782,7 @@ module.exports = function addProperty(ctx, name, getter) {
 
 var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
@@ -5828,7 +5845,7 @@ module.exports = function addMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5838,7 +5855,7 @@ module.exports = function addMethod(ctx, name, method) {
  */
 
 var chai = __webpack_require__(3);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var isProxyEnabled = __webpack_require__(11);
 var transferFlags = __webpack_require__(5);
 
@@ -5926,7 +5943,7 @@ module.exports = function overwriteProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5937,7 +5954,7 @@ module.exports = function overwriteProperty(ctx, name, getter) {
 
 var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
@@ -6024,7 +6041,7 @@ module.exports = function overwriteMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6039,7 +6056,7 @@ module.exports = function overwriteMethod(ctx, name, method) {
 
 var addLengthGuard = __webpack_require__(12);
 var chai = __webpack_require__(3);
-var flag = __webpack_require__(0);
+var flag = __webpack_require__(1);
 var proxify = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
@@ -6182,7 +6199,7 @@ module.exports = function addChainableMethod(ctx, name, method, chainingBehavior
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6257,7 +6274,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6294,7 +6311,7 @@ module.exports = function compareByInspect(a, b) {
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6329,7 +6346,7 @@ module.exports = function getOwnEnumerableProperties(obj) {
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6508,7 +6525,7 @@ module.exports = {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6540,7 +6557,7 @@ module.exports = Number.isNaN || isNaN;
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6711,7 +6728,7 @@ module.exports = function (_chai, util) {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10446,7 +10463,7 @@ module.exports = function (chai, _) {
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10486,7 +10503,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10696,7 +10713,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports) {
 
 /*!
@@ -13800,7 +13817,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13809,7 +13826,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Scenario_1 = __webpack_require__(25);
 const Recipes_1 = __webpack_require__(33);
 const chai_1 = __webpack_require__(26);
-const Typeline_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
 const CreatureSubtype_1 = __webpack_require__(6);
 /**
  * Scenarios from
@@ -13917,6 +13934,35 @@ class OrderOfOperationsScenarios {
                     chai_1.expect(scenario.find("Woodland Changeling").typeline.creatureSubtypes)
                         .includes(CreatureSubtype_1.CreatureSubtype.Goat);
                 });
+            }),
+            new Scenario_1.Scenario("OoO L5: Painter's Servant + Humility")
+                .addCard(Recipes_1.Recipes.PaintersServant(Typeline_1.Color.Black))
+                .addCard(Recipes_1.Recipes.Humility)
+                .withVerification((f, s) => {
+                it("Humility is black", () => {
+                    chai_1.expect(s.find("Humility").color).includes(Typeline_1.Color.Black);
+                });
+                it("Painter's Servant has no abilities", () => {
+                    chai_1.expect(f[0].abilities).to.be.empty;
+                });
+            }),
+            new Scenario_1.Scenario("OoO L6: Recoloring")
+                .addCard(Recipes_1.Recipes.TrainedArmodon)
+                .addCard({
+                name: "Sort of like Runes of the Deus",
+                card: "green enchantment",
+                abilities: [["green creatures", "+1/+1", "trample"]]
+            })
+                .addCard({
+                name: "Sort of like Niveous Wisps",
+                card: "white enchantment",
+                abilities: [["creatures youcontrol", "setcolor:white"]]
+            })
+                .withVerification((f, s) => {
+                chai_1.expect(f[0].color).includes(Typeline_1.Color.White);
+                chai_1.expect(f[0].color.length).to.equal(1);
+                chai_1.expect(f[0].power).to.equal(3);
+                chai_1.expect(f[0].abilities.length).to.equal(0);
             })
         ];
     }

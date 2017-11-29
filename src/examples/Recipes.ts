@@ -1,4 +1,5 @@
 import {CardRecipe} from "./SampleLoader";
+import {Color} from "../structures/Typeline";
 
 export class Recipes {
     static WoodlandChangeling : CardRecipe = {
@@ -45,4 +46,14 @@ export class Recipes {
             ["other enchantment", "addtype:creature", "setpt:5/5"]
         ]
     };
+
+    static PaintersServant(color: Color) {
+        return {
+            "name" : "Painter's Servant",
+            "card" : "artifact creature Scarecrow",
+            "abilities" : [
+                ["addcolor:" + Color[color].toLowerCase()]
+            ]
+        }
+    }
 }

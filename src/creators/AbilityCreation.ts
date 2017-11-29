@@ -1,4 +1,4 @@
-import {parsePT} from "../Utilities";
+import {capitalizeFirstLetter, parsePT} from "../Utilities";
 import {stringToColor, stringToSubtype, stringToType} from "../structures/Typeline";
 import {Ability} from "../structures/Ability";
 import {Effect} from "../structures/Effect";
@@ -17,6 +17,7 @@ import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisitio
 import {SingleAcquisition} from "../structures/Acquisition";
 import {SilenceModification} from "../structures/Modifications";
 import {NamedAbilities} from "./NamedAbilities";
+import {primitiveAbilities} from "./PrimitiveAbilities";
 
 
 class AbilityCreator {
@@ -25,16 +26,8 @@ class AbilityCreator {
     parsingModifications: boolean = false;
     parseScript(script : string): void {
         let lines = script.split("\n");
-        if (script.trim() == "flying") {
-            this.ability.primitiveName = "Flying";
-            return;
-        }
-        if (script.trim() == "haste") {
-            this.ability.primitiveName = "Haste";
-            return;
-        }
-        if (script.trim() == "first strike") {
-            this.ability.primitiveName = "First strike";
+        if (primitiveAbilities.includes(script.trim())) {
+            this.ability.primitiveName = capitalizeFirstLetter(script.trim());
             return;
         }
         if (script.trim() == "changeling") {
@@ -52,7 +45,7 @@ class AbilityCreator {
         if (line == "") return;
         if (line.substr(0,2) == "//") return;
         if (this.checkForMiddleLine(line)) return;
-        if (["flying", "first strike", "haste"].includes(line)) {
+        if (primitiveAbilities.includes(line)) {
             let a = new Ability();
             a.primitiveName = line;
             this.effect.modification.addGrantPrimitiveAbility(a);
