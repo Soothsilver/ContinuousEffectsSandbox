@@ -6,6 +6,7 @@ import {capitalizeFirstLetter, deepCopy, getCssColor, joinList, shallowCopy} fro
 import {Effect} from "./Effect";
 import {Layer} from "../enumerations/Layer";
 import {LinkMap} from "../dependencies/LinkMap";
+import {NamedAbilities} from "../creators/NamedAbilities";
 
 export class Permanent {
     // Permanent features
@@ -63,6 +64,10 @@ export class Permanent {
         this.originalLink = null;
         // Timestamp
         this.timestamp = timestamp;
+        // Inherent abilities
+        for (let landType of this.typeline.landTypes) {
+            this.abilities.push(NamedAbilities.createInherentLandAbility(landType));
+        }
         // Effects
         for (let ab of this.abilities) {
             ab.effect.source = this;

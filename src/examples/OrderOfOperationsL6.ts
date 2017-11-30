@@ -10,8 +10,6 @@ import {LandType} from "../enumerations/LandType";
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
  */
-//TODO add blood moon and basic land types
-//TODO allow query string to contain a battlefield
 export class OrderOfOperationsScenariosL6 {
     static getThem() : Scenario[] {
         return [

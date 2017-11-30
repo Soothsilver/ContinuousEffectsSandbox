@@ -59,16 +59,21 @@ export function stringToLandType(word: string) : LandType {
 export class Typeline {
     types : Type[] = [];
     creatureSubtypes : CreatureSubtype[] = [];
+    landTypes: LandType[] = [];
 
     asString() : string {
         let s = "";
         for (let i = 0; i < this.types.length; i++){
             s += Type[this.types[i]] + " ";
         }
-        if (this.creatureSubtypes.length > 0) {
-            s += " - ";
+        if (this.creatureSubtypes.length > 0 || this.landTypes.length > 0) {
+            s += " – ";
             for (let i = 0; i < this.creatureSubtypes.length; i++) {
                 s += CreatureSubtype[this.creatureSubtypes[i]] + " ";
+            }
+
+            for (let i = 0; i < this.landTypes.length; i++) {
+                s += LandType[this.landTypes[i]] + " ";
             }
         }
 
@@ -91,6 +96,9 @@ export class Typeline {
     stringifySubtype(type : CreatureSubtype) : string {
         return CreatureSubtype[type];
     }
+    stringifyLandtype(type : LandType) : string {
+        return LandType[type];
+    }
 
     copy() : Typeline {
         let t = new Typeline();
@@ -99,6 +107,9 @@ export class Typeline {
         }
         for (let b of this.creatureSubtypes) {
             t.creatureSubtypes.push(b);
+        }
+        for (let b of this.landTypes) {
+            t.landTypes.push(b);
         }
         return t;
     }

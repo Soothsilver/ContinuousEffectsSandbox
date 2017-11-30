@@ -6,6 +6,7 @@ import {Permanent} from "../structures/Permanent";
 import {SingleModificationBase} from "../structures/SingleModificationBase";
 import {SingleModification} from "../structures/SingleModification";
 import {Color} from "../structures/Typeline";
+import {LandType} from "../enumerations/LandType";
 
 class ScionOfTheWildModification extends SingleModificationBase {
     getLayer(): Layer {
@@ -82,5 +83,23 @@ export class NamedAbilities {
         let ab = new Ability();
         ab.effect = NamedAbilities.createEffect(name);
         return ab;
+    }
+
+    static createInherentLandAbility(type: LandType) : Ability {
+        let ab = new Ability();
+        let manasym = NamedAbilities.getManaSymbolFromLandType(type);
+        ab.primitiveName = "({T}: Add " + manasym + " to your mana pool.)";
+        return ab;
+    }
+
+    static getManaSymbolFromLandType(type: LandType) : string {
+        switch (type){
+            case LandType.Swamp: return "{B}";
+            case LandType.Island: return "{U}";
+            case LandType.Forest: return "{G}";
+            case LandType.Mountain: return "{R}";
+            case LandType.Plains: return "{W}";
+            default: return "???";
+        }
     }
 }

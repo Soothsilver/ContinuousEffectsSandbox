@@ -4,8 +4,9 @@
         <div class="cardcontents">
             <div style="max-height: 200px; overflow: auto;">
                 <span ng-repeat="type in obj.typeline.types" ng-class="obj.modificationLog.isTypeAdded(obj.typeline.stringifyType(type)) ? 'changedText' : ''">{{ obj.typeline.stringifyType(type) }} </span>
-                <span ng-if="obj.typeline.creatureSubtypes.length > 0">– </span>
+                <span ng-if="obj.typeline.creatureSubtypes.length > 0 || obj.typeline.landTypes.length > 0">– </span>
                 <span ng-repeat="type in obj.typeline.creatureSubtypes" ng-class="obj.modificationLog.isTypeAdded(obj.typeline.stringifySubtype(type)) ? 'changedText' : ''">{{ obj.typeline.stringifySubtype(type) }} </span>
+                <span ng-repeat="type in obj.typeline.landTypes" ng-class="obj.modificationLog.isTypeAdded(obj.typeline.stringifyLandtype(type)) ? 'changedText' : ''">{{ obj.typeline.stringifyLandtype(type) }} </span>
             </div>
             <hr style="border-color: black;">
             <p class="invisibleText" ng-if="obj.ownedByOpponent">(Owned by your opponent.)</p>

@@ -8,6 +8,7 @@ import {CreatureSubtype} from "../structures/CreatureSubtype";
 import {SingleModificationBase} from "../structures/SingleModificationBase";
 import {LandType} from "../enumerations/LandType";
 import {SingleModification} from "../structures/SingleModification";
+import {NamedAbilities} from "../creators/NamedAbilities";
 
 export class PowerToughnessModification extends SingleModificationBase{
 
@@ -237,6 +238,29 @@ export class AddTypeModification  extends SingleModificationBase {
         target.modificationLog.addType(Type[this.type]);
     }
 }
+export class LoseTypeModification  extends SingleModificationBase {
+    private type: Type;
+
+    constructor(type : Type) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    asString(plural: boolean) {
+        return (plural ? "aren't" : "isn't a") + " " + Type[this.type].toLowerCase() + (plural ? "s" : "");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
+        if (target.typeline.types.includes(this.type)) {
+            let index = target.typeline.types.indexOf(this.type);
+            target.typeline.types.splice(index, 1);
+        }
+    }
+}
 export class AddSubtypeModification  extends SingleModificationBase {
     private type: CreatureSubtype;
 
@@ -257,6 +281,59 @@ export class AddSubtypeModification  extends SingleModificationBase {
         if (target.typeline.creatureSubtypes.includes(this.type)) return;
         target.typeline.creatureSubtypes.push(this.type);
         target.modificationLog.addType(CreatureSubtype[this.type]);
+    }
+}
+export class AddLandTypeModification  extends SingleModificationBase {
+    private type: LandType;
+
+    constructor(type : LandType) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    asString(plural: boolean) {
+        return (plural ? "are" : "is a") + " " + LandType[this.type] + (plural ? "s in addition to their other types" : " in addition to its other types");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
+        if (target.typeline.landTypes.includes(this.type)) return;
+        target.typeline.landTypes.push(this.type);
+        target.addAbility(NamedAbilities.createInherentLandAbility(this.type), source);
+        target.modificationLog.addType(LandType[this.type]);
+    }
+}
+export class SetLandTypeModification  extends SingleModificationBase {
+    private type: LandType;
+
+    constructor(type : LandType) {
+        super();
+        this.type = type;
+    }
+
+    getLayer(): Layer {
+        return Layer.L4_Type;
+    }
+
+    asString(plural: boolean) {
+        return (plural ? "are" : "is a") + " " + LandType[this.type] + (plural ? "s" : "");
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect) {
+        target.typeline.landTypes.length = 0;
+        target.typeline.landTypes.push(this.type);
+        for (let i = target.abilities.length - 1; i >= 0; i--) {
+            let ab = target.abilities[i];
+            if ((ab.primitiveName != null && ab.primitiveName.startsWith("({T}: Add")) || !ab.nonprinted) {
+                target.abilities.splice(i, 1);
+                target.modificationLog.addStrickenAbility(ab);
+            }
+        }
+        target.addAbility(NamedAbilities.createInherentLandAbility(this.type), source);
+        target.modificationLog.addType(LandType[this.type]);
     }
 }
 export class SetSubtypeModification  extends SingleModificationBase {
@@ -357,6 +434,20 @@ export class ChangeLandTypeModification extends SingleModificationBase {
     }
 
     applyTo(target: Permanent, battlefield: Permanent[], source: Effect): void {
+        if (target.typeline.landTypes.includes(this.from)) {
+            target.typeline.landTypes.splice(target.typeline.landTypes.indexOf(this.from), 1);
+            target.typeline.landTypes.push(this.to);
+            target.modificationLog.addType(LandType[this.to]);
+            for (let i = target.abilities.length - 1; i >= 0; i--) {
+                let ab = target.abilities[i];
+                if ((ab.primitiveName != null && ab.primitiveName.startsWith("({T}: Add")
+                    && ab.primitiveName.includes(NamedAbilities.getManaSymbolFromLandType(this.from)))) {
+                    target.abilities.splice(i, 1);
+                    target.modificationLog.addStrickenAbility(ab);
+                }
+            }
+            target.addAbility(NamedAbilities.createInherentLandAbility(this.to), source);
+        }
         for (let ab of target.abilities) {
             this.recursivelyUpdateText(target, ab, this.from, this.to);
         }

@@ -48,7 +48,6 @@ export class OrderOfOperationsScenarios {
                         expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
                     });
                 }),
-            // TODO change actual land types on a land (elsewhere)
             new Scenario("OoO L3: Mind Bend + Zodiac Horse")
                 .addCard(Recipes.ZodiacHorse)
                 .addCard(Recipes.MindBend(LandType.Island, LandType.Forest))

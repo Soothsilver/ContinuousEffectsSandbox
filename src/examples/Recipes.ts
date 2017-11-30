@@ -10,7 +10,7 @@ export class Recipes {
     };
     static Forest: CardRecipe = {
         name : "Forest",
-        card: "land",
+        card: "land Forest",
         abilities: []
     };
     static TrainedArmodon: CardRecipe = {
@@ -67,7 +67,21 @@ export class Recipes {
         card: "white enchantment",
         abilities: [["white creatures youcontrol", "+1/+1"]]
     };
-
+    static Urborg: CardRecipe = {
+        name: "Urborg, Tomb of Yawgmoth",
+        card: "land",
+        abilities: [[ "lands", "addsubtype:Swamp" ]]
+    };
+    static BloodMoon: CardRecipe ={
+        name: "Blood Moon",
+        card: "red enchantment",
+        abilities: [[ "lands", "setsubtype:Mountain" ]]
+    };
+    static Mountain: CardRecipe = {
+        name: "Mountain",
+        card:"Mountain land",
+        abilities: []
+    };
     static PaintersServant(color: Color) {
         return {
             "name" : "Painter's Servant",

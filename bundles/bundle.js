@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 34);
+/******/ 	return __webpack_require__(__webpack_require__.s = 36);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,8 +71,9 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const CreatureSubtype_1 = __webpack_require__(7);
-const EnumEx_1 = __webpack_require__(23);
-const WordParser_1 = __webpack_require__(37);
+const EnumEx_1 = __webpack_require__(25);
+const LandType_1 = __webpack_require__(3);
+const WordParser_1 = __webpack_require__(17);
 var Type;
 (function (Type) {
     Type[Type["Artifact"] = 0] = "Artifact";
@@ -135,16 +136,20 @@ class Typeline {
     constructor() {
         this.types = [];
         this.creatureSubtypes = [];
+        this.landTypes = [];
     }
     asString() {
         let s = "";
         for (let i = 0; i < this.types.length; i++) {
             s += Type[this.types[i]] + " ";
         }
-        if (this.creatureSubtypes.length > 0) {
-            s += " - ";
+        if (this.creatureSubtypes.length > 0 || this.landTypes.length > 0) {
+            s += " – ";
             for (let i = 0; i < this.creatureSubtypes.length; i++) {
                 s += CreatureSubtype_1.CreatureSubtype[this.creatureSubtypes[i]] + " ";
+            }
+            for (let i = 0; i < this.landTypes.length; i++) {
+                s += LandType_1.LandType[this.landTypes[i]] + " ";
             }
         }
         return s;
@@ -164,6 +169,9 @@ class Typeline {
     stringifySubtype(type) {
         return CreatureSubtype_1.CreatureSubtype[type];
     }
+    stringifyLandtype(type) {
+        return LandType_1.LandType[type];
+    }
     copy() {
         let t = new Typeline();
         for (let a of this.types) {
@@ -171,6 +179,9 @@ class Typeline {
         }
         for (let b of this.creatureSubtypes) {
             t.creatureSubtypes.push(b);
+        }
+        for (let b of this.landTypes) {
+            t.landTypes.push(b);
         }
         return t;
     }
@@ -329,6 +340,29 @@ module.exports = function flag(obj, key, value) {
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var LandType;
+(function (LandType) {
+    LandType[LandType["Plains"] = 0] = "Plains";
+    LandType[LandType["Forest"] = 1] = "Forest";
+    LandType[LandType["Swamp"] = 2] = "Swamp";
+    LandType[LandType["Island"] = 3] = "Island";
+    LandType[LandType["Mountain"] = 4] = "Mountain";
+})(LandType = exports.LandType || (exports.LandType = {}));
+var EnchantmentType;
+(function (EnchantmentType) {
+    EnchantmentType[EnchantmentType["Shrine"] = 0] = "Shrine";
+    EnchantmentType[EnchantmentType["Curse"] = 1] = "Curse";
+    EnchantmentType[EnchantmentType["Aura"] = 2] = "Aura";
+})(EnchantmentType = exports.EnchantmentType || (exports.EnchantmentType = {}));
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /*!
  * chai
  * Copyright(c) 2011-2014 Jake Luer <jake@alogicalparadox.com>
@@ -347,7 +381,7 @@ exports.version = '4.1.2';
  * Assertion Error
  */
 
-exports.AssertionError = __webpack_require__(28);
+exports.AssertionError = __webpack_require__(30);
 
 /*!
  * Utils for plugins (not exported)
@@ -384,7 +418,7 @@ exports.util = util;
  * Configuration
  */
 
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 exports.config = config;
 
 /*!
@@ -424,7 +458,7 @@ exports.use(assert);
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -524,7 +558,7 @@ module.exports = {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /*!
@@ -572,29 +606,6 @@ module.exports = function transferFlags(assertion, object, includeAll) {
     }
   }
 };
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var LandType;
-(function (LandType) {
-    LandType[LandType["Plains"] = 0] = "Plains";
-    LandType[LandType["Forest"] = 1] = "Forest";
-    LandType[LandType["Swamp"] = 2] = "Swamp";
-    LandType[LandType["Island"] = 3] = "Island";
-    LandType[LandType["Mountain"] = 4] = "Mountain";
-})(LandType = exports.LandType || (exports.LandType = {}));
-var EnchantmentType;
-(function (EnchantmentType) {
-    EnchantmentType[EnchantmentType["Shrine"] = 0] = "Shrine";
-    EnchantmentType[EnchantmentType["Curse"] = 1] = "Curse";
-    EnchantmentType[EnchantmentType["Aura"] = 2] = "Aura";
-})(EnchantmentType = exports.EnchantmentType || (exports.EnchantmentType = {}));
 
 
 /***/ }),
@@ -880,7 +891,7 @@ var Layer;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(0);
-const LandType_1 = __webpack_require__(6);
+const LandType_1 = __webpack_require__(3);
 class Recipes {
     static PaintersServant(color) {
         return {
@@ -910,7 +921,7 @@ Recipes.WoodlandChangeling = {
 };
 Recipes.Forest = {
     name: "Forest",
-    card: "land",
+    card: "land Forest",
     abilities: []
 };
 Recipes.TrainedArmodon = {
@@ -967,6 +978,21 @@ Recipes.HonorOfThePure = {
     card: "white enchantment",
     abilities: [["white creatures youcontrol", "+1/+1"]]
 };
+Recipes.Urborg = {
+    name: "Urborg, Tomb of Yawgmoth",
+    card: "land",
+    abilities: [["lands", "addsubtype:Swamp"]]
+};
+Recipes.BloodMoon = {
+    name: "Blood Moon",
+    card: "red enchantment",
+    abilities: [["lands", "setsubtype:Mountain"]]
+};
+Recipes.Mountain = {
+    name: "Mountain",
+    card: "Mountain land",
+    abilities: []
+};
 exports.Recipes = Recipes;
 
 
@@ -977,8 +1003,52 @@ exports.Recipes = Recipes;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(16);
-const StateCheck_1 = __webpack_require__(20);
+const SampleCards_1 = __webpack_require__(37);
+const CardCreator_1 = __webpack_require__(24);
+const AbilityCreation_1 = __webpack_require__(29);
+const Utilities_1 = __webpack_require__(1);
+function form(ability) {
+    return ability.join("\n");
+}
+class CardRecipe {
+    constructor(name, card, abilities = []) {
+        this.name = name;
+        this.card = card;
+        this.abilities = abilities;
+    }
+}
+exports.CardRecipe = CardRecipe;
+var SampleLoader;
+(function (SampleLoader) {
+    function getCardRecipes() {
+        return SampleCards_1.definitions;
+    }
+    SampleLoader.getCardRecipes = getCardRecipes;
+    function copyRecipe(recipe) {
+        return new CardRecipe(recipe.name, recipe.card, Utilities_1.shallowCopy(recipe.abilities));
+    }
+    function createCard(recipe) {
+        let rcp = copyRecipe(recipe);
+        let c = CardCreator_1.CardCreator.parse(rcp.name + "\n" + rcp.card);
+        for (let ability of rcp.abilities) {
+            c.abilities.push(AbilityCreation_1.parseAsAbility(form(ability)));
+        }
+        c.recipe = rcp;
+        return c;
+    }
+    SampleLoader.createCard = createCard;
+})(SampleLoader = exports.SampleLoader || (exports.SampleLoader = {}));
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const SampleLoader_1 = __webpack_require__(10);
+const StateCheck_1 = __webpack_require__(22);
 class Scenario {
     constructor(name) {
         this.battlefield = [];
@@ -1019,23 +1089,23 @@ exports.Scenario = Scenario;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(3);
+module.exports = __webpack_require__(4);
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
-var getName = __webpack_require__(30);
-var getProperties = __webpack_require__(31);
+var getName = __webpack_require__(32);
+var getProperties = __webpack_require__(33);
 var getEnumerableProperties = __webpack_require__(52);
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 
 module.exports = inspect;
 
@@ -1415,10 +1485,10 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 
 /*!
  * Chai - isProxyEnabled helper
@@ -1445,10 +1515,10 @@ module.exports = function isProxyEnabled() {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 
 var fnLengthDesc = Object.getOwnPropertyDescriptor(function () {}, 'length');
 
@@ -1513,13 +1583,13 @@ module.exports = function addLengthGuard (fn, assertionName, isChainable) {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 var flag = __webpack_require__(2);
-var getProperties = __webpack_require__(31);
-var isProxyEnabled = __webpack_require__(13);
+var getProperties = __webpack_require__(33);
+var isProxyEnabled = __webpack_require__(14);
 
 /*!
  * Chai - proxify utility
@@ -1644,59 +1714,49 @@ function stringDistance(strA, strB, memo) {
 
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const SampleCards_1 = __webpack_require__(35);
-const CardCreator_1 = __webpack_require__(22);
-const AbilityCreation_1 = __webpack_require__(24);
-const Utilities_1 = __webpack_require__(1);
-function form(ability) {
-    return ability.join("\n");
-}
-class CardRecipe {
-    constructor(name, card, abilities = []) {
-        this.name = name;
-        this.card = card;
-        this.abilities = abilities;
-    }
-}
-exports.CardRecipe = CardRecipe;
-var SampleLoader;
-(function (SampleLoader) {
-    function getCardRecipes() {
-        return SampleCards_1.definitions;
-    }
-    SampleLoader.getCardRecipes = getCardRecipes;
-    function copyRecipe(recipe) {
-        return new CardRecipe(recipe.name, recipe.card, Utilities_1.shallowCopy(recipe.abilities));
-    }
-    function createCard(recipe) {
-        let rcp = copyRecipe(recipe);
-        let c = CardCreator_1.CardCreator.parse(rcp.name + "\n" + rcp.card);
-        for (let ability of rcp.abilities) {
-            c.abilities.push(AbilityCreation_1.parseAsAbility(form(ability)));
-        }
-        c.recipe = rcp;
-        return c;
-    }
-    SampleLoader.createCard = createCard;
-})(SampleLoader = exports.SampleLoader || (exports.SampleLoader = {}));
-
-
-/***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const LandType_1 = __webpack_require__(3);
 const Typeline_1 = __webpack_require__(0);
-const ModificationLog_1 = __webpack_require__(38);
+class WordParser {
+    static parseLandType(word) {
+        switch (word.toLowerCase()) {
+            case "plains": return LandType_1.LandType.Plains;
+            case "mountain": return LandType_1.LandType.Mountain;
+            case "island": return LandType_1.LandType.Island;
+            case "forest": return LandType_1.LandType.Forest;
+            case "swamp": return LandType_1.LandType.Swamp;
+        }
+        return null;
+    }
+    static isLandType(word) {
+        return (WordParser.parseLandType(word) != null);
+    }
+    static isCreatureType(word) {
+        return WordParser.parseCreatureType(word) != null;
+    }
+    static parseCreatureType(word) {
+        return Typeline_1.stringToSubtype(word);
+    }
+}
+exports.WordParser = WordParser;
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Typeline_1 = __webpack_require__(0);
+const ModificationLog_1 = __webpack_require__(39);
 const Utilities_1 = __webpack_require__(1);
+const NamedAbilities_1 = __webpack_require__(19);
 class Permanent {
     constructor() {
         this.ownedByOpponent = false;
@@ -1743,6 +1803,10 @@ class Permanent {
         this.originalLink = null;
         // Timestamp
         this.timestamp = timestamp;
+        // Inherent abilities
+        for (let landType of this.typeline.landTypes) {
+            this.abilities.push(NamedAbilities_1.NamedAbilities.createInherentLandAbility(landType));
+        }
         // Effects
         for (let ab of this.abilities) {
             ab.effect.source = this;
@@ -1804,17 +1868,114 @@ exports.Permanent = Permanent;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Acquisition_1 = __webpack_require__(26);
+const Ability_1 = __webpack_require__(26);
+const Effect_1 = __webpack_require__(20);
+const Layer_1 = __webpack_require__(8);
+const SingleModificationBase_1 = __webpack_require__(28);
+const LandType_1 = __webpack_require__(3);
+class ScionOfTheWildModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L7b_PnTSetSpecificValue;
+    }
+    asString(plural) {
+        return (plural ? "have" : "has") + " power and toughness each equal to the number of creatures you control";
+    }
+    whatItDoes(target, battlefield, source) {
+        return "SETPT:" + battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
+    }
+    applyTo(target, battlefield, source) {
+        target.power = target.toughness = battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
+        target.modificationLog.ptChanged = true;
+    }
+}
+class EmptyShrineKannushiModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L6_Abilities;
+    }
+    asString(plural) {
+        return (plural ? "have" : "has") + " protection from the colors of permanents you control";
+    }
+    applyTo(target, battlefield, source) {
+        let myColors = [];
+        for (let perm of battlefield) {
+            if (perm.controlledByOpponent == source.source.controlledByOpponent) {
+                for (let clr of perm.color) {
+                    if (!myColors.includes(clr)) {
+                        myColors.push(clr);
+                    }
+                }
+            }
+        }
+        for (let clr of myColors) {
+            const protect = new Ability_1.Ability();
+            protect.protectionFrom = clr;
+            target.addAbility(protect, source);
+        }
+    }
+}
+class NamedAbilities {
+    static createEffect(name) {
+        let ff = new Effect_1.Effect();
+        switch (name.toLowerCase()) {
+            case "ScionOfTheWild".toLowerCase():
+                ff.acquisition.addSubjectThis();
+                ff.modification.parts.push(new ScionOfTheWildModification());
+                break;
+            default:
+                console.error("Unknown effect name:" + name + ";");
+                break;
+        }
+        return ff;
+    }
+    static createSingleModification(name) {
+        switch (name.toLowerCase()) {
+            case "EmptyShrineKannushi".toLowerCase():
+                return new EmptyShrineKannushiModification();
+        }
+    }
+    static create(name) {
+        let ab = new Ability_1.Ability();
+        ab.effect = NamedAbilities.createEffect(name);
+        return ab;
+    }
+    static createInherentLandAbility(type) {
+        let ab = new Ability_1.Ability();
+        let manasym = NamedAbilities.getManaSymbolFromLandType(type);
+        ab.primitiveName = "({T}: Add " + manasym + " to your mana pool.)";
+        return ab;
+    }
+    static getManaSymbolFromLandType(type) {
+        switch (type) {
+            case LandType_1.LandType.Swamp: return "{B}";
+            case LandType_1.LandType.Island: return "{U}";
+            case LandType_1.LandType.Forest: return "{G}";
+            case LandType_1.LandType.Mountain: return "{R}";
+            case LandType_1.LandType.Plains: return "{W}";
+            default: return "???";
+        }
+    }
+}
+exports.NamedAbilities = NamedAbilities;
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Acquisition_1 = __webpack_require__(27);
 const Layer_1 = __webpack_require__(8);
 const Utilities_1 = __webpack_require__(1);
-const Modification_1 = __webpack_require__(39);
-const Modifications_1 = __webpack_require__(19);
+const Modification_1 = __webpack_require__(40);
+const Modifications_1 = __webpack_require__(21);
 class Effect {
     constructor() {
         // Permanent features
@@ -1944,7 +2105,7 @@ exports.Effect = Effect;
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1952,10 +2113,11 @@ exports.Effect = Effect;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Layer_1 = __webpack_require__(8);
 const Typeline_1 = __webpack_require__(0);
-const EnumEx_1 = __webpack_require__(23);
+const EnumEx_1 = __webpack_require__(25);
 const CreatureSubtype_1 = __webpack_require__(7);
-const SingleModificationBase_1 = __webpack_require__(27);
-const LandType_1 = __webpack_require__(6);
+const SingleModificationBase_1 = __webpack_require__(28);
+const LandType_1 = __webpack_require__(3);
+const NamedAbilities_1 = __webpack_require__(19);
 class PowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
     asString(plural) {
         return (plural ? "get" : "gets") + " " + (this.power >= 0 ? "+" : "") + this.power + "/" +
@@ -2151,6 +2313,25 @@ class AddTypeModification extends SingleModificationBase_1.SingleModificationBas
     }
 }
 exports.AddTypeModification = AddTypeModification;
+class LoseTypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "aren't" : "isn't a") + " " + Typeline_1.Type[this.type].toLowerCase() + (plural ? "s" : "");
+    }
+    applyTo(target, battlefield, source) {
+        if (target.typeline.types.includes(this.type)) {
+            let index = target.typeline.types.indexOf(this.type);
+            target.typeline.types.splice(index, 1);
+        }
+    }
+}
+exports.LoseTypeModification = LoseTypeModification;
 class AddSubtypeModification extends SingleModificationBase_1.SingleModificationBase {
     constructor(type) {
         super();
@@ -2170,6 +2351,52 @@ class AddSubtypeModification extends SingleModificationBase_1.SingleModification
     }
 }
 exports.AddSubtypeModification = AddSubtypeModification;
+class AddLandTypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is a") + " " + LandType_1.LandType[this.type] + (plural ? "s in addition to their other types" : " in addition to its other types");
+    }
+    applyTo(target, battlefield, source) {
+        if (target.typeline.landTypes.includes(this.type))
+            return;
+        target.typeline.landTypes.push(this.type);
+        target.addAbility(NamedAbilities_1.NamedAbilities.createInherentLandAbility(this.type), source);
+        target.modificationLog.addType(LandType_1.LandType[this.type]);
+    }
+}
+exports.AddLandTypeModification = AddLandTypeModification;
+class SetLandTypeModification extends SingleModificationBase_1.SingleModificationBase {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+    getLayer() {
+        return Layer_1.Layer.L4_Type;
+    }
+    asString(plural) {
+        return (plural ? "are" : "is a") + " " + LandType_1.LandType[this.type] + (plural ? "s" : "");
+    }
+    applyTo(target, battlefield, source) {
+        target.typeline.landTypes.length = 0;
+        target.typeline.landTypes.push(this.type);
+        for (let i = target.abilities.length - 1; i >= 0; i--) {
+            let ab = target.abilities[i];
+            if ((ab.primitiveName != null && ab.primitiveName.startsWith("({T}: Add")) || !ab.nonprinted) {
+                target.abilities.splice(i, 1);
+                target.modificationLog.addStrickenAbility(ab);
+            }
+        }
+        target.addAbility(NamedAbilities_1.NamedAbilities.createInherentLandAbility(this.type), source);
+        target.modificationLog.addType(LandType_1.LandType[this.type]);
+    }
+}
+exports.SetLandTypeModification = SetLandTypeModification;
 class SetSubtypeModification extends SingleModificationBase_1.SingleModificationBase {
     constructor(type) {
         super();
@@ -2248,6 +2475,20 @@ class ChangeLandTypeModification extends SingleModificationBase_1.SingleModifica
         return (plural ? "have" : "has") + " all instances of the word '" + LandType_1.LandType[this.from] + "' replaced by '" + LandType_1.LandType[this.to] + "'";
     }
     applyTo(target, battlefield, source) {
+        if (target.typeline.landTypes.includes(this.from)) {
+            target.typeline.landTypes.splice(target.typeline.landTypes.indexOf(this.from), 1);
+            target.typeline.landTypes.push(this.to);
+            target.modificationLog.addType(LandType_1.LandType[this.to]);
+            for (let i = target.abilities.length - 1; i >= 0; i--) {
+                let ab = target.abilities[i];
+                if ((ab.primitiveName != null && ab.primitiveName.startsWith("({T}: Add")
+                    && ab.primitiveName.includes(NamedAbilities_1.NamedAbilities.getManaSymbolFromLandType(this.from)))) {
+                    target.abilities.splice(i, 1);
+                    target.modificationLog.addStrickenAbility(ab);
+                }
+            }
+            target.addAbility(NamedAbilities_1.NamedAbilities.createInherentLandAbility(this.to), source);
+        }
         for (let ab of target.abilities) {
             this.recursivelyUpdateText(target, ab, this.from, this.to);
         }
@@ -2283,7 +2524,7 @@ exports.ChangeLandTypeModification = ChangeLandTypeModification;
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2440,7 +2681,7 @@ exports.StateCheck = StateCheck;
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {(function (global, factory) {
@@ -2835,15 +3076,16 @@ return typeDetect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Card_1 = __webpack_require__(36);
+const Card_1 = __webpack_require__(38);
 const Typeline_1 = __webpack_require__(0);
 const Utilities_1 = __webpack_require__(1);
+const WordParser_1 = __webpack_require__(17);
 var CardCreator;
 (function (CardCreator) {
     function parse(script) {
@@ -2869,6 +3111,9 @@ var CardCreator;
             if (Typeline_1.stringToSubtype(w) != null) {
                 c.typeline.creatureSubtypes.push(Typeline_1.stringToSubtype(w));
             }
+            if (WordParser_1.WordParser.isLandType(w)) {
+                c.typeline.landTypes.push(WordParser_1.WordParser.parseLandType(w));
+            }
             if (!isNaN(Utilities_1.parsePT(w)[0])) {
                 [c.power, c.toughness] = Utilities_1.parsePT(w);
             }
@@ -2883,7 +3128,7 @@ var CardCreator;
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2907,195 +3152,16 @@ exports.EnumEx = EnumEx;
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(1);
-const Typeline_1 = __webpack_require__(0);
-const Ability_1 = __webpack_require__(25);
-const Effect_1 = __webpack_require__(18);
-const Modifications_1 = __webpack_require__(19);
-const Acquisition_1 = __webpack_require__(26);
-const Modifications_2 = __webpack_require__(19);
-const NamedAbilities_1 = __webpack_require__(40);
-const PrimitiveAbilities_1 = __webpack_require__(41);
-class AbilityCreator {
-    constructor() {
-        this.ability = new Ability_1.Ability();
-        this.effect = new Effect_1.Effect();
-        this.parsingModifications = false;
-    }
-    parseScript(script) {
-        let lines = script.split("\n");
-        if (PrimitiveAbilities_1.primitiveAbilities.includes(script.trim())) {
-            this.ability.primitiveName = Utilities_1.capitalizeFirstLetter(script.trim());
-            return;
-        }
-        if (script.trim().endsWith("walk") && !script.includes("\n")) {
-            this.ability.landwalk = Typeline_1.stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
-        }
-        if (!script.includes("\n") && script.toLowerCase().trim().startsWith("protection:")) {
-            this.ability.protectionFrom = Typeline_1.stringToColor(script.toLowerCase().trim().substr("protection:".length));
-        }
-        if (script.trim() == "changeling") {
-            this.ability.effect.acquisition.addSubjectThis();
-            this.ability.effect.modification.parts.push(new Modifications_1.ChangelingModification());
-            return;
-        }
-        for (let i = 0; i < lines.length; i++) {
-            this.parseLine(lines[i].trim().toLowerCase());
-        }
-        this.ability.effect = this.effect;
-    }
-    parseLine(line) {
-        if (line == "")
-            return;
-        if (line.substr(0, 2) == "//")
-            return;
-        if (this.checkForMiddleLine(line))
-            return;
-        if (PrimitiveAbilities_1.primitiveAbilities.includes(line)) {
-            let a = new Ability_1.Ability();
-            a.primitiveName = line;
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(a));
-        }
-        else if (["this", "cardname"].includes(line)) {
-            this.effect.acquisition.addSubjectThis();
-        }
-        else if (["switch"].includes(line)) {
-            this.effect.modification.parts.push(new Modifications_1.SwitchPTModification());
-        }
-        else if (line.includes("/") && !isNaN(Utilities_1.parsePT(line)[0]) && !isNaN(Utilities_1.parsePT(line)[1])) {
-            let [power, toughness] = Utilities_1.parsePT(line);
-            this.effect.modification.parts.push(new Modifications_1.PowerToughnessModification(power, toughness));
-        }
-        else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
-            this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
-        }
-        else if (line.startsWith("setcolor:")) {
-            this.effect.modification.parts.push(new Modifications_1.SetColorToModification(Typeline_1.stringToColor(line.substr("setcolor:".length))));
-        }
-        else if (line.startsWith("addcolor:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddColorModification(Typeline_1.stringToColor(line.substr("addcolor:".length))));
-        }
-        else if (line.startsWith("setpt:")) {
-            let [power, toughness] = Utilities_1.parsePT(line.substr("setpt:".length));
-            this.effect.modification.parts.push(new Modifications_1.SetPowerToughnessModification(power, toughness));
-        }
-        else if (line.startsWith("addtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddTypeModification(Typeline_1.stringToType(line.substr("addtype:".length))));
-        }
-        else if (line.startsWith("setsubtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.SetSubtypeModification(Typeline_1.stringToSubtype(line.substr("setsubtype:".length))));
-        }
-        else if (line.startsWith("addsubtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddSubtypeModification(Typeline_1.stringToSubtype(line.substr("addsubtype:".length))));
-        }
-        else if (line.startsWith("changetype:")) {
-            const res = line.substr("changetype:".length);
-            const split = res.split("=>");
-            const from = Typeline_1.stringToLandType(split[0]);
-            const to = Typeline_1.stringToLandType(split[1]);
-            this.effect.modification.parts.push(new Modifications_1.ChangeLandTypeModification(from, to));
-        }
-        else if (line.startsWith("loseprimitive:")) {
-            this.effect.modification.parts.push(new Modifications_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
-        }
-        else if (line.startsWith("gainscontrol:")) {
-            let controller = Modifications_1.Controller.Controller;
-            let who = line.substr("gainscontrol:".length);
-            switch (who) {
-                case "1":
-                    controller = Modifications_1.Controller.PlayerOne;
-                    break;
-                case "2":
-                    controller = Modifications_1.Controller.PlayerTwo;
-                    break;
-                case "you":
-                    controller = Modifications_1.Controller.Controller;
-                    break;
-                case "opponent":
-                    controller = Modifications_1.Controller.Opponent;
-                    break;
-            }
-            this.effect.modification.parts.push(new Modifications_1.ControlChangeModification(controller));
-        }
-        else if (line.startsWith("addability:")) {
-            const innerAbility = line.substr("addability:".length).replace(";", "\n");
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(parseAsAbility(innerAbility)));
-        }
-        else if (line == "silence") {
-            this.effect.modification.parts.push(new Modifications_2.SilenceModification());
-        }
-        else if (line == "losecolors") {
-            this.effect.modification.parts.push(new Modifications_1.LoseColorsModification());
-        }
-        else if (line.startsWith("namedability:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(NamedAbilities_1.NamedAbilities.create(line.substr("namedability:".length))));
-        }
-        else if (line.startsWith("namedeffect:")) {
-            this.effect.modification.parts.push(NamedAbilities_1.NamedAbilities.createSingleModification(line.substr("namedeffect:".length)));
-        }
-        else {
-            this.ability.parseError = "unrecognized! " + line;
-        }
-    }
-    static wordForWordParse(line) {
-        let words = line.split(' ');
-        let ca = new Acquisition_1.ComplexAcquisition();
-        for (let word of words) {
-            if (Typeline_1.stringToColor(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word)));
-            else if (Typeline_1.stringToType(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word)));
-            else if (Typeline_1.stringToSubtype(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.subtype(Typeline_1.stringToSubtype(word)));
-            else if (word == "youcontrol")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(true));
-            else if (word == "nocontrol")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(false));
-            else if (word.startsWith("non") && Typeline_1.stringToType(word.substr(3)) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word.substr(3))).negate());
-            else if (word.startsWith("non") && Typeline_1.stringToColor(word.substr(3)) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word.substr(3))).negate());
-            else if (word == "other")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.nonself());
-            else
-                return null;
-        }
-        return ca;
-    }
-    checkForMiddleLine(line) {
-        let gwords = ["get", "gets", "has", "have", "gain", "gains"];
-        if (gwords.includes(line)) {
-            this.parsingModifications = true;
-            return true;
-        }
-        return false;
-    }
-}
-function parseAsAbility(script) {
-    let abilityCreator = new AbilityCreator();
-    abilityCreator.parseScript(script);
-    return abilityCreator.ability;
-}
-exports.parseAsAbility = parseAsAbility;
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Utilities_1 = __webpack_require__(1);
-const Effect_1 = __webpack_require__(18);
+const Effect_1 = __webpack_require__(20);
 const Layer_1 = __webpack_require__(8);
-const LandType_1 = __webpack_require__(6);
+const LandType_1 = __webpack_require__(3);
 const Typeline_1 = __webpack_require__(0);
 class Ability {
     constructor() {
@@ -3174,7 +3240,7 @@ exports.Ability = Ability;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3396,7 +3462,7 @@ exports.Acquisition = Acquisition;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3414,7 +3480,202 @@ exports.SingleModificationBase = SingleModificationBase;
 
 
 /***/ }),
-/* 28 */
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Utilities_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
+const Ability_1 = __webpack_require__(26);
+const Effect_1 = __webpack_require__(20);
+const Modifications_1 = __webpack_require__(21);
+const Acquisition_1 = __webpack_require__(27);
+const Modifications_2 = __webpack_require__(21);
+const NamedAbilities_1 = __webpack_require__(19);
+const PrimitiveAbilities_1 = __webpack_require__(41);
+const WordParser_1 = __webpack_require__(17);
+class AbilityCreator {
+    constructor() {
+        this.ability = new Ability_1.Ability();
+        this.effect = new Effect_1.Effect();
+        this.parsingModifications = false;
+    }
+    parseScript(script) {
+        let lines = script.split("\n");
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(script.trim())) {
+            this.ability.primitiveName = Utilities_1.capitalizeFirstLetter(script.trim());
+            return;
+        }
+        if (script.trim().endsWith("walk") && !script.includes("\n")) {
+            this.ability.landwalk = Typeline_1.stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
+        }
+        if (!script.includes("\n") && script.toLowerCase().trim().startsWith("protection:")) {
+            this.ability.protectionFrom = Typeline_1.stringToColor(script.toLowerCase().trim().substr("protection:".length));
+        }
+        if (script.trim() == "changeling") {
+            this.ability.effect.acquisition.addSubjectThis();
+            this.ability.effect.modification.parts.push(new Modifications_1.ChangelingModification());
+            return;
+        }
+        for (let i = 0; i < lines.length; i++) {
+            this.parseLine(lines[i].trim().toLowerCase());
+        }
+        this.ability.effect = this.effect;
+    }
+    parseLine(line) {
+        if (line == "")
+            return;
+        if (line.substr(0, 2) == "//")
+            return;
+        if (this.checkForMiddleLine(line))
+            return;
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(line)) {
+            let a = new Ability_1.Ability();
+            a.primitiveName = line;
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(a));
+        }
+        else if (["this", "cardname"].includes(line)) {
+            this.effect.acquisition.addSubjectThis();
+        }
+        else if (["switch"].includes(line)) {
+            this.effect.modification.parts.push(new Modifications_1.SwitchPTModification());
+        }
+        else if (line.includes("/") && !isNaN(Utilities_1.parsePT(line)[0]) && !isNaN(Utilities_1.parsePT(line)[1])) {
+            let [power, toughness] = Utilities_1.parsePT(line);
+            this.effect.modification.parts.push(new Modifications_1.PowerToughnessModification(power, toughness));
+        }
+        else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
+            this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
+        }
+        else if (line.startsWith("setcolor:")) {
+            this.effect.modification.parts.push(new Modifications_1.SetColorToModification(Typeline_1.stringToColor(line.substr("setcolor:".length))));
+        }
+        else if (line.startsWith("addcolor:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddColorModification(Typeline_1.stringToColor(line.substr("addcolor:".length))));
+        }
+        else if (line.startsWith("setpt:")) {
+            let [power, toughness] = Utilities_1.parsePT(line.substr("setpt:".length));
+            this.effect.modification.parts.push(new Modifications_1.SetPowerToughnessModification(power, toughness));
+        }
+        else if (line.startsWith("addtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddTypeModification(Typeline_1.stringToType(line.substr("addtype:".length))));
+        }
+        else if (line.startsWith("setsubtype:")) {
+            let arg = line.substr("setsubtype:".length);
+            if (WordParser_1.WordParser.isCreatureType(arg)) {
+                this.effect.modification.parts.push(new Modifications_1.SetSubtypeModification(WordParser_1.WordParser.parseCreatureType(arg)));
+            }
+            else if (WordParser_1.WordParser.isLandType(arg)) {
+                this.effect.modification.parts.push(new Modifications_1.SetLandTypeModification(WordParser_1.WordParser.parseLandType(arg)));
+            }
+        }
+        else if (line.startsWith("addsubtype:")) {
+            let arg = line.substr("addsubtype:".length);
+            if (WordParser_1.WordParser.isCreatureType(arg)) {
+                this.effect.modification.parts.push(new Modifications_1.AddSubtypeModification(WordParser_1.WordParser.parseCreatureType(arg)));
+            }
+            else if (WordParser_1.WordParser.isLandType(arg)) {
+                this.effect.modification.parts.push(new Modifications_1.AddLandTypeModification(WordParser_1.WordParser.parseLandType(arg)));
+            }
+        }
+        else if (line.startsWith("losetype:")) {
+            this.effect.modification.parts.push(new Modifications_1.LoseTypeModification(Typeline_1.stringToType(line.substr("losetype:".length))));
+        }
+        else if (line.startsWith("changetype:")) {
+            const res = line.substr("changetype:".length);
+            const split = res.split("=>");
+            const from = Typeline_1.stringToLandType(split[0]);
+            const to = Typeline_1.stringToLandType(split[1]);
+            this.effect.modification.parts.push(new Modifications_1.ChangeLandTypeModification(from, to));
+        }
+        else if (line.startsWith("loseprimitive:")) {
+            this.effect.modification.parts.push(new Modifications_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
+        }
+        else if (line.startsWith("gainscontrol:")) {
+            let controller = Modifications_1.Controller.Controller;
+            let who = line.substr("gainscontrol:".length);
+            switch (who) {
+                case "1":
+                    controller = Modifications_1.Controller.PlayerOne;
+                    break;
+                case "2":
+                    controller = Modifications_1.Controller.PlayerTwo;
+                    break;
+                case "you":
+                    controller = Modifications_1.Controller.Controller;
+                    break;
+                case "opponent":
+                    controller = Modifications_1.Controller.Opponent;
+                    break;
+            }
+            this.effect.modification.parts.push(new Modifications_1.ControlChangeModification(controller));
+        }
+        else if (line.startsWith("addability:")) {
+            const innerAbility = line.substr("addability:".length).replace(";", "\n");
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(parseAsAbility(innerAbility)));
+        }
+        else if (line == "silence") {
+            this.effect.modification.parts.push(new Modifications_2.SilenceModification());
+        }
+        else if (line == "losecolors") {
+            this.effect.modification.parts.push(new Modifications_1.LoseColorsModification());
+        }
+        else if (line.startsWith("namedability:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(NamedAbilities_1.NamedAbilities.create(line.substr("namedability:".length))));
+        }
+        else if (line.startsWith("namedeffect:")) {
+            this.effect.modification.parts.push(NamedAbilities_1.NamedAbilities.createSingleModification(line.substr("namedeffect:".length)));
+        }
+        else {
+            this.ability.parseError = "unrecognized! " + line;
+        }
+    }
+    static wordForWordParse(line) {
+        let words = line.split(' ');
+        let ca = new Acquisition_1.ComplexAcquisition();
+        for (let word of words) {
+            if (Typeline_1.stringToColor(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word)));
+            else if (Typeline_1.stringToType(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word)));
+            else if (Typeline_1.stringToSubtype(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.subtype(Typeline_1.stringToSubtype(word)));
+            else if (word == "youcontrol")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(true));
+            else if (word == "nocontrol")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(false));
+            else if (word.startsWith("non") && Typeline_1.stringToType(word.substr(3)) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word.substr(3))).negate());
+            else if (word.startsWith("non") && Typeline_1.stringToColor(word.substr(3)) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word.substr(3))).negate());
+            else if (word == "other")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.nonself());
+            else
+                return null;
+        }
+        return ca;
+    }
+    checkForMiddleLine(line) {
+        let gwords = ["get", "gets", "has", "have", "gain", "gains"];
+        if (gwords.includes(line)) {
+            this.parsingModifications = true;
+            return true;
+        }
+        return false;
+    }
+}
+function parseAsAbility(script) {
+    let abilityCreator = new AbilityCreator();
+    abilityCreator.parseScript(script);
+    return abilityCreator.ability;
+}
+exports.parseAsAbility = parseAsAbility;
+
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3536,7 +3797,7 @@ AssertionError.prototype.toJSON = function (stack) {
 
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3562,7 +3823,7 @@ module.exports = function getActual(obj, args) {
 
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3613,7 +3874,7 @@ module.exports = getFuncName;
 
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3655,7 +3916,7 @@ module.exports = function getProperties(object) {
 
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -3668,8 +3929,8 @@ module.exports = function getProperties(object) {
  * Module dependancies
  */
 
-var inspect = __webpack_require__(12);
-var config = __webpack_require__(4);
+var inspect = __webpack_require__(13);
+var config = __webpack_require__(5);
 
 /**
  * ### .objDisplay(object)
@@ -3711,7 +3972,7 @@ module.exports = function objDisplay(obj) {
 
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports) {
 
 /*!
@@ -3744,19 +4005,20 @@ module.exports = function getOwnEnumerablePropertySymbols(obj) {
 
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(16);
-const StateCheck_1 = __webpack_require__(20);
-const AbilityCreation_1 = __webpack_require__(24);
-const CardCreator_1 = __webpack_require__(22);
-const Permanent_1 = __webpack_require__(17);
+const SampleLoader_1 = __webpack_require__(10);
+const StateCheck_1 = __webpack_require__(22);
+const AbilityCreation_1 = __webpack_require__(29);
+const CardCreator_1 = __webpack_require__(24);
+const Permanent_1 = __webpack_require__(18);
 const ScenarioLoader_1 = __webpack_require__(44);
 const Recipes_1 = __webpack_require__(9);
+const HashSerialization_1 = __webpack_require__(72);
 function removeFromArray(pole, prvek) {
     const index = pole.indexOf(prvek);
     if (index == -1) {
@@ -3772,12 +4034,16 @@ function reevaluateValues() {
     const stateCheck = new StateCheck_1.StateCheck();
     stateCheck.perform(mainscope.battlefield);
     $("#collapsibleLog").html(stateCheck.getHtmlReport());
+    window.location.hash = HashSerialization_1.HashSerialization.serialize(mainscope.battlefield, mainscope.hand);
 }
 angular.module('PrimaryApp', [])
     .controller('PrimaryController', function ($scope) {
     $scope.greeting = "Hello";
     $scope.battlefield = [];
     $scope.hand = [SampleLoader_1.SampleLoader.createCard(Recipes_1.Recipes.RuneclawBear)];
+    if (window.location.hash) {
+        [$scope.battlefield, $scope.hand] = HashSerialization_1.HashSerialization.deserialize(window.location.hash);
+    }
     mainscope = $scope;
     $scope.abilityCreatorToString = function () {
         if (!$scope.abilityCreatorScript) {
@@ -3921,7 +4187,7 @@ angular.module('PrimaryApp', [])
 
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3952,7 +4218,7 @@ exports.definitions = [
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3960,7 +4226,7 @@ exports.definitions = [
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(0);
 const Utilities_1 = __webpack_require__(1);
-const Permanent_1 = __webpack_require__(17);
+const Permanent_1 = __webpack_require__(18);
 class Card {
     constructor() {
         this.color = [];
@@ -3989,30 +4255,7 @@ exports.Counter = Counter;
 
 
 /***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const LandType_1 = __webpack_require__(6);
-class WordParser {
-    static parseLandType(word) {
-        switch (word.toLowerCase()) {
-            case "plains": return LandType_1.LandType.Plains;
-            case "mountain": return LandType_1.LandType.Mountain;
-            case "island": return LandType_1.LandType.Island;
-            case "forest": return LandType_1.LandType.Forest;
-            case "swamp": return LandType_1.LandType.Swamp;
-        }
-        return null;
-    }
-}
-exports.WordParser = WordParser;
-
-
-/***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4041,7 +4284,7 @@ exports.ModificationLog = ModificationLog;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4092,86 +4335,6 @@ exports.Modification = Modification;
 
 
 /***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Ability_1 = __webpack_require__(25);
-const Effect_1 = __webpack_require__(18);
-const Layer_1 = __webpack_require__(8);
-const SingleModificationBase_1 = __webpack_require__(27);
-class ScionOfTheWildModification extends SingleModificationBase_1.SingleModificationBase {
-    getLayer() {
-        return Layer_1.Layer.L7b_PnTSetSpecificValue;
-    }
-    asString(plural) {
-        return (plural ? "have" : "has") + " power and toughness each equal to the number of creatures you control";
-    }
-    whatItDoes(target, battlefield, source) {
-        return "SETPT:" + battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
-    }
-    applyTo(target, battlefield, source) {
-        target.power = target.toughness = battlefield.filter((perm) => perm.typeline.isCreature() && !perm.controlledByOpponent).length;
-        target.modificationLog.ptChanged = true;
-    }
-}
-class EmptyShrineKannushiModification extends SingleModificationBase_1.SingleModificationBase {
-    getLayer() {
-        return Layer_1.Layer.L6_Abilities;
-    }
-    asString(plural) {
-        return (plural ? "have" : "has") + " protection from the colors of permanents you control";
-    }
-    applyTo(target, battlefield, source) {
-        let myColors = [];
-        for (let perm of battlefield) {
-            if (perm.controlledByOpponent == source.source.controlledByOpponent) {
-                for (let clr of perm.color) {
-                    if (!myColors.includes(clr)) {
-                        myColors.push(clr);
-                    }
-                }
-            }
-        }
-        for (let clr of myColors) {
-            const protect = new Ability_1.Ability();
-            protect.protectionFrom = clr;
-            target.addAbility(protect, source);
-        }
-    }
-}
-class NamedAbilities {
-    static createEffect(name) {
-        let ff = new Effect_1.Effect();
-        switch (name.toLowerCase()) {
-            case "ScionOfTheWild".toLowerCase():
-                ff.acquisition.addSubjectThis();
-                ff.modification.parts.push(new ScionOfTheWildModification());
-                break;
-            default:
-                console.error("Unknown effect name:" + name + ";");
-                break;
-        }
-        return ff;
-    }
-    static createSingleModification(name) {
-        switch (name.toLowerCase()) {
-            case "EmptyShrineKannushi".toLowerCase():
-                return new EmptyShrineKannushiModification();
-        }
-    }
-    static create(name) {
-        let ab = new Ability_1.Ability();
-        ab.effect = NamedAbilities.createEffect(name);
-        return ab;
-    }
-}
-exports.NamedAbilities = NamedAbilities;
-
-
-/***/ }),
 /* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4197,8 +4360,8 @@ exports.primitiveAbilities = [
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const StateCheck_1 = __webpack_require__(20);
-const Permanent_1 = __webpack_require__(17);
+const StateCheck_1 = __webpack_require__(22);
+const Permanent_1 = __webpack_require__(18);
 const LinkMap_1 = __webpack_require__(43);
 const Utilities_1 = __webpack_require__(1);
 class DependencySort {
@@ -4451,13 +4614,13 @@ exports.ScenarioLoader = ScenarioLoader;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(10);
-const chai_1 = __webpack_require__(11);
+const Scenario_1 = __webpack_require__(11);
+const chai_1 = __webpack_require__(12);
 const Recipes_1 = __webpack_require__(9);
 const Typeline_1 = __webpack_require__(0);
 const CreatureSubtype_1 = __webpack_require__(7);
 const OrderOfOperationsScenarios_1 = __webpack_require__(69);
-const LandType_1 = __webpack_require__(6);
+const LandType_1 = __webpack_require__(3);
 const OrderOfOperationsL6_1 = __webpack_require__(70);
 const ComprehensiveRulesScenarios_1 = __webpack_require__(71);
 exports.Scenarios = ComprehensiveRulesScenarios_1.ComprehensiveRulesScenarios.getThem().concat([
@@ -4646,8 +4809,77 @@ exports.Scenarios = ComprehensiveRulesScenarios_1.ComprehensiveRulesScenarios.ge
             chai_1.expect(s.find("Nyx Horse").abilities[1].toCapitalizedString()).to.equal("Mountainwalk");
             chai_1.expect(s.find("Nyx Horse").abilities[2].toCapitalizedString()).to.equal("Forestwalk");
         });
+    }),
+    new Scenario_1.Scenario("Urborg + Blood Moon")
+        .addCard(Recipes_1.Recipes.Urborg)
+        .addCard(Recipes_1.Recipes.BloodMoon)
+        .withVerification((f, s) => {
+        it("Urborg is just a Mountain.", () => {
+            chai_1.expect(f[0].typeline.landTypes).to.eql([LandType_1.LandType.Mountain]);
+        });
+    }),
+    new Scenario_1.Scenario("Change lands via text")
+        .addCard(Recipes_1.Recipes.Forest)
+        .addCard(Recipes_1.Recipes.Mountain).addCard({
+        name: "Mind Bend",
+        card: "artifact",
+        abilities: [["lands", "changetype:mountain=>forest"]]
+    }).addCard({
+        name: "Mind Bend",
+        card: "artifact",
+        abilities: [["lands", "changetype:forest=>plains"]]
     })
-    // TODO (elsewhere) scenario with a permanent that becomes just "blue"
+        .withVerification((f, s) => {
+        it("Both lands are Plains.", () => {
+            chai_1.expect(f[0].typeline.landTypes).eql([LandType_1.LandType.Plains]);
+            chai_1.expect(f[1].typeline.landTypes).eql([LandType_1.LandType.Plains]);
+        });
+    }),
+    new Scenario_1.Scenario("Change lands via text (2)")
+        .addCard(Recipes_1.Recipes.Forest)
+        .addCard(Recipes_1.Recipes.BloodMoon)
+        .addCard({
+        name: "Mind Bend",
+        card: "artifact",
+        abilities: [["lands", "changetype:mountain=>plains"]]
+    })
+        .withVerification((f, s) => {
+        it("It's a Mountain, not a Plains.", () => {
+            chai_1.expect(f[0].typeline.landTypes).eql([LandType_1.LandType.Mountain]);
+        });
+    }),
+    new Scenario_1.Scenario("Neurok Transmuter")
+        .addCard({
+        name: "Thing",
+        card: "artifact",
+        abilities: []
+    })
+        .addCard({
+        name: "March of the Machines",
+        card: "blue enchantment",
+        abilities: [
+            [
+                "noncreature artifact",
+                "addtype:creature",
+                "setpt:3/3"
+            ]
+        ]
+    })
+        .addCard({
+        name: "Neurok Transmuter",
+        card: "blue 2/2 creature Human Wizard",
+        abilities: [
+            [
+                "setcolor:blue",
+                "losetype:artifact"
+            ]
+        ]
+    }).withVerification((f, s) => {
+        it("The thing is just blue.", () => {
+            chai_1.expect(f[0].typeline.types).to.be.empty;
+            chai_1.expect(f[0].color).to.eql([Typeline_1.Color.Blue]);
+        });
+    })
 ]).concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem())
     .concat(OrderOfOperationsL6_1.OrderOfOperationsScenariosL6.getThem());
 
@@ -4678,7 +4910,7 @@ exports.test = __webpack_require__(48);
  * type utility
  */
 
-exports.type = __webpack_require__(21);
+exports.type = __webpack_require__(23);
 
 /*!
  * expectTypes utility
@@ -4695,19 +4927,19 @@ exports.getMessage = __webpack_require__(51);
  * actual utility
  */
 
-exports.getActual = __webpack_require__(29);
+exports.getActual = __webpack_require__(31);
 
 /*!
  * Inspect util
  */
 
-exports.inspect = __webpack_require__(12);
+exports.inspect = __webpack_require__(13);
 
 /*!
  * Object Display util
  */
 
-exports.objDisplay = __webpack_require__(32);
+exports.objDisplay = __webpack_require__(34);
 
 /*!
  * Flag utility
@@ -4719,7 +4951,7 @@ exports.flag = __webpack_require__(2);
  * Flag transferring utility
  */
 
-exports.transferFlags = __webpack_require__(5);
+exports.transferFlags = __webpack_require__(6);
 
 /*!
  * Deep equal utility
@@ -4743,7 +4975,7 @@ exports.hasProperty = pathval.hasProperty;
  * Function name
  */
 
-exports.getName = __webpack_require__(30);
+exports.getName = __webpack_require__(32);
 
 /*!
  * add Property
@@ -4791,7 +5023,7 @@ exports.compareByInspect = __webpack_require__(60);
  * Get own enumerable property symbols method
  */
 
-exports.getOwnEnumerablePropertySymbols = __webpack_require__(33);
+exports.getOwnEnumerablePropertySymbols = __webpack_require__(35);
 
 /*!
  * Get own enumerable properties method
@@ -4809,19 +5041,19 @@ exports.checkError = __webpack_require__(62);
  * Proxify util
  */
 
-exports.proxify = __webpack_require__(15);
+exports.proxify = __webpack_require__(16);
 
 /*!
  * addLengthGuard util
  */
 
-exports.addLengthGuard = __webpack_require__(14);
+exports.addLengthGuard = __webpack_require__(15);
 
 /*!
  * isProxyEnabled helper
  */
 
-exports.isProxyEnabled = __webpack_require__(13);
+exports.isProxyEnabled = __webpack_require__(14);
 
 /*!
  * isNaN method
@@ -5213,9 +5445,9 @@ module.exports = g;
  * @api public
  */
 
-var AssertionError = __webpack_require__(28);
+var AssertionError = __webpack_require__(30);
 var flag = __webpack_require__(2);
-var type = __webpack_require__(21);
+var type = __webpack_require__(23);
 
 module.exports = function expectTypes(obj, types) {
   var flagMsg = flag(obj, 'message');
@@ -5261,9 +5493,9 @@ module.exports = function expectTypes(obj, types) {
  */
 
 var flag = __webpack_require__(2)
-  , getActual = __webpack_require__(29)
-  , inspect = __webpack_require__(12)
-  , objDisplay = __webpack_require__(32);
+  , getActual = __webpack_require__(31)
+  , inspect = __webpack_require__(13)
+  , objDisplay = __webpack_require__(34);
 
 /**
  * ### .getMessage(object, message, negateMessage)
@@ -5348,7 +5580,7 @@ module.exports = function getEnumerableProperties(object) {
  * MIT Licensed
  */
 
-var type = __webpack_require__(21);
+var type = __webpack_require__(23);
 function FakeMap() {
   this._key = 'chai/deep-eql__' + Math.random() + Date.now();
 }
@@ -5807,10 +6039,10 @@ function isPrimitive(value) {
  * MIT Licensed
  */
 
-var chai = __webpack_require__(3);
+var chai = __webpack_require__(4);
 var flag = __webpack_require__(2);
-var isProxyEnabled = __webpack_require__(13);
-var transferFlags = __webpack_require__(5);
+var isProxyEnabled = __webpack_require__(14);
+var transferFlags = __webpack_require__(6);
 
 /**
  * ### .addProperty(ctx, name, getter)
@@ -5885,11 +6117,11 @@ module.exports = function addProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(14);
-var chai = __webpack_require__(3);
+var addLengthGuard = __webpack_require__(15);
+var chai = __webpack_require__(4);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(15);
-var transferFlags = __webpack_require__(5);
+var proxify = __webpack_require__(16);
+var transferFlags = __webpack_require__(6);
 
 /**
  * ### .addMethod(ctx, name, method)
@@ -5959,10 +6191,10 @@ module.exports = function addMethod(ctx, name, method) {
  * MIT Licensed
  */
 
-var chai = __webpack_require__(3);
+var chai = __webpack_require__(4);
 var flag = __webpack_require__(2);
-var isProxyEnabled = __webpack_require__(13);
-var transferFlags = __webpack_require__(5);
+var isProxyEnabled = __webpack_require__(14);
+var transferFlags = __webpack_require__(6);
 
 /**
  * ### .overwriteProperty(ctx, name, fn)
@@ -6057,11 +6289,11 @@ module.exports = function overwriteProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(14);
-var chai = __webpack_require__(3);
+var addLengthGuard = __webpack_require__(15);
+var chai = __webpack_require__(4);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(15);
-var transferFlags = __webpack_require__(5);
+var proxify = __webpack_require__(16);
+var transferFlags = __webpack_require__(6);
 
 /**
  * ### .overwriteMethod(ctx, name, fn)
@@ -6159,11 +6391,11 @@ module.exports = function overwriteMethod(ctx, name, method) {
  * Module dependencies
  */
 
-var addLengthGuard = __webpack_require__(14);
-var chai = __webpack_require__(3);
+var addLengthGuard = __webpack_require__(15);
+var chai = __webpack_require__(4);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(15);
-var transferFlags = __webpack_require__(5);
+var proxify = __webpack_require__(16);
+var transferFlags = __webpack_require__(6);
 
 /*!
  * Module variables
@@ -6313,8 +6545,8 @@ module.exports = function addChainableMethod(ctx, name, method, chainingBehavior
  * MIT Licensed
  */
 
-var chai = __webpack_require__(3);
-var transferFlags = __webpack_require__(5);
+var chai = __webpack_require__(4);
+var transferFlags = __webpack_require__(6);
 
 /**
  * ### .overwriteChainableMethod(ctx, name, method, chainingBehavior)
@@ -6392,7 +6624,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
  * Module dependancies
  */
 
-var inspect = __webpack_require__(12);
+var inspect = __webpack_require__(13);
 
 /**
  * ### .compareByInspect(mixed, mixed)
@@ -6429,7 +6661,7 @@ module.exports = function compareByInspect(a, b) {
  * Module dependancies
  */
 
-var getOwnEnumerablePropertySymbols = __webpack_require__(33);
+var getOwnEnumerablePropertySymbols = __webpack_require__(35);
 
 /**
  * ### .getOwnEnumerableProperties(object)
@@ -6672,7 +6904,7 @@ module.exports = Number.isNaN || isNaN;
  * MIT Licensed
  */
 
-var config = __webpack_require__(4);
+var config = __webpack_require__(5);
 
 module.exports = function (_chai, util) {
   /*!
@@ -13928,12 +14160,12 @@ module.exports = function (chai, util) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(10);
+const Scenario_1 = __webpack_require__(11);
 const Recipes_1 = __webpack_require__(9);
-const chai_1 = __webpack_require__(11);
+const chai_1 = __webpack_require__(12);
 const Typeline_1 = __webpack_require__(0);
 const CreatureSubtype_1 = __webpack_require__(7);
-const LandType_1 = __webpack_require__(6);
+const LandType_1 = __webpack_require__(3);
 /**
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
@@ -13976,7 +14208,6 @@ class OrderOfOperationsScenarios {
                     chai_1.expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
                 });
             }),
-            // TODO change actual land types on a land (elsewhere)
             new Scenario_1.Scenario("OoO L3: Mind Bend + Zodiac Horse")
                 .addCard(Recipes_1.Recipes.ZodiacHorse)
                 .addCard(Recipes_1.Recipes.MindBend(LandType_1.LandType.Island, LandType_1.LandType.Forest))
@@ -14106,16 +14337,14 @@ exports.OrderOfOperationsScenarios = OrderOfOperationsScenarios;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(10);
+const Scenario_1 = __webpack_require__(11);
 const Recipes_1 = __webpack_require__(9);
-const chai_1 = __webpack_require__(11);
+const chai_1 = __webpack_require__(12);
 const Typeline_1 = __webpack_require__(0);
 /**
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
  */
-//TODO (elsewhere) add GoogleAnalytics; credits/feedback line
-//TODO add blood moon and basic land types
 //TODO allow query string to contain a battlefield
 class OrderOfOperationsScenariosL6 {
     static getThem() {
@@ -14210,9 +14439,9 @@ exports.OrderOfOperationsScenariosL6 = OrderOfOperationsScenariosL6;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(10);
-const chai_1 = __webpack_require__(11);
-const SampleLoader_1 = __webpack_require__(16);
+const Scenario_1 = __webpack_require__(11);
+const chai_1 = __webpack_require__(12);
+const SampleLoader_1 = __webpack_require__(10);
 const Recipes_1 = __webpack_require__(9);
 const Typeline_1 = __webpack_require__(0);
 class ComprehensiveRulesScenarios {
@@ -14349,6 +14578,33 @@ class ComprehensiveRulesScenarios {
     }
 }
 exports.ComprehensiveRulesScenarios = ComprehensiveRulesScenarios;
+
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const SampleLoader_1 = __webpack_require__(10);
+class HashSerialization {
+    static serialize(battlefield, hand) {
+        let preSerialize = {
+            "battlefield": battlefield.map(pm => pm.originalCard).map(crd => crd.recipe),
+            "hand": hand.map(crd => crd.recipe)
+        };
+        return "#" + JSON.stringify(preSerialize);
+    }
+    static deserialize(hash) {
+        let deserialized = JSON.parse(hash.substr(1));
+        return [
+            deserialized.battlefield.map(rcp => SampleLoader_1.SampleLoader.createCard(rcp).asPermanent()),
+            deserialized.hand.map(rcp => SampleLoader_1.SampleLoader.createCard(rcp))
+        ];
+    }
+}
+exports.HashSerialization = HashSerialization;
 
 
 /***/ })

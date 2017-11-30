@@ -195,8 +195,77 @@ export const Scenarios : Scenario[] =
                 expect(s.find("Nyx Horse").abilities[1].toCapitalizedString()).to.equal("Mountainwalk");
                 expect(s.find("Nyx Horse").abilities[2].toCapitalizedString()).to.equal("Forestwalk");
             });
+        }),
+    new Scenario("Urborg + Blood Moon")
+        .addCard(Recipes.Urborg)
+        .addCard(Recipes.BloodMoon)
+        .withVerification((f,s)=>{
+            it ("Urborg is just a Mountain.", ()=>{
+                expect(f[0].typeline.landTypes).to.eql([LandType.Mountain]);
+            })
+        }),
+    new Scenario("Change lands via text")
+        .addCard(Recipes.Forest)
+        .addCard(Recipes.Mountain) .addCard({
+        name: "Mind Bend",
+        card: "artifact",
+        abilities: [["lands","changetype:mountain=>forest"]]
+    }) .addCard({
+        name: "Mind Bend",
+        card: "artifact",
+        abilities: [["lands","changetype:forest=>plains"]]
+    })
+        .withVerification((f,s)=>{
+            it("Both lands are Plains.", ()=>{
+                expect(f[0].typeline.landTypes).eql([LandType.Plains]);
+                expect(f[1].typeline.landTypes).eql([LandType.Plains]);
+            })
+        }),
+    new Scenario("Change lands via text (2)")
+        .addCard(Recipes.Forest)
+        .addCard(Recipes.BloodMoon)
+        .addCard({
+          name: "Mind Bend",
+          card: "artifact",
+          abilities: [["lands","changetype:mountain=>plains"]]
         })
-    // TODO (elsewhere) scenario with a permanent that becomes just "blue"
+        .withVerification((f,s)=>{
+            it("It's a Mountain, not a Plains.", ()=>{
+                expect(f[0].typeline.landTypes).eql([LandType.Mountain]);
+            })
+        }),
+    new Scenario("Neurok Transmuter")
+        .addCard({
+            name: "Thing",
+            card: "artifact",
+            abilities: []
+        })
+        .addCard({
+            name: "March of the Machines",
+            card: "blue enchantment",
+            abilities: [
+                [
+                    "noncreature artifact",
+                    "addtype:creature",
+                    "setpt:3/3"
+                ]
+            ]
+        })
+        .addCard({
+            name: "Neurok Transmuter",
+            card: "blue 2/2 creature Human Wizard",
+            abilities: [
+                [
+                    "setcolor:blue",
+                    "losetype:artifact"
+                ]
+            ]
+        }).withVerification((f,s)=>{
+                it ("The thing is just blue.", ()=>{
+                    expect(f[0].typeline.types).to.be.empty;
+                    expect(f[0].color).to.eql([Color.Blue]);
+                });
+           })
 
 ]).concat(OrderOfOperationsScenarios.getThem())
 .concat(OrderOfOperationsScenariosL6.getThem());

@@ -1,4 +1,5 @@
 import {LandType} from "../enumerations/LandType";
+import {stringToSubtype} from "../structures/Typeline";
 
 export class WordParser {
 
@@ -11,5 +12,17 @@ export class WordParser {
             case "swamp": return LandType.Swamp;
         }
         return null;
+    }
+
+    static isLandType(word: string) {
+        return (WordParser.parseLandType(word) != null);
+    }
+
+    static isCreatureType(word: string) {
+        return WordParser.parseCreatureType(word) != null;
+    }
+
+    static parseCreatureType(word: string) {
+        return stringToSubtype(word);
     }
 }

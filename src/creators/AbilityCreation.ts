@@ -10,7 +10,8 @@ import {
     LosePrimitiveModification,
     ControlChangeModification,
     ChangelingModification, AddAbilityModification, LoseColorsModification, AddColorModification, Controller,
-    SetSubtypeModification, AddSubtypeModification, PowerToughnessModification, ChangeLandTypeModification
+    SetSubtypeModification, AddSubtypeModification, PowerToughnessModification, ChangeLandTypeModification,
+    SetLandTypeModification, AddLandTypeModification, LoseTypeModification
 } from "../effects/Modifications";
 import {AcquisitionCondition, ComplexAcquisition} from "../structures/Acquisition";
 
@@ -18,7 +19,7 @@ import {SingleAcquisition} from "../structures/Acquisition";
 import {SilenceModification} from "../effects/Modifications";
 import {NamedAbilities} from "./NamedAbilities";
 import {primitiveAbilities} from "./PrimitiveAbilities";
-import {LandType} from "../enumerations/LandType";
+import {WordParser} from "../utils/WordParser";
 
 
 class AbilityCreator {
@@ -84,10 +85,23 @@ class AbilityCreator {
             this.effect.modification.parts.push(new AddTypeModification(stringToType(line.substr("addtype:".length))));
         }
         else if (line.startsWith("setsubtype:")) {
-            this.effect.modification.parts.push(new SetSubtypeModification(stringToSubtype(line.substr("setsubtype:".length))));
+            let arg = line.substr("setsubtype:".length);
+            if (WordParser.isCreatureType(arg)) {
+                this.effect.modification.parts.push(new SetSubtypeModification(WordParser.parseCreatureType(arg)));
+            } else if (WordParser.isLandType(arg)) {
+                this.effect.modification.parts.push(new SetLandTypeModification(WordParser.parseLandType(arg)));
+            }
         }
         else if (line.startsWith("addsubtype:")) {
-            this.effect.modification.parts.push(new AddSubtypeModification(stringToSubtype(line.substr("addsubtype:".length))));
+            let arg = line.substr("addsubtype:".length);
+            if (WordParser.isCreatureType(arg)) {
+                this.effect.modification.parts.push(new AddSubtypeModification(WordParser.parseCreatureType(arg)));
+            } else if (WordParser.isLandType(arg)) {
+                this.effect.modification.parts.push(new AddLandTypeModification(WordParser.parseLandType(arg)));
+            }
+        }
+        else if (line.startsWith("losetype:")) {
+            this.effect.modification.parts.push(new LoseTypeModification(stringToType(line.substr("losetype:".length))));
         }
         else if (line.startsWith("changetype:")) {
             const res = line.substr("changetype:".length);

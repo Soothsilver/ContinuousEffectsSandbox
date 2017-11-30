@@ -1,6 +1,7 @@
 import {Card} from "../structures/Card";
 import {stringToColor, stringToSubtype, stringToType, Type, Typeline} from "../structures/Typeline";
 import {parsePT} from "../Utilities";
+import {WordParser} from "../utils/WordParser";
 
 export namespace CardCreator {
     export function parse(script : string) : Card {
@@ -25,6 +26,9 @@ export namespace CardCreator {
             }
             if (stringToSubtype(w) != null) {
                 c.typeline.creatureSubtypes.push(stringToSubtype(w));
+            }
+            if (WordParser.isLandType(w)) {
+                c.typeline.landTypes.push(WordParser.parseLandType(w));
             }
             if (!isNaN(parsePT(w)[0])) {
                [c.power, c.toughness] = parsePT(w);

@@ -8,6 +8,7 @@ import {Permanent} from "./structures/Permanent";
 import {Scenario} from "./examples/Scenario";
 import {ScenarioLoader} from "./examples/ScenarioLoader";
 import {Recipes} from "./examples/Recipes";
+import {HashSerialization} from "./utils/HashSerialization";
 
 function removeFromArray<T> (pole : T[], prvek : T) : boolean {
     const index = pole.indexOf(prvek);
@@ -53,6 +54,7 @@ function reevaluateValues() {
     const stateCheck = new StateCheck();
     stateCheck.perform(mainscope.battlefield);
     $("#collapsibleLog").html(stateCheck.getHtmlReport());
+    window.location.hash = HashSerialization.serialize(mainscope.battlefield, mainscope.hand);
 }
 angular.module('PrimaryApp', [])
 
@@ -60,6 +62,9 @@ angular.module('PrimaryApp', [])
    $scope.greeting = "Hello";
    $scope.battlefield = [];
    $scope.hand  = [ SampleLoader.createCard(Recipes.RuneclawBear) ];
+   if (window.location.hash) {
+       [$scope.battlefield, $scope.hand] = HashSerialization.deserialize(window.location.hash);
+   }
 
    mainscope = $scope;
    $scope.abilityCreatorToString = function () {
