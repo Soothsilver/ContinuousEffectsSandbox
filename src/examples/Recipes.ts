@@ -52,6 +52,21 @@ export class Recipes {
         card: "3/3 green Horse",
         abilities: [["islandwalk"]]
     };
+    static RuneclawBear: CardRecipe = {
+        name: "Runeclaw Bear",
+        card: "2/2 green Bear",
+        abilities: []
+    };
+    static Thing: CardRecipe = {
+        name: "Thing",
+        card: "artifact",
+        abilities: []
+    };
+    static HonorOfThePure: CardRecipe = {
+        name: "Honor of the Pure",
+        card: "white enchantment",
+        abilities: [["white creatures youcontrol", "+1/+1"]]
+    };
 
     static PaintersServant(color: Color) {
         return {

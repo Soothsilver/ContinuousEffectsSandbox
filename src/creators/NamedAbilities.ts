@@ -5,6 +5,7 @@ import {Layer} from "../enumerations/Layer";
 import {Permanent} from "../structures/Permanent";
 import {SingleModificationBase} from "../structures/SingleModificationBase";
 import {SingleModification} from "../structures/SingleModification";
+import {Color} from "../structures/Typeline";
 
 class ScionOfTheWildModification extends SingleModificationBase {
     getLayer(): Layer {
@@ -26,6 +27,34 @@ class ScionOfTheWildModification extends SingleModificationBase {
     }
 }
 
+class EmptyShrineKannushiModification extends SingleModificationBase {
+    getLayer(): Layer {
+        return Layer.L6_Abilities;
+    }
+
+    asString(plural: boolean): string {
+        return (plural ? "have" : "has") + " protection from the colors of permanents you control";
+    }
+
+    applyTo(target: Permanent, battlefield: Permanent[], source: Effect): void {
+        let myColors : Color[] = [];
+        for (let perm of battlefield) {
+            if (perm.controlledByOpponent == source.source.controlledByOpponent) {
+                for (let clr of perm.color) {
+                    if (!myColors.includes(clr)) {
+                        myColors.push(clr);
+                    }
+                }
+            }
+        }
+        for (let clr of myColors) {
+            const protect = new Ability();
+            protect.protectionFrom = clr;
+            target.addAbility(protect, source);
+        }
+    }
+}
+
 export class NamedAbilities {
 
     private static createEffect(name : string) : Effect {
@@ -40,6 +69,13 @@ export class NamedAbilities {
                 break;
         }
         return ff;
+    }
+
+    static createSingleModification(name : string) : SingleModificationBase {
+        switch (name.toLowerCase()) {
+            case "EmptyShrineKannushi".toLowerCase():
+                return new EmptyShrineKannushiModification();
+        }
     }
 
     static create(name : string) : Ability {

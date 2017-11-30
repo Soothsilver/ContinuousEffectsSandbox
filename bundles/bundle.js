@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 35);
+/******/ 	return __webpack_require__(__webpack_require__.s = 34);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,8 +70,8 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const CreatureSubtype_1 = __webpack_require__(6);
-const EnumEx_1 = __webpack_require__(22);
+const CreatureSubtype_1 = __webpack_require__(7);
+const EnumEx_1 = __webpack_require__(23);
 const WordParser_1 = __webpack_require__(37);
 var Type;
 (function (Type) {
@@ -353,7 +353,7 @@ exports.AssertionError = __webpack_require__(28);
  * Utils for plugins (not exported)
  */
 
-var util = __webpack_require__(47);
+var util = __webpack_require__(46);
 
 /**
  * # .use(function)
@@ -391,35 +391,35 @@ exports.config = config;
  * Primary `Assertion` prototype
  */
 
-var assertion = __webpack_require__(65);
+var assertion = __webpack_require__(64);
 exports.use(assertion);
 
 /*!
  * Core Assertions
  */
 
-var core = __webpack_require__(66);
+var core = __webpack_require__(65);
 exports.use(core);
 
 /*!
  * Expect interface
  */
 
-var expect = __webpack_require__(67);
+var expect = __webpack_require__(66);
 exports.use(expect);
 
 /*!
  * Should interface
  */
 
-var should = __webpack_require__(68);
+var should = __webpack_require__(67);
 exports.use(should);
 
 /*!
  * Assert interface
  */
 
-var assert = __webpack_require__(69);
+var assert = __webpack_require__(68);
 exports.use(assert);
 
 
@@ -576,6 +576,29 @@ module.exports = function transferFlags(assertion, object, includeAll) {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var LandType;
+(function (LandType) {
+    LandType[LandType["Plains"] = 0] = "Plains";
+    LandType[LandType["Forest"] = 1] = "Forest";
+    LandType[LandType["Swamp"] = 2] = "Swamp";
+    LandType[LandType["Island"] = 3] = "Island";
+    LandType[LandType["Mountain"] = 4] = "Mountain";
+})(LandType = exports.LandType || (exports.LandType = {}));
+var EnchantmentType;
+(function (EnchantmentType) {
+    EnchantmentType[EnchantmentType["Shrine"] = 0] = "Shrine";
+    EnchantmentType[EnchantmentType["Curse"] = 1] = "Curse";
+    EnchantmentType[EnchantmentType["Aura"] = 2] = "Aura";
+})(EnchantmentType = exports.EnchantmentType || (exports.EnchantmentType = {}));
+
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -826,29 +849,6 @@ var CreatureSubtype;
 
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var LandType;
-(function (LandType) {
-    LandType[LandType["Plains"] = 0] = "Plains";
-    LandType[LandType["Forest"] = 1] = "Forest";
-    LandType[LandType["Swamp"] = 2] = "Swamp";
-    LandType[LandType["Island"] = 3] = "Island";
-    LandType[LandType["Mountain"] = 4] = "Mountain";
-})(LandType = exports.LandType || (exports.LandType = {}));
-var EnchantmentType;
-(function (EnchantmentType) {
-    EnchantmentType[EnchantmentType["Shrine"] = 0] = "Shrine";
-    EnchantmentType[EnchantmentType["Curse"] = 1] = "Curse";
-    EnchantmentType[EnchantmentType["Aura"] = 2] = "Aura";
-})(EnchantmentType = exports.EnchantmentType || (exports.EnchantmentType = {}));
-
-
-/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -880,113 +880,153 @@ var Layer;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Typeline_1 = __webpack_require__(0);
-const ModificationLog_1 = __webpack_require__(38);
-const Utilities_1 = __webpack_require__(1);
-class Permanent {
-    constructor() {
-        this.ownedByOpponent = false;
-        this.counters = [];
-        this.abilities = [];
-        // Transient
-        this.modificationLog = new ModificationLog_1.ModificationLog();
-        this.originalLink = null;
+const LandType_1 = __webpack_require__(6);
+class Recipes {
+    static PaintersServant(color) {
+        return {
+            "name": "Painter's Servant",
+            "card": "artifact creature Scarecrow",
+            "abilities": [
+                ["addcolor:" + Typeline_1.Color[color].toLowerCase()]
+            ]
+        };
     }
-    cssColor() {
-        return Utilities_1.getCssColor(this.color);
-    }
-    static fromCard(card) {
-        let p = new Permanent();
-        p.originalCard = card;
-        return p;
-    }
-    /**
-     * Adds an ability to this permanent during a state check.
-     * @param {Ability} ability The ability that's being add.
-     * @param {Effect} source The effect that created the ability.
-     */
-    addAbility(ability, source) {
-        ability.nonprinted = true;
-        // 613.6a A continuous effect generated by a static ability has the same timestamp as the object the static ability is on, or the timestamp of the effect that created the ability, whichever is later.
-        ability.effect.timestamp = Math.max(this.timestamp, source.timestamp);
-        this.abilities.push(ability);
-    }
-    /**
-     * Initializes a permanent at the beginning of a state check/
-     * @param {number} timestamp The timestamp of this permanent.
-     */
-    beginStateCheck(timestamp) {
-        // Copy card
-        this.name = this.originalCard.name;
-        this.power = this.originalCard.power;
-        this.toughness = this.originalCard.toughness;
-        this.color = Utilities_1.shallowCopy(this.originalCard.color);
-        this.typeline = this.originalCard.typeline.copy();
-        this.abilities = Utilities_1.deepCopy(this.originalCard.abilities);
-        // Blank status
-        this.controlledByOpponent = this.ownedByOpponent;
-        this.modificationLog = new ModificationLog_1.ModificationLog();
-        this.originalLink = null;
-        // Timestamp
-        this.timestamp = timestamp;
-        // Effects
-        for (let ab of this.abilities) {
-            ab.effect.source = this;
-            ab.effect.timestamp = timestamp;
-            // Blank transient fields
-            ab.effect.blankTransientFields();
-        }
-    }
-    describeColors() {
-        let scolors = [];
-        for (let clr of this.color) {
-            scolors.push(Typeline_1.Color[clr].toLowerCase());
-        }
-        return Utilities_1.capitalizeFirstLetter(Utilities_1.joinList(scolors));
-    }
-    createdLinkedCopy(map) {
-        let linkedCopy = map.getCopiedPermanent(this);
-        /*// Permanent features
-    originalCard: Card;
-    ownedByOpponent : boolean = false;
-    phasedOut: boolean;
-    counters: Counter[] = [];
-    timestamp: number;
-    // Characteristics
-    name: string;
-    power: number;
-    toughness: number;
-    color: Color[];
-    typeline: Typeline;
-    abilities: Ability[] = [];
-    controlledByOpponent: boolean;
-    // Transient
-    modificationLog: ModificationLog = new ModificationLog();
-    originalLink : Permanent = null;*/
-    }
-    assumeCharacteristicsOfOriginal(map) {
-        let original = this.originalLink;
-        this.originalCard = original.originalCard;
-        this.ownedByOpponent = original.ownedByOpponent;
-        this.phasedOut = original.phasedOut;
-        this.counters = original.counters;
-        this.timestamp = original.timestamp;
-        this.name = original.name;
-        this.power = original.power;
-        this.toughness = original.toughness;
-        this.color = Utilities_1.shallowCopy(original.color);
-        this.typeline = original.typeline.copy();
-        this.controlledByOpponent = original.controlledByOpponent;
-        this.abilities = [];
-        for (let ab of original.abilities) {
-            this.abilities.push(ab.createdLinkedAbility(map));
-        }
+    static MindBend(from, to) {
+        return {
+            "name": "Mind Bend",
+            "card": "blue enchantment",
+            "abilities": [
+                [
+                    "creatures", "changetype:" + LandType_1.LandType[from].toLowerCase() + "=>" + LandType_1.LandType[to].toLowerCase()
+                ]
+            ]
+        };
     }
 }
-exports.Permanent = Permanent;
+Recipes.WoodlandChangeling = {
+    name: "Woodland Changeling",
+    card: "2/2 Shapeshifter green creature",
+    abilities: [["changeling"]]
+};
+Recipes.Forest = {
+    name: "Forest",
+    card: "land",
+    abilities: []
+};
+Recipes.TrainedArmodon = {
+    name: "Trained Armodon",
+    card: "3/3 green Elephant creature",
+    abilities: []
+};
+Recipes.Humility = {
+    name: "Humility",
+    card: "white enchantment",
+    abilities: [
+        ["creatures", "silence", "setpt:1/1"]
+    ]
+};
+Recipes.MycosynthLattice = {
+    name: "Mycosynth Lattice",
+    card: "artifact",
+    abilities: [
+        ["addtype:artifact"],
+        ["losecolors"]
+    ]
+};
+Recipes.TitaniasSong = {
+    name: "Titania's Song",
+    card: "green enchantment",
+    abilities: [
+        ["noncreature artifact", "silence", "addtype:creature", "setpt:4/4"]
+    ]
+};
+Recipes.Opalescence = {
+    "name": "Opalescence",
+    "card": "white enchantment",
+    "abilities": [
+        ["other enchantment", "addtype:creature", "setpt:5/5"]
+    ]
+};
+Recipes.ZodiacHorse = {
+    name: "Zodiac Horse",
+    card: "3/3 green Horse",
+    abilities: [["islandwalk"]]
+};
+Recipes.RuneclawBear = {
+    name: "Runeclaw Bear",
+    card: "2/2 green Bear",
+    abilities: []
+};
+Recipes.Thing = {
+    name: "Thing",
+    card: "artifact",
+    abilities: []
+};
+Recipes.HonorOfThePure = {
+    name: "Honor of the Pure",
+    card: "white enchantment",
+    abilities: [["white creatures youcontrol", "+1/+1"]]
+};
+exports.Recipes = Recipes;
 
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const SampleLoader_1 = __webpack_require__(16);
+const StateCheck_1 = __webpack_require__(20);
+class Scenario {
+    constructor(name) {
+        this.battlefield = [];
+        this.createdBattlefield = [];
+        this.name = name;
+    }
+    addCard(recipe, controller = 1) {
+        let permanent = SampleLoader_1.SampleLoader.createCard(recipe).asPermanent();
+        if (controller == 2) {
+            permanent.ownedByOpponent = true;
+        }
+        this.battlefield.push(permanent);
+        return this;
+    }
+    withVerification(verificator) {
+        this.verification = verificator;
+        return this;
+    }
+    execute() {
+        const sc = new StateCheck_1.StateCheck();
+        sc.perform(this.battlefield);
+        this.createdBattlefield = this.battlefield;
+    }
+    test() {
+        this.execute();
+        this.verification(this.createdBattlefield, this);
+    }
+    find(permanentName) {
+        for (let pn of this.createdBattlefield) {
+            if (pn.name == permanentName) {
+                return pn;
+            }
+        }
+        return null;
+    }
+}
+exports.Scenario = Scenario;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(3);
+
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // This is (almost) directly from Node.js utils
@@ -994,7 +1034,7 @@ exports.Permanent = Permanent;
 
 var getName = __webpack_require__(30);
 var getProperties = __webpack_require__(31);
-var getEnumerableProperties = __webpack_require__(53);
+var getEnumerableProperties = __webpack_require__(52);
 var config = __webpack_require__(4);
 
 module.exports = inspect;
@@ -1375,7 +1415,7 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
@@ -1405,7 +1445,7 @@ module.exports = function isProxyEnabled() {
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
@@ -1473,13 +1513,13 @@ module.exports = function addLengthGuard (fn, assertionName, isChainable) {
 
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = __webpack_require__(4);
 var flag = __webpack_require__(2);
 var getProperties = __webpack_require__(31);
-var isProxyEnabled = __webpack_require__(11);
+var isProxyEnabled = __webpack_require__(13);
 
 /*!
  * Chai - proxify utility
@@ -1604,19 +1644,25 @@ function stringDistance(strA, strB, memo) {
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const SampleCards_1 = __webpack_require__(36);
-const CardCreator_1 = __webpack_require__(15);
-const AbilityCreation_1 = __webpack_require__(17);
+const SampleCards_1 = __webpack_require__(35);
+const CardCreator_1 = __webpack_require__(22);
+const AbilityCreation_1 = __webpack_require__(24);
+const Utilities_1 = __webpack_require__(1);
 function form(ability) {
     return ability.join("\n");
 }
 class CardRecipe {
+    constructor(name, card, abilities = []) {
+        this.name = name;
+        this.card = card;
+        this.abilities = abilities;
+    }
 }
 exports.CardRecipe = CardRecipe;
 var SampleLoader;
@@ -1625,119 +1671,20 @@ var SampleLoader;
         return SampleCards_1.definitions;
     }
     SampleLoader.getCardRecipes = getCardRecipes;
+    function copyRecipe(recipe) {
+        return new CardRecipe(recipe.name, recipe.card, Utilities_1.shallowCopy(recipe.abilities));
+    }
     function createCard(recipe) {
-        let c = CardCreator_1.CardCreator.parse(recipe.name + "\n" + recipe.card);
-        for (let ability of recipe.abilities) {
+        let rcp = copyRecipe(recipe);
+        let c = CardCreator_1.CardCreator.parse(rcp.name + "\n" + rcp.card);
+        for (let ability of rcp.abilities) {
             c.abilities.push(AbilityCreation_1.parseAsAbility(form(ability)));
         }
+        c.recipe = rcp;
         return c;
     }
     SampleLoader.createCard = createCard;
 })(SampleLoader = exports.SampleLoader || (exports.SampleLoader = {}));
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Card_1 = __webpack_require__(16);
-const Typeline_1 = __webpack_require__(0);
-const Utilities_1 = __webpack_require__(1);
-var CardCreator;
-(function (CardCreator) {
-    function parse(script) {
-        if (!script) {
-            return new Card_1.Card();
-        }
-        let lines = script.split('\n');
-        let nameLine = lines.length == 2 ? lines[0].trim() : "Unnamed";
-        let rulesLine = lines.length == 2 ? lines[1].trim() : lines[0].trim();
-        let c = new Card_1.Card();
-        c.name = nameLine;
-        c.color = [];
-        c.typeline = new Typeline_1.Typeline();
-        c.power = 0;
-        c.toughness = 0;
-        for (let w of rulesLine.split(' ')) {
-            if (Typeline_1.stringToType(w) != null) {
-                c.typeline.types.push(Typeline_1.stringToType(w));
-            }
-            if (Typeline_1.stringToColor(w) != null) {
-                c.color.push(Typeline_1.stringToColor(w));
-            }
-            if (Typeline_1.stringToSubtype(w) != null) {
-                c.typeline.creatureSubtypes.push(Typeline_1.stringToSubtype(w));
-            }
-            if (!isNaN(Utilities_1.parsePT(w)[0])) {
-                [c.power, c.toughness] = Utilities_1.parsePT(w);
-            }
-        }
-        if (c.typeline.creatureSubtypes.length > 0 && !c.typeline.types.includes(Typeline_1.Type.Creature)) {
-            c.typeline.types.push(Typeline_1.Type.Creature);
-        }
-        return c;
-    }
-    CardCreator.parse = parse;
-})(CardCreator = exports.CardCreator || (exports.CardCreator = {}));
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Typeline_1 = __webpack_require__(0);
-const Utilities_1 = __webpack_require__(1);
-const CreatureSubtype_1 = __webpack_require__(6);
-const Permanent_1 = __webpack_require__(9);
-class Card {
-    constructor() {
-        this.color = [];
-        this.typeline = new Typeline_1.Typeline();
-        this.abilities = [];
-    }
-    cssColor() {
-        return Utilities_1.getCssColor(this.color);
-    }
-    static createBear() {
-        let c = new Card();
-        c.name = "Runeclaw Bear";
-        c.power = 2;
-        c.toughness = 2;
-        c.typeline = Typeline_1.Typeline.creature(CreatureSubtype_1.CreatureSubtype.Bear);
-        c.abilities = [];
-        c.color = [Typeline_1.Color.Green];
-        return c;
-    }
-    static createArtifact() {
-        let c = new Card();
-        c.name = "Thing";
-        c.typeline = new Typeline_1.Typeline();
-        c.typeline.types.push(Typeline_1.Type.Artifact);
-        c.abilities = [];
-        c.color = [];
-        return c;
-    }
-    asPermanent() {
-        return Permanent_1.Permanent.fromCard(this);
-    }
-}
-exports.Card = Card;
-class Counter {
-    constructor(power, toughness) {
-        this.power = power;
-        this.toughness = toughness;
-    }
-    toString() {
-        return "+" + this.power + "/+" + this.toughness;
-    }
-}
-exports.Counter = Counter;
 
 
 /***/ }),
@@ -1747,170 +1694,113 @@ exports.Counter = Counter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Utilities_1 = __webpack_require__(1);
 const Typeline_1 = __webpack_require__(0);
-const Ability_1 = __webpack_require__(23);
-const Effect_1 = __webpack_require__(18);
-const Modifications_1 = __webpack_require__(19);
-const Acquisition_1 = __webpack_require__(24);
-const Modifications_2 = __webpack_require__(19);
-const NamedAbilities_1 = __webpack_require__(40);
-const PrimitiveAbilities_1 = __webpack_require__(41);
-class AbilityCreator {
+const ModificationLog_1 = __webpack_require__(38);
+const Utilities_1 = __webpack_require__(1);
+class Permanent {
     constructor() {
-        this.ability = new Ability_1.Ability();
-        this.effect = new Effect_1.Effect();
-        this.parsingModifications = false;
+        this.ownedByOpponent = false;
+        this.counters = [];
+        this.abilities = [];
+        // Transient
+        this.modificationLog = new ModificationLog_1.ModificationLog();
+        this.originalLink = null;
     }
-    parseScript(script) {
-        let lines = script.split("\n");
-        if (PrimitiveAbilities_1.primitiveAbilities.includes(script.trim())) {
-            this.ability.primitiveName = Utilities_1.capitalizeFirstLetter(script.trim());
-            return;
-        }
-        if (script.trim().endsWith("walk") && !script.includes("\n")) {
-            this.ability.landwalk = Typeline_1.stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
-        }
-        if (script.trim() == "changeling") {
-            this.ability.effect.acquisition.addSubjectThis();
-            this.ability.effect.modification.parts.push(new Modifications_1.ChangelingModification());
-            return;
-        }
-        for (let i = 0; i < lines.length; i++) {
-            this.parseLine(lines[i].trim().toLowerCase());
-        }
-        this.ability.effect = this.effect;
+    cssColor() {
+        return Utilities_1.getCssColor(this.color);
     }
-    parseLine(line) {
-        if (line == "")
-            return;
-        if (line.substr(0, 2) == "//")
-            return;
-        if (this.checkForMiddleLine(line))
-            return;
-        if (PrimitiveAbilities_1.primitiveAbilities.includes(line)) {
-            let a = new Ability_1.Ability();
-            a.primitiveName = line;
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(a));
-        }
-        else if (["this", "cardname"].includes(line)) {
-            this.effect.acquisition.addSubjectThis();
-        }
-        else if (["switch"].includes(line)) {
-            this.effect.modification.parts.push(new Modifications_1.SwitchPTModification());
-        }
-        else if (line.includes("/") && !isNaN(Utilities_1.parsePT(line)[0]) && !isNaN(Utilities_1.parsePT(line)[1])) {
-            let [power, toughness] = Utilities_1.parsePT(line);
-            this.effect.modification.parts.push(new Modifications_1.PowerToughnessModification(power, toughness));
-        }
-        else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
-            this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
-        }
-        else if (line.startsWith("setcolor:")) {
-            this.effect.modification.parts.push(new Modifications_1.SetColorToModification(Typeline_1.stringToColor(line.substr("setcolor:".length))));
-        }
-        else if (line.startsWith("addcolor:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddColorModification(Typeline_1.stringToColor(line.substr("addcolor:".length))));
-        }
-        else if (line.startsWith("setpt:")) {
-            let [power, toughness] = Utilities_1.parsePT(line.substr("setpt:".length));
-            this.effect.modification.parts.push(new Modifications_1.SetPowerToughnessModification(power, toughness));
-        }
-        else if (line.startsWith("addtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddTypeModification(Typeline_1.stringToType(line.substr("addtype:".length))));
-        }
-        else if (line.startsWith("setsubtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.SetSubtypeModification(Typeline_1.stringToSubtype(line.substr("setsubtype:".length))));
-        }
-        else if (line.startsWith("addsubtype:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddSubtypeModification(Typeline_1.stringToSubtype(line.substr("addsubtype:".length))));
-        }
-        else if (line.startsWith("changetype:")) {
-            const res = line.substr("changetype:".length);
-            const split = res.split("=>");
-            const from = Typeline_1.stringToLandType(split[0]);
-            const to = Typeline_1.stringToLandType(split[1]);
-            this.effect.modification.parts.push(new Modifications_1.ChangeLandTypeModification(from, to));
-        }
-        else if (line.startsWith("loseprimitive:")) {
-            this.effect.modification.parts.push(new Modifications_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
-        }
-        else if (line.startsWith("gainscontrol:")) {
-            let controller = Modifications_1.Controller.Controller;
-            let who = line.substr("gainscontrol:".length);
-            switch (who) {
-                case "1":
-                    controller = Modifications_1.Controller.PlayerOne;
-                    break;
-                case "2":
-                    controller = Modifications_1.Controller.PlayerTwo;
-                    break;
-                case "you":
-                    controller = Modifications_1.Controller.Controller;
-                    break;
-                case "opponent":
-                    controller = Modifications_1.Controller.Opponent;
-                    break;
-            }
-            this.effect.modification.parts.push(new Modifications_1.ControlChangeModification(controller));
-        }
-        else if (line.startsWith("addability:")) {
-            const innerAbility = line.substr("addability:".length).replace(";", "\n");
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(parseAsAbility(innerAbility)));
-        }
-        else if (line == "silence") {
-            this.effect.modification.parts.push(new Modifications_2.SilenceModification());
-        }
-        else if (line == "losecolors") {
-            this.effect.modification.parts.push(new Modifications_1.LoseColorsModification());
-        }
-        else if (line.startsWith("namedability:")) {
-            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(NamedAbilities_1.NamedAbilities.create(line.substr("namedability:".length))));
-        }
-        else {
-            this.ability.parseError = "unrecognized! " + line;
+    static fromCard(card) {
+        let p = new Permanent();
+        p.originalCard = card;
+        return p;
+    }
+    /**
+     * Adds an ability to this permanent during a state check.
+     * @param {Ability} ability The ability that's being add.
+     * @param {Effect} source The effect that created the ability.
+     */
+    addAbility(ability, source) {
+        ability.nonprinted = true;
+        // 613.6a A continuous effect generated by a static ability has the same timestamp as the object the static ability is on, or the timestamp of the effect that created the ability, whichever is later.
+        ability.effect.timestamp = Math.max(this.timestamp, source.timestamp);
+        this.abilities.push(ability);
+    }
+    /**
+     * Initializes a permanent at the beginning of a state check/
+     * @param {number} timestamp The timestamp of this permanent.
+     */
+    beginStateCheck(timestamp) {
+        // Copy card
+        this.name = this.originalCard.name;
+        this.power = this.originalCard.power;
+        this.toughness = this.originalCard.toughness;
+        this.color = Utilities_1.shallowCopy(this.originalCard.color);
+        this.typeline = this.originalCard.typeline.copy();
+        this.abilities = Utilities_1.deepCopy(this.originalCard.abilities);
+        // Blank status
+        this.controlledByOpponent = this.ownedByOpponent;
+        this.modificationLog = new ModificationLog_1.ModificationLog();
+        this.originalLink = null;
+        // Timestamp
+        this.timestamp = timestamp;
+        // Effects
+        for (let ab of this.abilities) {
+            ab.effect.source = this;
+            ab.effect.timestamp = timestamp;
+            // Blank transient fields
+            ab.effect.blankTransientFields();
         }
     }
-    static wordForWordParse(line) {
-        let words = line.split(' ');
-        let ca = new Acquisition_1.ComplexAcquisition();
-        for (let word of words) {
-            if (Typeline_1.stringToColor(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word)));
-            else if (Typeline_1.stringToType(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word)));
-            else if (Typeline_1.stringToSubtype(word) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.subtype(Typeline_1.stringToSubtype(word)));
-            else if (word == "youcontrol")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(true));
-            else if (word == "nocontrol")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(false));
-            else if (word.startsWith("non") && Typeline_1.stringToType(word.substr(3)) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word.substr(3))).negate());
-            else if (word.startsWith("non") && Typeline_1.stringToColor(word.substr(3)) != null)
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word.substr(3))).negate());
-            else if (word == "other")
-                ca.conditions.push(Acquisition_1.AcquisitionCondition.nonself());
-            else
-                return null;
+    describeColors() {
+        let scolors = [];
+        for (let clr of this.color) {
+            scolors.push(Typeline_1.Color[clr].toLowerCase());
         }
-        return ca;
+        return Utilities_1.capitalizeFirstLetter(Utilities_1.joinList(scolors));
     }
-    checkForMiddleLine(line) {
-        let gwords = ["get", "gets", "has", "have", "gain", "gains"];
-        if (gwords.includes(line)) {
-            this.parsingModifications = true;
-            return true;
+    createdLinkedCopy(map) {
+        let linkedCopy = map.getCopiedPermanent(this);
+        /*// Permanent features
+    originalCard: Card;
+    ownedByOpponent : boolean = false;
+    phasedOut: boolean;
+    counters: Counter[] = [];
+    timestamp: number;
+    // Characteristics
+    name: string;
+    power: number;
+    toughness: number;
+    color: Color[];
+    typeline: Typeline;
+    abilities: Ability[] = [];
+    controlledByOpponent: boolean;
+    // Transient
+    modificationLog: ModificationLog = new ModificationLog();
+    originalLink : Permanent = null;*/
+    }
+    assumeCharacteristicsOfOriginal(map) {
+        let original = this.originalLink;
+        this.originalCard = original.originalCard;
+        this.ownedByOpponent = original.ownedByOpponent;
+        this.phasedOut = original.phasedOut;
+        this.counters = original.counters;
+        this.timestamp = original.timestamp;
+        this.name = original.name;
+        this.power = original.power;
+        this.toughness = original.toughness;
+        this.color = Utilities_1.shallowCopy(original.color);
+        this.typeline = original.typeline.copy();
+        this.controlledByOpponent = original.controlledByOpponent;
+        this.abilities = [];
+        for (let ab of original.abilities) {
+            this.abilities.push(ab.createdLinkedAbility(map));
         }
-        return false;
+    }
+    getPT() {
+        return [this.power, this.toughness];
     }
 }
-function parseAsAbility(script) {
-    let abilityCreator = new AbilityCreator();
-    abilityCreator.parseScript(script);
-    return abilityCreator.ability;
-}
-exports.parseAsAbility = parseAsAbility;
+exports.Permanent = Permanent;
 
 
 /***/ }),
@@ -1920,7 +1810,7 @@ exports.parseAsAbility = parseAsAbility;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Acquisition_1 = __webpack_require__(24);
+const Acquisition_1 = __webpack_require__(26);
 const Layer_1 = __webpack_require__(8);
 const Utilities_1 = __webpack_require__(1);
 const Modification_1 = __webpack_require__(39);
@@ -2062,10 +1952,10 @@ exports.Effect = Effect;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Layer_1 = __webpack_require__(8);
 const Typeline_1 = __webpack_require__(0);
-const EnumEx_1 = __webpack_require__(22);
-const CreatureSubtype_1 = __webpack_require__(6);
-const SingleModificationBase_1 = __webpack_require__(25);
-const LandType_1 = __webpack_require__(7);
+const EnumEx_1 = __webpack_require__(23);
+const CreatureSubtype_1 = __webpack_require__(7);
+const SingleModificationBase_1 = __webpack_require__(27);
+const LandType_1 = __webpack_require__(6);
 class PowerToughnessModification extends SingleModificationBase_1.SingleModificationBase {
     asString(plural) {
         return (plural ? "get" : "gets") + " " + (this.power >= 0 ? "+" : "") + this.power + "/" +
@@ -2942,10 +2832,58 @@ return typeDetect;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
 
 /***/ }),
 /* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Card_1 = __webpack_require__(36);
+const Typeline_1 = __webpack_require__(0);
+const Utilities_1 = __webpack_require__(1);
+var CardCreator;
+(function (CardCreator) {
+    function parse(script) {
+        if (!script) {
+            return new Card_1.Card();
+        }
+        let lines = script.split('\n');
+        let nameLine = lines.length == 2 ? lines[0].trim() : "Unnamed";
+        let rulesLine = lines.length == 2 ? lines[1].trim() : lines[0].trim();
+        let c = new Card_1.Card();
+        c.name = nameLine;
+        c.color = [];
+        c.typeline = new Typeline_1.Typeline();
+        c.power = 0;
+        c.toughness = 0;
+        for (let w of rulesLine.split(' ')) {
+            if (Typeline_1.stringToType(w) != null) {
+                c.typeline.types.push(Typeline_1.stringToType(w));
+            }
+            if (Typeline_1.stringToColor(w) != null) {
+                c.color.push(Typeline_1.stringToColor(w));
+            }
+            if (Typeline_1.stringToSubtype(w) != null) {
+                c.typeline.creatureSubtypes.push(Typeline_1.stringToSubtype(w));
+            }
+            if (!isNaN(Utilities_1.parsePT(w)[0])) {
+                [c.power, c.toughness] = Utilities_1.parsePT(w);
+            }
+        }
+        if (c.typeline.creatureSubtypes.length > 0 && !c.typeline.types.includes(Typeline_1.Type.Creature)) {
+            c.typeline.types.push(Typeline_1.Type.Creature);
+        }
+        return c;
+    }
+    CardCreator.parse = parse;
+})(CardCreator = exports.CardCreator || (exports.CardCreator = {}));
+
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2969,7 +2907,186 @@ exports.EnumEx = EnumEx;
 
 
 /***/ }),
-/* 23 */
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Utilities_1 = __webpack_require__(1);
+const Typeline_1 = __webpack_require__(0);
+const Ability_1 = __webpack_require__(25);
+const Effect_1 = __webpack_require__(18);
+const Modifications_1 = __webpack_require__(19);
+const Acquisition_1 = __webpack_require__(26);
+const Modifications_2 = __webpack_require__(19);
+const NamedAbilities_1 = __webpack_require__(40);
+const PrimitiveAbilities_1 = __webpack_require__(41);
+class AbilityCreator {
+    constructor() {
+        this.ability = new Ability_1.Ability();
+        this.effect = new Effect_1.Effect();
+        this.parsingModifications = false;
+    }
+    parseScript(script) {
+        let lines = script.split("\n");
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(script.trim())) {
+            this.ability.primitiveName = Utilities_1.capitalizeFirstLetter(script.trim());
+            return;
+        }
+        if (script.trim().endsWith("walk") && !script.includes("\n")) {
+            this.ability.landwalk = Typeline_1.stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
+        }
+        if (!script.includes("\n") && script.toLowerCase().trim().startsWith("protection:")) {
+            this.ability.protectionFrom = Typeline_1.stringToColor(script.toLowerCase().trim().substr("protection:".length));
+        }
+        if (script.trim() == "changeling") {
+            this.ability.effect.acquisition.addSubjectThis();
+            this.ability.effect.modification.parts.push(new Modifications_1.ChangelingModification());
+            return;
+        }
+        for (let i = 0; i < lines.length; i++) {
+            this.parseLine(lines[i].trim().toLowerCase());
+        }
+        this.ability.effect = this.effect;
+    }
+    parseLine(line) {
+        if (line == "")
+            return;
+        if (line.substr(0, 2) == "//")
+            return;
+        if (this.checkForMiddleLine(line))
+            return;
+        if (PrimitiveAbilities_1.primitiveAbilities.includes(line)) {
+            let a = new Ability_1.Ability();
+            a.primitiveName = line;
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(a));
+        }
+        else if (["this", "cardname"].includes(line)) {
+            this.effect.acquisition.addSubjectThis();
+        }
+        else if (["switch"].includes(line)) {
+            this.effect.modification.parts.push(new Modifications_1.SwitchPTModification());
+        }
+        else if (line.includes("/") && !isNaN(Utilities_1.parsePT(line)[0]) && !isNaN(Utilities_1.parsePT(line)[1])) {
+            let [power, toughness] = Utilities_1.parsePT(line);
+            this.effect.modification.parts.push(new Modifications_1.PowerToughnessModification(power, toughness));
+        }
+        else if (!this.parsingModifications && AbilityCreator.wordForWordParse(line) != null) {
+            this.effect.acquisition.addComplexAcquisition(AbilityCreator.wordForWordParse(line));
+        }
+        else if (line.startsWith("setcolor:")) {
+            this.effect.modification.parts.push(new Modifications_1.SetColorToModification(Typeline_1.stringToColor(line.substr("setcolor:".length))));
+        }
+        else if (line.startsWith("addcolor:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddColorModification(Typeline_1.stringToColor(line.substr("addcolor:".length))));
+        }
+        else if (line.startsWith("setpt:")) {
+            let [power, toughness] = Utilities_1.parsePT(line.substr("setpt:".length));
+            this.effect.modification.parts.push(new Modifications_1.SetPowerToughnessModification(power, toughness));
+        }
+        else if (line.startsWith("addtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddTypeModification(Typeline_1.stringToType(line.substr("addtype:".length))));
+        }
+        else if (line.startsWith("setsubtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.SetSubtypeModification(Typeline_1.stringToSubtype(line.substr("setsubtype:".length))));
+        }
+        else if (line.startsWith("addsubtype:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddSubtypeModification(Typeline_1.stringToSubtype(line.substr("addsubtype:".length))));
+        }
+        else if (line.startsWith("changetype:")) {
+            const res = line.substr("changetype:".length);
+            const split = res.split("=>");
+            const from = Typeline_1.stringToLandType(split[0]);
+            const to = Typeline_1.stringToLandType(split[1]);
+            this.effect.modification.parts.push(new Modifications_1.ChangeLandTypeModification(from, to));
+        }
+        else if (line.startsWith("loseprimitive:")) {
+            this.effect.modification.parts.push(new Modifications_1.LosePrimitiveModification(line.substr("loseprimitive:".length)));
+        }
+        else if (line.startsWith("gainscontrol:")) {
+            let controller = Modifications_1.Controller.Controller;
+            let who = line.substr("gainscontrol:".length);
+            switch (who) {
+                case "1":
+                    controller = Modifications_1.Controller.PlayerOne;
+                    break;
+                case "2":
+                    controller = Modifications_1.Controller.PlayerTwo;
+                    break;
+                case "you":
+                    controller = Modifications_1.Controller.Controller;
+                    break;
+                case "opponent":
+                    controller = Modifications_1.Controller.Opponent;
+                    break;
+            }
+            this.effect.modification.parts.push(new Modifications_1.ControlChangeModification(controller));
+        }
+        else if (line.startsWith("addability:")) {
+            const innerAbility = line.substr("addability:".length).replace(";", "\n");
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(parseAsAbility(innerAbility)));
+        }
+        else if (line == "silence") {
+            this.effect.modification.parts.push(new Modifications_2.SilenceModification());
+        }
+        else if (line == "losecolors") {
+            this.effect.modification.parts.push(new Modifications_1.LoseColorsModification());
+        }
+        else if (line.startsWith("namedability:")) {
+            this.effect.modification.parts.push(new Modifications_1.AddAbilityModification(NamedAbilities_1.NamedAbilities.create(line.substr("namedability:".length))));
+        }
+        else if (line.startsWith("namedeffect:")) {
+            this.effect.modification.parts.push(NamedAbilities_1.NamedAbilities.createSingleModification(line.substr("namedeffect:".length)));
+        }
+        else {
+            this.ability.parseError = "unrecognized! " + line;
+        }
+    }
+    static wordForWordParse(line) {
+        let words = line.split(' ');
+        let ca = new Acquisition_1.ComplexAcquisition();
+        for (let word of words) {
+            if (Typeline_1.stringToColor(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word)));
+            else if (Typeline_1.stringToType(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word)));
+            else if (Typeline_1.stringToSubtype(word) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.subtype(Typeline_1.stringToSubtype(word)));
+            else if (word == "youcontrol")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(true));
+            else if (word == "nocontrol")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.controller(false));
+            else if (word.startsWith("non") && Typeline_1.stringToType(word.substr(3)) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.type(Typeline_1.stringToType(word.substr(3))).negate());
+            else if (word.startsWith("non") && Typeline_1.stringToColor(word.substr(3)) != null)
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.color(Typeline_1.stringToColor(word.substr(3))).negate());
+            else if (word == "other")
+                ca.conditions.push(Acquisition_1.AcquisitionCondition.nonself());
+            else
+                return null;
+        }
+        return ca;
+    }
+    checkForMiddleLine(line) {
+        let gwords = ["get", "gets", "has", "have", "gain", "gains"];
+        if (gwords.includes(line)) {
+            this.parsingModifications = true;
+            return true;
+        }
+        return false;
+    }
+}
+function parseAsAbility(script) {
+    let abilityCreator = new AbilityCreator();
+    abilityCreator.parseScript(script);
+    return abilityCreator.ability;
+}
+exports.parseAsAbility = parseAsAbility;
+
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2978,7 +3095,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(1);
 const Effect_1 = __webpack_require__(18);
 const Layer_1 = __webpack_require__(8);
-const LandType_1 = __webpack_require__(7);
+const LandType_1 = __webpack_require__(6);
+const Typeline_1 = __webpack_require__(0);
 class Ability {
     constructor() {
         this.primitiveName = null;
@@ -2986,6 +3104,7 @@ class Ability {
         this.effect = new Effect_1.Effect();
         this.nonprinted = false;
         this.landwalk = null;
+        this.protectionFrom = null;
     }
     copy() {
         let copie = new Ability();
@@ -2994,6 +3113,7 @@ class Ability {
         copie.nonprinted = this.nonprinted;
         copie.effect = this.effect.copy();
         copie.modified = this.modified;
+        copie.protectionFrom = this.protectionFrom;
         copie.landwalk = this.landwalk;
         return copie;
     }
@@ -3006,6 +3126,9 @@ class Ability {
         }
         else if (this.landwalk != null) {
             return LandType_1.LandType[this.landwalk] + "walk";
+        }
+        else if (this.protectionFrom != null) {
+            return "Protection from " + Typeline_1.Color[this.protectionFrom].toLowerCase();
         }
         else if (this.parseError != null) {
             return "[[" + this.parseError + "]]";
@@ -3036,6 +3159,7 @@ class Ability {
         linkedAbility.nonprinted = this.nonprinted;
         linkedAbility.modified = this.modified;
         linkedAbility.landwalk = this.landwalk;
+        linkedAbility.protectionFrom = this.protectionFrom;
         let maybeEffectAlreadyExists = map.getCopiedEffect(this.effect);
         if (maybeEffectAlreadyExists != null) {
             linkedAbility.effect = maybeEffectAlreadyExists;
@@ -3050,7 +3174,7 @@ exports.Ability = Ability;
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3058,7 +3182,7 @@ exports.Ability = Ability;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utilities_1 = __webpack_require__(1);
 const Typeline_1 = __webpack_require__(0);
-const CreatureSubtype_1 = __webpack_require__(6);
+const CreatureSubtype_1 = __webpack_require__(7);
 class SingleAcquisition {
     constructor(key, plural) {
         this.keyword = null;
@@ -3272,7 +3396,7 @@ exports.Acquisition = Acquisition;
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3287,61 +3411,6 @@ class SingleModificationBase {
     }
 }
 exports.SingleModificationBase = SingleModificationBase;
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(14);
-const StateCheck_1 = __webpack_require__(20);
-class Scenario {
-    constructor(name) {
-        this.battlefield = [];
-        this.createdBattlefield = [];
-        this.name = name;
-    }
-    addCard(recipe, controller = 1) {
-        let permanent = SampleLoader_1.SampleLoader.createCard(recipe).asPermanent();
-        if (controller == 2) {
-            permanent.ownedByOpponent = true;
-        }
-        this.battlefield.push(permanent);
-        return this;
-    }
-    withVerification(verificator) {
-        this.verification = verificator;
-        return this;
-    }
-    execute() {
-        const sc = new StateCheck_1.StateCheck();
-        sc.perform(this.battlefield);
-        this.createdBattlefield = this.battlefield;
-    }
-    test() {
-        this.execute();
-        this.verification(this.createdBattlefield, this);
-    }
-    find(permanentName) {
-        for (let pn of this.createdBattlefield) {
-            if (pn.name == permanentName) {
-                return pn;
-            }
-        }
-        return null;
-    }
-}
-exports.Scenario = Scenario;
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(3);
 
 
 /***/ }),
@@ -3599,7 +3668,7 @@ module.exports = function getProperties(object) {
  * Module dependancies
  */
 
-var inspect = __webpack_require__(10);
+var inspect = __webpack_require__(12);
 var config = __webpack_require__(4);
 
 /**
@@ -3681,97 +3750,13 @@ module.exports = function getOwnEnumerablePropertySymbols(obj) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Typeline_1 = __webpack_require__(0);
-const LandType_1 = __webpack_require__(7);
-class Recipes {
-    static PaintersServant(color) {
-        return {
-            "name": "Painter's Servant",
-            "card": "artifact creature Scarecrow",
-            "abilities": [
-                ["addcolor:" + Typeline_1.Color[color].toLowerCase()]
-            ]
-        };
-    }
-    static MindBend(from, to) {
-        return {
-            "name": "Mind Bend",
-            "card": "blue enchantment",
-            "abilities": [
-                [
-                    "creatures", "changetype:" + LandType_1.LandType[from].toLowerCase() + "=>" + LandType_1.LandType[to].toLowerCase()
-                ]
-            ]
-        };
-    }
-}
-Recipes.WoodlandChangeling = {
-    name: "Woodland Changeling",
-    card: "2/2 Shapeshifter green creature",
-    abilities: [["changeling"]]
-};
-Recipes.Forest = {
-    name: "Forest",
-    card: "land",
-    abilities: []
-};
-Recipes.TrainedArmodon = {
-    name: "Trained Armodon",
-    card: "3/3 green Elephant creature",
-    abilities: []
-};
-Recipes.Humility = {
-    name: "Humility",
-    card: "white enchantment",
-    abilities: [
-        ["creatures", "silence", "setpt:1/1"]
-    ]
-};
-Recipes.MycosynthLattice = {
-    name: "Mycosynth Lattice",
-    card: "artifact",
-    abilities: [
-        ["addtype:artifact"],
-        ["losecolors"]
-    ]
-};
-Recipes.TitaniasSong = {
-    name: "Titania's Song",
-    card: "green enchantment",
-    abilities: [
-        ["noncreature artifact", "silence", "addtype:creature", "setpt:4/4"]
-    ]
-};
-Recipes.Opalescence = {
-    "name": "Opalescence",
-    "card": "white enchantment",
-    "abilities": [
-        ["other enchantment", "addtype:creature", "setpt:5/5"]
-    ]
-};
-Recipes.ZodiacHorse = {
-    name: "Zodiac Horse",
-    card: "3/3 green Horse",
-    abilities: [["islandwalk"]]
-};
-exports.Recipes = Recipes;
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const SampleLoader_1 = __webpack_require__(14);
-const Card_1 = __webpack_require__(16);
+const SampleLoader_1 = __webpack_require__(16);
 const StateCheck_1 = __webpack_require__(20);
-const AbilityCreation_1 = __webpack_require__(17);
-const CardCreator_1 = __webpack_require__(15);
-const Examples_1 = __webpack_require__(44);
-const Permanent_1 = __webpack_require__(9);
-const ScenarioLoader_1 = __webpack_require__(45);
+const AbilityCreation_1 = __webpack_require__(24);
+const CardCreator_1 = __webpack_require__(22);
+const Permanent_1 = __webpack_require__(17);
+const ScenarioLoader_1 = __webpack_require__(44);
+const Recipes_1 = __webpack_require__(9);
 function removeFromArray(pole, prvek) {
     const index = pole.indexOf(prvek);
     if (index == -1) {
@@ -3792,7 +3777,7 @@ angular.module('PrimaryApp', [])
     .controller('PrimaryController', function ($scope) {
     $scope.greeting = "Hello";
     $scope.battlefield = [];
-    $scope.hand = [Card_1.Card.createBear()];
+    $scope.hand = [SampleLoader_1.SampleLoader.createCard(Recipes_1.Recipes.RuneclawBear)];
     mainscope = $scope;
     $scope.abilityCreatorToString = function () {
         if (!$scope.abilityCreatorScript) {
@@ -3800,13 +3785,11 @@ angular.module('PrimaryApp', [])
         }
         return AbilityCreation_1.parseAsAbility($scope.abilityCreatorScript).toString();
     };
-    $scope.createExample = (id) => {
-        Examples_1.Examples.createExample(id, $scope.battlefield, $scope.hand);
-        reevaluateValues();
-    };
     $scope.abilityCreatorAdd = function () {
+        let split = $scope.abilityCreatorScript.split("\n");
         let ab = AbilityCreation_1.parseAsAbility($scope.abilityCreatorScript);
         $scope.abilityCreatorCard.abilities.push(ab);
+        $scope.abilityCreatorCard.recipe.abilities.push(split);
         reevaluateValues();
     };
     function recalculateCardCreatorTempCard() {
@@ -3828,14 +3811,22 @@ angular.module('PrimaryApp', [])
         return $scope.cardCreatorTempCard;
     };
     $scope.cardCreatorCreate = function () {
-        $scope.hand.push(CardCreator_1.CardCreator.parse($scope.cardCreatorScript));
+        let lines = $scope.cardCreatorScript.split("\n");
+        let card = lines[0];
+        let name = "Unnamed";
+        if (lines.length == 2) {
+            name = lines[0];
+            card = lines[1];
+        }
+        let recipe = new SampleLoader_1.CardRecipe(name, card, []);
+        $scope.hand.push(SampleLoader_1.SampleLoader.createCard(recipe));
     };
     $scope.drawArtifact = function () {
-        $scope.hand.push(Card_1.Card.createArtifact());
+        $scope.hand.push(SampleLoader_1.SampleLoader.createCard(Recipes_1.Recipes.Thing));
         reevaluateValues();
     };
     $scope.drawBear = function () {
-        $scope.hand.push(Card_1.Card.createBear());
+        $scope.hand.push(SampleLoader_1.SampleLoader.createCard(Recipes_1.Recipes.RuneclawBear));
         reevaluateValues();
     };
     $scope.drawHumility = function () {
@@ -3930,7 +3921,7 @@ angular.module('PrimaryApp', [])
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3961,13 +3952,50 @@ exports.definitions = [
 
 
 /***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Typeline_1 = __webpack_require__(0);
+const Utilities_1 = __webpack_require__(1);
+const Permanent_1 = __webpack_require__(17);
+class Card {
+    constructor() {
+        this.color = [];
+        this.typeline = new Typeline_1.Typeline();
+        this.abilities = [];
+        this.recipe = null;
+    }
+    cssColor() {
+        return Utilities_1.getCssColor(this.color);
+    }
+    asPermanent() {
+        return Permanent_1.Permanent.fromCard(this);
+    }
+}
+exports.Card = Card;
+class Counter {
+    constructor(power, toughness) {
+        this.power = power;
+        this.toughness = toughness;
+    }
+    toString() {
+        return "+" + this.power + "/+" + this.toughness;
+    }
+}
+exports.Counter = Counter;
+
+
+/***/ }),
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const LandType_1 = __webpack_require__(7);
+const LandType_1 = __webpack_require__(6);
 class WordParser {
     static parseLandType(word) {
         switch (word.toLowerCase()) {
@@ -4070,10 +4098,10 @@ exports.Modification = Modification;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Ability_1 = __webpack_require__(23);
+const Ability_1 = __webpack_require__(25);
 const Effect_1 = __webpack_require__(18);
 const Layer_1 = __webpack_require__(8);
-const SingleModificationBase_1 = __webpack_require__(25);
+const SingleModificationBase_1 = __webpack_require__(27);
 class ScionOfTheWildModification extends SingleModificationBase_1.SingleModificationBase {
     getLayer() {
         return Layer_1.Layer.L7b_PnTSetSpecificValue;
@@ -4089,6 +4117,31 @@ class ScionOfTheWildModification extends SingleModificationBase_1.SingleModifica
         target.modificationLog.ptChanged = true;
     }
 }
+class EmptyShrineKannushiModification extends SingleModificationBase_1.SingleModificationBase {
+    getLayer() {
+        return Layer_1.Layer.L6_Abilities;
+    }
+    asString(plural) {
+        return (plural ? "have" : "has") + " protection from the colors of permanents you control";
+    }
+    applyTo(target, battlefield, source) {
+        let myColors = [];
+        for (let perm of battlefield) {
+            if (perm.controlledByOpponent == source.source.controlledByOpponent) {
+                for (let clr of perm.color) {
+                    if (!myColors.includes(clr)) {
+                        myColors.push(clr);
+                    }
+                }
+            }
+        }
+        for (let clr of myColors) {
+            const protect = new Ability_1.Ability();
+            protect.protectionFrom = clr;
+            target.addAbility(protect, source);
+        }
+    }
+}
 class NamedAbilities {
     static createEffect(name) {
         let ff = new Effect_1.Effect();
@@ -4102,6 +4155,12 @@ class NamedAbilities {
                 break;
         }
         return ff;
+    }
+    static createSingleModification(name) {
+        switch (name.toLowerCase()) {
+            case "EmptyShrineKannushi".toLowerCase():
+                return new EmptyShrineKannushiModification();
+        }
     }
     static create(name) {
         let ab = new Ability_1.Ability();
@@ -4125,7 +4184,9 @@ exports.primitiveAbilities = [
     "haste",
     "vigilance",
     "double strike",
-    "trample"
+    "trample",
+    "shroud",
+    "hexproof"
 ];
 
 
@@ -4137,7 +4198,7 @@ exports.primitiveAbilities = [
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const StateCheck_1 = __webpack_require__(20);
-const Permanent_1 = __webpack_require__(9);
+const Permanent_1 = __webpack_require__(17);
 const LinkMap_1 = __webpack_require__(43);
 const Utilities_1 = __webpack_require__(1);
 class DependencySort {
@@ -4374,192 +4435,7 @@ exports.LinkMap = LinkMap;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Card_1 = __webpack_require__(16);
-const AbilityCreation_1 = __webpack_require__(17);
-const CardCreator_1 = __webpack_require__(15);
-const SampleLoader_1 = __webpack_require__(14);
-const Permanent_1 = __webpack_require__(9);
-var Examples;
-(function (Examples) {
-    function form(...lines) {
-        return AbilityCreation_1.parseAsAbility(lines.join("\n"));
-    }
-    function join(...lines) {
-        return lines.join("\n");
-    }
-    function createExample(identifier, battlefield, hand) {
-        battlefield.length = 0;
-        hand.length = 0;
-        let c = null;
-        let c2 = null;
-        let p = null;
-        switch (identifier) {
-            case "613.3e1":
-                /* Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Its new power and toughness is 4/1. A new effect gives the creature +5/+0. Its “unswitched” power and toughness would be 6/4, so its actual power and toughness is 4/6. */
-                c = CardCreator_1.CardCreator.parse("Spider\n1/3 green Spider creature");
-                c.abilities.push(form('this', 'gets', '+0/+1'));
-                c.abilities.push(form('this', 'gets', 'switch'));
-                c.abilities.push(form('this', 'gets', '+5/+0'));
-                p = Permanent_1.Permanent.fromCard(c);
-                battlefield.push(p);
-                break;
-            case "613.3e2":
-                /* Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Its new power and toughness is 4/1. If the +0/+1 effect ends before the switch effect ends, the creature becomes 3/1.*/
-                c = CardCreator_1.CardCreator.parse("Spider\n1/3 green Spider creature");
-                c.abilities.push(form('this', 'gets', 'switch'));
-                p = Permanent_1.Permanent.fromCard(c);
-                c2 = CardCreator_1.CardCreator.parse("Defensive Booster\nartifact");
-                c2.abilities.push(form('creatures', 'get', '+0/+1'));
-                let p2 = Permanent_1.Permanent.fromCard(c2);
-                battlefield.push(p2);
-                battlefield.push(p);
-                break;
-            case "613.3e3":
-                /*Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Then another effect switches its power and toughness again. The two switches essentially cancel each other, and the creature becomes 1/4.*/
-                {
-                    let c = CardCreator_1.CardCreator.parse("Spider\n1/3 green Spider creature");
-                    battlefield.push(Permanent_1.Permanent.fromCard(c));
-                    let a1 = CardCreator_1.CardCreator.parse("Defensive Booster\nartifact");
-                    a1.abilities.push(form('creatures', 'get', '+0/+1'));
-                    battlefield.push(Permanent_1.Permanent.fromCard(a1));
-                    let a2 = CardCreator_1.CardCreator.parse("Switcher\nartifact");
-                    a2.abilities.push(form('creatures', 'get', 'switch'));
-                    battlefield.push(Permanent_1.Permanent.fromCard(a2));
-                    battlefield.push(Permanent_1.Permanent.fromCard(a2));
-                }
-                break;
-            case "613.8.1":
-                /*Example: Two effects are affecting the same creature: one from an Aura that says “Enchanted creature gains flying” and one from an Aura that says “Enchanted creature loses flying.” Neither of these depends on the other, since nothing changes what they affect or what they’re doing to it. Applying them in timestamp order means the one that was generated last “wins.” The same process would be followed, and the same result reached, if either of the effects had a duration (such as “Target creature loses flying until end of turn”) or came from a non-Aura source (such as “All creatures lose flying”).*/
-                {
-                    let c = Card_1.Card.createBear();
-                    let a1 = Card_1.Card.createArtifact();
-                    let a2 = Card_1.Card.createArtifact();
-                    a1.abilities.push(form('Bear', 'get', 'flying'));
-                    a2.abilities.push(form('Bear', 'get', 'loseprimitive:flying'));
-                    battlefield.push(c.asPermanent());
-                    battlefield.push(a1.asPermanent());
-                    battlefield.push(a2.asPermanent());
-                }
-                break;
-            case "613.8.2":
-                /*Example: One effect reads, “White creatures get +1/+1,” and another reads, “Enchanted creature is white.” The enchanted creature gets +1/+1 from the first effect, regardless of its previous color.*/
-                {
-                    let c = Card_1.Card.createBear();
-                    let a1 = Card_1.Card.createArtifact();
-                    a1.abilities.push(form('white creatures', 'get', '+1/+1'));
-                    a1.abilities.push(form('creatures', 'get', 'setcolor:white'));
-                    battlefield.push(c.asPermanent());
-                    battlefield.push(a1.asPermanent());
-                }
-                break;
-            case "613.4e1":
-                {
-                    /*Example: Honor of the Pure is an enchantment that reads “White creatures you control get +1/+1.” Honor of the Pure and a 2/2 black creature are on the battlefield under your control. If an effect then turns the creature white (layer 5), it gets +1/+1 from Honor of the Pure (layer 7c), becoming 3/3. If the creature’s color is later changed to red (layer 5), Honor of the Pure’s effect stops applying to it, and it will return to being 2/2.*/
-                    let c = CardCreator_1.CardCreator.parse("Honor of the Pure\nwhite enchantment");
-                    c.abilities.push(form('white creatures youcontrol', 'get', '+1/+1'));
-                    battlefield.push(c.asPermanent());
-                    battlefield.push(Card_1.Card.createBear().asPermanent());
-                    let d = Card_1.Card.createArtifact();
-                    d.abilities.push(form('bear', 'get', 'setcolor:white'));
-                    battlefield.push(d.asPermanent());
-                    let e = Card_1.Card.createArtifact();
-                    e.abilities.push(form('bear', 'get', 'setcolor:red'));
-                    hand.push(e);
-                }
-                break;
-            case "613.4e2":
-                {
-                    /*Example: Gray Ogre, a 2/2 creature, is on the battlefield. An effect puts a +1/+1 counter on it (layer 7d), making it 3/3. A spell targeting it that says “Target creature gets +4/+4 until end of turn” resolves (layer 7c), making it 7/7. An enchantment that says “Creatures you control get +0/+2” enters the battlefield (layer 7c), making it 7/9. An effect that says “Target creature becomes 0/1 until end of turn” is applied to it (layer 7b), making it 5/8 (0/1, with +4/+4 from the resolved spell, +0/+2 from the enchantment, and +1/+1 from the counter).*/
-                    let p = Card_1.Card.createBear().asPermanent();
-                    battlefield.push(p);
-                    p.counters.push(new Card_1.Counter(1, 1));
-                    let a = Card_1.Card.createArtifact();
-                    a.abilities.push(form('bear', 'get', '+4/+4'));
-                    let b = Card_1.Card.createArtifact();
-                    b.abilities.push(form('bear', 'get', '+0/+2'));
-                    let c = Card_1.Card.createArtifact();
-                    c.abilities.push(form('bear', 'get', 'setpt:0/1'));
-                    battlefield.push(a.asPermanent(), b.asPermanent(), c.asPermanent());
-                }
-                break;
-            case "613.5e1":
-                {
-                    /*Example: An effect that reads “Wild Mongrel gets +1/+1 and becomes the color of your choice until end of turn” is both a power- and toughness-changing effect and a color-changing effect. The “becomes the color of your choice” part is applied in layer 5, and then the “gets +1/+1” part is applied in layer 7c.*/
-                    let p = CardCreator_1.CardCreator.parse("Wild Mongrel\n2/2 green creature");
-                    p.abilities.push(form("this", "gets", "+1/+1", "setcolor:blue"));
-                    battlefield.push(p.asPermanent());
-                }
-                break;
-            case "613.5e2":
-                /*Example: Act of Treason has an effect that reads “Gain control of target creature until end of turn. Untap that creature.
-                It gains haste until end of turn.” This is both a control-changing effect and an effect that adds an ability to an object.
-                 The “gain control” part is applied in layer 2, and then the “it gains haste” part is applied in layer 6.
-*/
-                {
-                    let c = Card_1.Card.createBear();
-                    c.abilities.push(form("this", "gets", "gainscontrol:2", "haste"));
-                    let p = c.asPermanent();
-                    battlefield.push(p);
-                }
-                break;
-            case "613.5e3":
-                /*Example: An effect that reads “All noncreature artifacts become 2/2 artifact creatures until end of turn” is both a type-changing effect and a power- and toughness-setting effect. The type-changing effect is applied to all noncreature artifacts in layer 4 and the power- and toughness-setting effect is applied to those same permanents in layer 7b, even though those permanents aren’t noncreature artifacts by then.
-*/
-                {
-                    battlefield.push(Card_1.Card.createArtifact().asPermanent());
-                    let c = CardCreator_1.CardCreator.parse("Little March\nblue enchantment");
-                    c.abilities.push(form("noncreature artifact", "get", "setpt:2/2", "addtype:creature"));
-                    battlefield.push(c.asPermanent());
-                }
-                break;
-            case "613.5e4":
-                /*Example: Svogthos, the Restless Tomb, is on the battlefield.
-                 An effect that says “Until end of turn, target land becomes a 3/3 creature that’s still a land” is applied to it (layers 4 and 7b).
-                 An effect that says “Target creature gets +1/+1 until end of turn” is applied to it (layer 7c), making it a 4/4 land creature.
-                  Then while you have ten creature cards in your graveyard, you activate Svogthos’s ability: “Until end of turn, Svogthos, the Restless Tomb becomes a black and green Plant
-                  Zombie creature with ‘This creature’s power and toughness are each equal to the number of creature cards in your graveyard.’ It’s still a land.” (layers 4, 5, and 7b).
-                   It becomes an 11/11 land creature. If a creature card enters or leaves your graveyard, Svogthos’s power and toughness will be modified accordingly.
-                    If the first effect is applied to it again, it will become a 4/4 land creature again.
-*/
-                {
-                    let svogthos = SampleLoader_1.SampleLoader.createCard({
-                        name: "Svogthos, the Restless Tomb",
-                        card: "land",
-                        abilities: []
-                    });
-                    let animation = Card_1.Card.createArtifact();
-                    animation.abilities.push(form("lands youcontrol", "gain", "setpt:3/3", "addtype:creature"));
-                    let anthem = SampleLoader_1.SampleLoader.createCard({
-                        name: "Glorious Anthem",
-                        card: "white enchantment",
-                        abilities: [["creatures youcontrol", "get", "+1/+1"]]
-                    });
-                    let svogthosAbility = SampleLoader_1.SampleLoader.createCard({
-                        name: "Svogthos's Ability",
-                        card: "black enchantment",
-                        abilities: [
-                            [
-                                "lands", "gets", "losecolors", "addcolor:black", "addcolor:green", "addtype:creature", "namedability:ScionOfTheWild"
-                            ]
-                        ]
-                    });
-                    battlefield.push(svogthos.asPermanent(), animation.asPermanent(), anthem.asPermanent(), svogthosAbility.asPermanent());
-                }
-                break;
-        }
-    }
-    Examples.createExample = createExample;
-})(Examples = exports.Examples || (exports.Examples = {}));
-
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Scenarios_1 = __webpack_require__(46);
+const Scenarios_1 = __webpack_require__(45);
 class ScenarioLoader {
     static loadAllScenarios() {
         return Scenarios_1.Scenarios;
@@ -4569,20 +4445,22 @@ exports.ScenarioLoader = ScenarioLoader;
 
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(26);
-const chai_1 = __webpack_require__(27);
-const Recipes_1 = __webpack_require__(34);
+const Scenario_1 = __webpack_require__(10);
+const chai_1 = __webpack_require__(11);
+const Recipes_1 = __webpack_require__(9);
 const Typeline_1 = __webpack_require__(0);
-const CreatureSubtype_1 = __webpack_require__(6);
-const OrderOfOperationsScenarios_1 = __webpack_require__(70);
-const LandType_1 = __webpack_require__(7);
-exports.Scenarios = [
+const CreatureSubtype_1 = __webpack_require__(7);
+const OrderOfOperationsScenarios_1 = __webpack_require__(69);
+const LandType_1 = __webpack_require__(6);
+const OrderOfOperationsL6_1 = __webpack_require__(70);
+const ComprehensiveRulesScenarios_1 = __webpack_require__(71);
+exports.Scenarios = ComprehensiveRulesScenarios_1.ComprehensiveRulesScenarios.getThem().concat([
     new Scenario_1.Scenario("Smoke test")
         .addCard(Recipes_1.Recipes.TrainedArmodon)
         .addCard({
@@ -4763,18 +4641,19 @@ exports.Scenarios = [
         abilities: [["islandwalk"], ["mountainwalk"], ["forestwalk"]]
     })
         .withVerification((f, s) => {
-        it("Nyx Horse had everything changed to islandwalk", () => {
-            chai_1.expect(s.find("Nyx Horse").abilities[0].toCapitalizedString()).to.equal("Islandwalk");
-            chai_1.expect(s.find("Nyx Horse").abilities[1].toCapitalizedString()).to.equal("Islandwalk");
+        it("Nyx Horse had everything changed to mountainwalk", () => {
+            chai_1.expect(s.find("Nyx Horse").abilities[0].toCapitalizedString()).to.equal("Mountainwalk");
+            chai_1.expect(s.find("Nyx Horse").abilities[1].toCapitalizedString()).to.equal("Mountainwalk");
             chai_1.expect(s.find("Nyx Horse").abilities[2].toCapitalizedString()).to.equal("Forestwalk");
         });
     })
     // TODO (elsewhere) scenario with a permanent that becomes just "blue"
-].concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem());
+]).concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem())
+    .concat(OrderOfOperationsL6_1.OrderOfOperationsScenariosL6.getThem());
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -4787,13 +4666,13 @@ exports.Scenarios = [
  * Dependencies that are used for multiple exports are required here only once
  */
 
-var pathval = __webpack_require__(48);
+var pathval = __webpack_require__(47);
 
 /*!
  * test utility
  */
 
-exports.test = __webpack_require__(49);
+exports.test = __webpack_require__(48);
 
 /*!
  * type utility
@@ -4804,13 +4683,13 @@ exports.type = __webpack_require__(21);
 /*!
  * expectTypes utility
  */
-exports.expectTypes = __webpack_require__(51);
+exports.expectTypes = __webpack_require__(50);
 
 /*!
  * message utility
  */
 
-exports.getMessage = __webpack_require__(52);
+exports.getMessage = __webpack_require__(51);
 
 /*!
  * actual utility
@@ -4822,7 +4701,7 @@ exports.getActual = __webpack_require__(29);
  * Inspect util
  */
 
-exports.inspect = __webpack_require__(10);
+exports.inspect = __webpack_require__(12);
 
 /*!
  * Object Display util
@@ -4846,7 +4725,7 @@ exports.transferFlags = __webpack_require__(5);
  * Deep equal utility
  */
 
-exports.eql = __webpack_require__(54);
+exports.eql = __webpack_require__(53);
 
 /*!
  * Deep path info
@@ -4870,43 +4749,43 @@ exports.getName = __webpack_require__(30);
  * add Property
  */
 
-exports.addProperty = __webpack_require__(55);
+exports.addProperty = __webpack_require__(54);
 
 /*!
  * add Method
  */
 
-exports.addMethod = __webpack_require__(56);
+exports.addMethod = __webpack_require__(55);
 
 /*!
  * overwrite Property
  */
 
-exports.overwriteProperty = __webpack_require__(57);
+exports.overwriteProperty = __webpack_require__(56);
 
 /*!
  * overwrite Method
  */
 
-exports.overwriteMethod = __webpack_require__(58);
+exports.overwriteMethod = __webpack_require__(57);
 
 /*!
  * Add a chainable method
  */
 
-exports.addChainableMethod = __webpack_require__(59);
+exports.addChainableMethod = __webpack_require__(58);
 
 /*!
  * Overwrite chainable method
  */
 
-exports.overwriteChainableMethod = __webpack_require__(60);
+exports.overwriteChainableMethod = __webpack_require__(59);
 
 /*!
  * Compare by inspect method
  */
 
-exports.compareByInspect = __webpack_require__(61);
+exports.compareByInspect = __webpack_require__(60);
 
 /*!
  * Get own enumerable property symbols method
@@ -4918,41 +4797,41 @@ exports.getOwnEnumerablePropertySymbols = __webpack_require__(33);
  * Get own enumerable properties method
  */
 
-exports.getOwnEnumerableProperties = __webpack_require__(62);
+exports.getOwnEnumerableProperties = __webpack_require__(61);
 
 /*!
  * Checks error against a given set of criteria
  */
 
-exports.checkError = __webpack_require__(63);
+exports.checkError = __webpack_require__(62);
 
 /*!
  * Proxify util
  */
 
-exports.proxify = __webpack_require__(13);
+exports.proxify = __webpack_require__(15);
 
 /*!
  * addLengthGuard util
  */
 
-exports.addLengthGuard = __webpack_require__(12);
+exports.addLengthGuard = __webpack_require__(14);
 
 /*!
  * isProxyEnabled helper
  */
 
-exports.isProxyEnabled = __webpack_require__(11);
+exports.isProxyEnabled = __webpack_require__(13);
 
 /*!
  * isNaN method
  */
 
-exports.isNaN = __webpack_require__(64);
+exports.isNaN = __webpack_require__(63);
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5250,7 +5129,7 @@ module.exports = {
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5284,7 +5163,7 @@ module.exports = function test(obj, args) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var g;
@@ -5311,7 +5190,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5368,7 +5247,7 @@ module.exports = function expectTypes(obj, types) {
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5383,7 +5262,7 @@ module.exports = function expectTypes(obj, types) {
 
 var flag = __webpack_require__(2)
   , getActual = __webpack_require__(29)
-  , inspect = __webpack_require__(10)
+  , inspect = __webpack_require__(12)
   , objDisplay = __webpack_require__(32);
 
 /**
@@ -5425,7 +5304,7 @@ module.exports = function getMessage(obj, args) {
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5457,7 +5336,7 @@ module.exports = function getEnumerableProperties(object) {
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5919,7 +5798,7 @@ function isPrimitive(value) {
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5930,7 +5809,7 @@ function isPrimitive(value) {
 
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(2);
-var isProxyEnabled = __webpack_require__(11);
+var isProxyEnabled = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -5997,7 +5876,7 @@ module.exports = function addProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6006,10 +5885,10 @@ module.exports = function addProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(12);
+var addLengthGuard = __webpack_require__(14);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(13);
+var proxify = __webpack_require__(15);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -6071,7 +5950,7 @@ module.exports = function addMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6082,7 +5961,7 @@ module.exports = function addMethod(ctx, name, method) {
 
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(2);
-var isProxyEnabled = __webpack_require__(11);
+var isProxyEnabled = __webpack_require__(13);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -6169,7 +6048,7 @@ module.exports = function overwriteProperty(ctx, name, getter) {
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6178,10 +6057,10 @@ module.exports = function overwriteProperty(ctx, name, getter) {
  * MIT Licensed
  */
 
-var addLengthGuard = __webpack_require__(12);
+var addLengthGuard = __webpack_require__(14);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(13);
+var proxify = __webpack_require__(15);
 var transferFlags = __webpack_require__(5);
 
 /**
@@ -6267,7 +6146,7 @@ module.exports = function overwriteMethod(ctx, name, method) {
 
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6280,10 +6159,10 @@ module.exports = function overwriteMethod(ctx, name, method) {
  * Module dependencies
  */
 
-var addLengthGuard = __webpack_require__(12);
+var addLengthGuard = __webpack_require__(14);
 var chai = __webpack_require__(3);
 var flag = __webpack_require__(2);
-var proxify = __webpack_require__(13);
+var proxify = __webpack_require__(15);
 var transferFlags = __webpack_require__(5);
 
 /*!
@@ -6425,7 +6304,7 @@ module.exports = function addChainableMethod(ctx, name, method, chainingBehavior
 
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6500,7 +6379,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
 
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6513,7 +6392,7 @@ module.exports = function overwriteChainableMethod(ctx, name, method, chainingBe
  * Module dependancies
  */
 
-var inspect = __webpack_require__(10);
+var inspect = __webpack_require__(12);
 
 /**
  * ### .compareByInspect(mixed, mixed)
@@ -6537,7 +6416,7 @@ module.exports = function compareByInspect(a, b) {
 
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6572,7 +6451,7 @@ module.exports = function getOwnEnumerableProperties(obj) {
 
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6751,7 +6630,7 @@ module.exports = {
 
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6783,7 +6662,7 @@ module.exports = Number.isNaN || isNaN;
 
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6954,7 +6833,7 @@ module.exports = function (_chai, util) {
 
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10689,7 +10568,7 @@ module.exports = function (chai, _) {
 
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10729,7 +10608,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10939,7 +10818,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ (function(module, exports) {
 
 /*!
@@ -14043,18 +13922,18 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 70 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scenario_1 = __webpack_require__(26);
-const Recipes_1 = __webpack_require__(34);
-const chai_1 = __webpack_require__(27);
+const Scenario_1 = __webpack_require__(10);
+const Recipes_1 = __webpack_require__(9);
+const chai_1 = __webpack_require__(11);
 const Typeline_1 = __webpack_require__(0);
-const CreatureSubtype_1 = __webpack_require__(6);
-const LandType_1 = __webpack_require__(7);
+const CreatureSubtype_1 = __webpack_require__(7);
+const LandType_1 = __webpack_require__(6);
 /**
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
@@ -14062,7 +13941,6 @@ const LandType_1 = __webpack_require__(7);
 class OrderOfOperationsScenarios {
     static getThem() {
         return [
-            // TODO Layer 1: Copy
             // Layer 2: Control
             new Scenario_1.Scenario("OoO L2: Control Magic")
                 .addCard(Recipes_1.Recipes.TrainedArmodon)
@@ -14098,11 +13976,7 @@ class OrderOfOperationsScenarios {
                     chai_1.expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
                 });
             }),
-            // TODO L3 Volrath's Shapeshifter
             // TODO change actual land types on a land (elsewhere)
-            // TODO landtype-changing effects (elsewhere)
-            // TODO L3 dependencies and scenarios
-            // TODO text change dependency
             new Scenario_1.Scenario("OoO L3: Mind Bend + Zodiac Horse")
                 .addCard(Recipes_1.Recipes.ZodiacHorse)
                 .addCard(Recipes_1.Recipes.MindBend(LandType_1.LandType.Island, LandType_1.LandType.Forest))
@@ -14223,6 +14097,258 @@ class OrderOfOperationsScenarios {
     }
 }
 exports.OrderOfOperationsScenarios = OrderOfOperationsScenarios;
+
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Scenario_1 = __webpack_require__(10);
+const Recipes_1 = __webpack_require__(9);
+const chai_1 = __webpack_require__(11);
+const Typeline_1 = __webpack_require__(0);
+/**
+ * Scenarios from
+ * http://www.cranialinsertion.com/order-of-operations
+ */
+//TODO (elsewhere) add GoogleAnalytics; credits/feedback line
+//TODO add blood moon and basic land types
+//TODO allow query string to contain a battlefield
+class OrderOfOperationsScenariosL6 {
+    static getThem() {
+        return [
+            new Scenario_1.Scenario("OoO L6: Opalescence + Humility")
+                .addCard(Recipes_1.Recipes.Opalescence)
+                .addCard(Recipes_1.Recipes.Humility)
+                .withVerification((f, s) => {
+                it("We're all 1/1's.", () => {
+                    chai_1.expect(f[1].power).to.equal(1);
+                });
+            }),
+            new Scenario_1.Scenario("OoO L6: Empty-Shrine Kannushi")
+                .addCard({
+                name: "Empty-Shrine Kannushi",
+                card: "white 1/1 Human Cleric",
+                abilities: [[
+                        "this", "has", "namedeffect:EmptyShrineKannushi"
+                    ]]
+            })
+                .addCard({
+                name: "Cerulean Wisps",
+                card: "blue enchantment",
+                abilities: [["creatures", "setcolor:blue"]]
+            })
+                .withVerification((f, s) => {
+                it("Kannushi has protection from blue and not white", () => {
+                    chai_1.expect(f[0].abilities.length).to.equal(2);
+                    chai_1.expect(f[0].abilities[1].protectionFrom).to.equal(Typeline_1.Color.Blue);
+                });
+            }),
+            new Scenario_1.Scenario("OoO L6: Helm of Kaldra + Ovinize")
+                .addCard(Recipes_1.Recipes.TrainedArmodon)
+                .addCard({
+                name: "Helm of Kaldra 1",
+                card: "artifact",
+                abilities: [["creatures", "addability:first strike", "addability:trample", "addability:haste"]]
+            })
+                .addCard({
+                name: "Ovinize",
+                card: "green and blue enchantment",
+                abilities: [["creatures", "silence", "setpt:0/1"]]
+            })
+                .addCard({
+                name: "Helm of Kaldra 2",
+                card: "artifact",
+                abilities: [["creatures", "addability:first strike", "addability:trample", "addability:haste"]]
+            })
+                .withVerification((f, s) => {
+                it("Armodon has one set of extra abilities", () => {
+                    chai_1.expect(f[0].abilities.length).to.equal(3);
+                    chai_1.expect(f[0].power).to.equal(0);
+                    chai_1.expect(f[0].toughness).to.equal(1);
+                });
+            }),
+            new Scenario_1.Scenario("OoO L6: Gooey slimy fake Faerie")
+                .addCard({
+                name: "Spitting Slug",
+                card: "green Ooze 1/1",
+                abilities: []
+            }, 2)
+                .addCard({
+                name: "Unnatural selection",
+                card: "green enchantment",
+                abilities: [["creatures", "addsubtype:Faerie"]]
+            })
+                .addCard({
+                name: "Confiscate",
+                card: "blue enchantment",
+                abilities: [["creatures", "gainscontrol:you"]]
+            })
+                .addCard({
+                name: "Scion of Oona",
+                card: "blue creature 3/3 Faerie",
+                abilities: [["Faerie creatures youcontrol", "addability:shroud"]]
+            })
+                .withVerification((f, s) => {
+                it("The creature has shroud.", () => {
+                    chai_1.expect(f[0].abilities[0].primitiveName.toLowerCase()).to.equal("shroud");
+                });
+            })
+        ];
+    }
+}
+exports.OrderOfOperationsScenariosL6 = OrderOfOperationsScenariosL6;
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Scenario_1 = __webpack_require__(10);
+const chai_1 = __webpack_require__(11);
+const SampleLoader_1 = __webpack_require__(16);
+const Recipes_1 = __webpack_require__(9);
+const Typeline_1 = __webpack_require__(0);
+class ComprehensiveRulesScenarios {
+    static getThem() {
+        return [
+            new Scenario_1.Scenario("613.3e1")
+                .addCard({
+                name: "Spider",
+                card: "1/3 green Spider",
+                abilities: [
+                    ["this", "gets", "+0/+1"],
+                    ["this", "gets", "switch"],
+                    ["this", "gets", "+5/+0"],
+                ]
+            })
+                .withVerification((f, s) => {
+                it("Spider is 4/6", () => {
+                    chai_1.expect(f[0].power).to.equal(4);
+                    chai_1.expect(f[0].toughness).to.equal(6);
+                });
+            }),
+            new Scenario_1.Scenario("613.3e2")
+                .addCard(new SampleLoader_1.CardRecipe("Spider", "1/3 green Spider creature", [["this", "switch"]]))
+                .addCard(new SampleLoader_1.CardRecipe("Defensive Booster", "artifact", [["creatures", "get", "+0/+1"]]))
+                .withVerification((f, s) => {
+                it("Spider is 4/1.", () => {
+                    chai_1.expect(f[0].getPT()).eql([4, 1]);
+                });
+            }),
+            new Scenario_1.Scenario("613.3e3")
+                .addCard(new SampleLoader_1.CardRecipe("Spider", "1/3 green Spider creature", []))
+                .addCard(new SampleLoader_1.CardRecipe("Defensive Booster", "artifact", [["creatures", "get", "+0/+1"]]))
+                .addCard(new SampleLoader_1.CardRecipe("Switcher", "artifact", [["creatures", "switch"]]))
+                .addCard(new SampleLoader_1.CardRecipe("Switcher", "artifact", [["creatures", "switch"]]))
+                .withVerification((f, s) => {
+                it("Spider is 1/4.", () => {
+                    chai_1.expect(f[0].getPT()).eql([1, 4]);
+                });
+            }),
+            new Scenario_1.Scenario("613.8e1")
+                .addCard(Recipes_1.Recipes.RuneclawBear)
+                .addCard(new SampleLoader_1.CardRecipe("Thing", "artifact", [["Bear", "flying"]]))
+                .addCard(new SampleLoader_1.CardRecipe("Thing", "artifact", [["Bear", "loseprimitive:flying"]]))
+                .withVerification((f, s) => {
+                it("Bear has no abilities.", () => {
+                    chai_1.expect(f[0].abilities.length).to.equal(0);
+                });
+            }),
+            new Scenario_1.Scenario("613.8e2")
+                .addCard(Recipes_1.Recipes.RuneclawBear)
+                .addCard(Recipes_1.Recipes.HonorOfThePure)
+                .addCard(new SampleLoader_1.CardRecipe("Whiter", "artifact", [["creatures", "setcolor:white"]]))
+                .withVerification((f, s) => {
+                it("The Bear is 3/3.", () => {
+                    chai_1.expect(f[0].getPT()).to.eql([3, 3]);
+                });
+            }),
+            new Scenario_1.Scenario("613.4e1")
+                .addCard(Recipes_1.Recipes.HonorOfThePure)
+                .addCard(Recipes_1.Recipes.RuneclawBear)
+                .addCard(new SampleLoader_1.CardRecipe("Whiter", "artifact", [["creatures", "setcolor:white"]]))
+                .addCard(new SampleLoader_1.CardRecipe("Redder", "artifact", [["creatures", "setcolor:red"]]))
+                .withVerification((f, s) => {
+                it("It's only 2/2.", () => {
+                    chai_1.expect(f[1].getPT()).eql([2, 2]);
+                });
+            }),
+            new Scenario_1.Scenario("613.4e2")
+                .addCard(Recipes_1.Recipes.RuneclawBear)
+                .addCard(ComprehensiveRulesScenarios.artifact("bear", "get", "+4/+4"))
+                .addCard(ComprehensiveRulesScenarios.artifact("bear", "get", "+0/+2"))
+                .addCard(ComprehensiveRulesScenarios.artifact("bear", "setpt:0/1"))
+                .withVerification((f, s) => {
+                it("The Bear is 4/7", () => {
+                    chai_1.expect(f[0].getPT()).eql([4, 7]);
+                });
+            }),
+            new Scenario_1.Scenario("613.5e1")
+                .addCard(new SampleLoader_1.CardRecipe("Wild Mongrel", "2/2 green creature", [["this", "gets", "+1/+1", "setcolor:blue"]]))
+                .withVerification((f, s) => {
+                it("It's a 3/3 blue.", () => {
+                    chai_1.expect(f[0].getPT()).eql([3, 3]);
+                    chai_1.expect(f[0].color).eql([Typeline_1.Color.Blue]);
+                });
+            }),
+            new Scenario_1.Scenario("613.5e2")
+                .addCard(Recipes_1.Recipes.RuneclawBear)
+                .addCard(new SampleLoader_1.CardRecipe("Act of Treason", "red enchantment", [["bear", "gets", "gainscontrol:2", "haste"]]))
+                .withVerification((f, s) => {
+                it("Your opponent has the bear and it has haste.", () => {
+                    chai_1.expect(f[0].abilities[0].primitiveName.toLowerCase()).equal("haste");
+                    chai_1.expect(f[0].controlledByOpponent).to.be.true;
+                });
+            }),
+            new Scenario_1.Scenario("613.5e3")
+                .addCard(Recipes_1.Recipes.Thing)
+                .addCard(new SampleLoader_1.CardRecipe("Little March", "blue enchantment", [["noncreature artifact", "setpt:2/2", "addtype:creature"]]))
+                .withVerification((f, s) => {
+                it("It's a 2/2 artifact creature.", () => {
+                    chai_1.expect(f[0].getPT()).eql([2, 2]);
+                    chai_1.expect(f[0].typeline.types).eql([Typeline_1.Type.Artifact, Typeline_1.Type.Creature]);
+                });
+            }),
+            new Scenario_1.Scenario("613.5e4")
+                .addCard({
+                name: "Svogthos, the Restless Tomb",
+                card: "land",
+                abilities: []
+            })
+                .addCard(ComprehensiveRulesScenarios.artifact("lands youcontrol", "setpt:3/3", "addtype:creature"))
+                .addCard({
+                name: "Glorious Anthem",
+                card: "white enchantment",
+                abilities: [["creatures youcontrol", "get", "+1/+1"]]
+            })
+                .addCard({
+                name: "Svogthos's Ability",
+                card: "black enchantment",
+                abilities: [
+                    [
+                        "lands", "gets", "losecolors", "addcolor:black", "addcolor:green", "addtype:creature", "namedability:ScionOfTheWild"
+                    ]
+                ]
+            })
+                .withVerification((f, s) => {
+                it("It's 2/2.", () => {
+                    chai_1.expect(f[0].getPT()).eql([2, 2]);
+                });
+            })
+        ];
+    }
+    static artifact(...abilityParts) {
+        return new SampleLoader_1.CardRecipe("Thing", "artifact", [abilityParts]);
+    }
+}
+exports.ComprehensiveRulesScenarios = ComprehensiveRulesScenarios;
 
 
 /***/ })

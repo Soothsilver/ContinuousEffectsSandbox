@@ -5,6 +5,7 @@ import {Permanent} from "./Permanent";
 import {Layer} from "../enumerations/Layer";
 import {LinkMap} from "../dependencies/LinkMap";
 import {LandType} from "../enumerations/LandType";
+import {Color} from "./Typeline";
 
 export class Ability implements ICopiable<Ability> {
 
@@ -13,6 +14,7 @@ export class Ability implements ICopiable<Ability> {
     effect : Effect = new Effect();
     nonprinted : boolean = false;
     landwalk : LandType = null;
+    protectionFrom : Color = null;
     modified: boolean;
 
     copy(): Ability {
@@ -22,6 +24,7 @@ export class Ability implements ICopiable<Ability> {
         copie.nonprinted = this.nonprinted;
         copie.effect = this.effect.copy();
         copie.modified = this.modified;
+        copie.protectionFrom = this.protectionFrom;
         copie.landwalk = this.landwalk;
         return copie;
     }
@@ -35,6 +38,8 @@ export class Ability implements ICopiable<Ability> {
             return this.primitiveName;
         } else if (this.landwalk != null) {
             return LandType[this.landwalk] + "walk";
+        } else if (this.protectionFrom != null) {
+            return "Protection from " + Color[this.protectionFrom].toLowerCase();
         } else if (this.parseError != null) {
             return "[[" + this.parseError + "]]";
         } else if (this.effect != null) {
@@ -65,6 +70,7 @@ export class Ability implements ICopiable<Ability> {
         linkedAbility.nonprinted = this.nonprinted;
         linkedAbility.modified = this.modified;
         linkedAbility.landwalk = this.landwalk;
+        linkedAbility.protectionFrom = this.protectionFrom;
         let maybeEffectAlreadyExists = map.getCopiedEffect(this.effect);
         if (maybeEffectAlreadyExists != null) {
             linkedAbility.effect = maybeEffectAlreadyExists;

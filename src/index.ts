@@ -4,10 +4,10 @@ import {Card, Counter} from "./structures/Card";
 import {StateCheck} from "./StateCheck";
 import {parseAsAbility} from "./creators/AbilityCreation";
 import {CardCreator} from "./creators/CardCreator";
-import {Examples} from "./examples/Examples";
 import {Permanent} from "./structures/Permanent";
 import {Scenario} from "./examples/Scenario";
 import {ScenarioLoader} from "./examples/ScenarioLoader";
+import {Recipes} from "./examples/Recipes";
 
 function removeFromArray<T> (pole : T[], prvek : T) : boolean {
     const index = pole.indexOf(prvek);
@@ -59,7 +59,7 @@ angular.module('PrimaryApp', [])
 .controller('PrimaryController', function ($scope : PrimaryScope) {
    $scope.greeting = "Hello";
    $scope.battlefield = [];
-   $scope.hand  = [ Card.createBear() ];
+   $scope.hand  = [ SampleLoader.createCard(Recipes.RuneclawBear) ];
 
    mainscope = $scope;
    $scope.abilityCreatorToString = function () {
@@ -68,13 +68,11 @@ angular.module('PrimaryApp', [])
        }
        return parseAsAbility($scope.abilityCreatorScript).toString();
    };
-   $scope.createExample = (id) =>{
-       Examples.createExample(id, $scope.battlefield, $scope.hand);
-       reevaluateValues();
-   };
    $scope.abilityCreatorAdd = function () {
+        let split = $scope.abilityCreatorScript.split("\n");
         let ab = parseAsAbility($scope.abilityCreatorScript);
         $scope.abilityCreatorCard.abilities.push(ab);
+        $scope.abilityCreatorCard.recipe.abilities.push(split);
         reevaluateValues();
    };
 
@@ -98,14 +96,22 @@ angular.module('PrimaryApp', [])
        return $scope.cardCreatorTempCard;
    };
    $scope.cardCreatorCreate = function () {
-       $scope.hand.push( CardCreator.parse($scope.cardCreatorScript) );
+       let lines = $scope.cardCreatorScript.split("\n");
+       let card = lines[0];
+       let name = "Unnamed";
+       if (lines.length == 2) {
+           name = lines[0];
+           card = lines[1];
+       }
+       let recipe : CardRecipe = new CardRecipe(name, card, []);
+       $scope.hand.push( SampleLoader.createCard(recipe) );
    };
    $scope.drawArtifact = function () {
-       $scope.hand.push(Card.createArtifact());
+       $scope.hand.push(SampleLoader.createCard(Recipes.Thing));
        reevaluateValues();
    };
    $scope.drawBear = function () {
-        $scope.hand.push(Card.createBear());
+        $scope.hand.push(SampleLoader.createCard(Recipes.RuneclawBear));
         reevaluateValues();
    };
     $scope.drawHumility = function () {

@@ -118,4 +118,8 @@ export class Permanent {
             this.abilities.push(ab.createdLinkedAbility(map));
         }
     }
+
+    getPT() : [number, number] {
+        return [ this.power, this.toughness];
+    }
 }

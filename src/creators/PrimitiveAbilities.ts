@@ -4,5 +4,7 @@ export let primitiveAbilities : string[] = [
     "haste",
     "vigilance",
     "double strike",
-    "trample"
+    "trample",
+    "shroud",
+    "hexproof"
 ];

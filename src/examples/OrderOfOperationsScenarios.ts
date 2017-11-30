@@ -13,8 +13,7 @@ import {LandType} from "../enumerations/LandType";
 export class OrderOfOperationsScenarios {
     static getThem() : Scenario[] {
         return [
-            // TODO Layer 1: Copy
-            // Layer 2: Control
+             // Layer 2: Control
             new Scenario("OoO L2: Control Magic")
                 .addCard(Recipes.TrainedArmodon)
                 .addCard({
@@ -49,11 +48,7 @@ export class OrderOfOperationsScenarios {
                         expect(scenario.find('Trained Armodon').controlledByOpponent).to.equal(false);
                     });
                 }),
-            // TODO L3 Volrath's Shapeshifter
             // TODO change actual land types on a land (elsewhere)
-            // TODO landtype-changing effects (elsewhere)
-            // TODO L3 dependencies and scenarios
-            // TODO text change dependency
             new Scenario("OoO L3: Mind Bend + Zodiac Horse")
                 .addCard(Recipes.ZodiacHorse)
                 .addCard(Recipes.MindBend(LandType.Island, LandType.Forest))

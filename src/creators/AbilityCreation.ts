@@ -34,6 +34,9 @@ class AbilityCreator {
         if (script.trim().endsWith("walk") && !script.includes("\n")) {
             this.ability.landwalk = stringToLandType(script.trim().substr(0, script.trim().indexOf("walk")));
         }
+        if (!script.includes("\n") && script.toLowerCase().trim().startsWith("protection:")) {
+            this.ability.protectionFrom = stringToColor(script.toLowerCase().trim().substr("protection:".length));
+        }
         if (script.trim() == "changeling") {
             this.ability.effect.acquisition.addSubjectThis();
             this.ability.effect.modification.parts.push(new ChangelingModification());
@@ -119,6 +122,9 @@ class AbilityCreator {
         }
         else if (line.startsWith("namedability:")) {
             this.effect.modification.parts.push(new AddAbilityModification(NamedAbilities.create(line.substr("namedability:".length))));
+        }
+        else if (line.startsWith("namedeffect:")) {
+            this.effect.modification.parts.push(NamedAbilities.createSingleModification(line.substr("namedeffect:".length)));
         }
         else {
             this.ability.parseError = "unrecognized! " + line;

@@ -3,6 +3,7 @@ import {Ability} from "./Ability";
 import {getCssColor} from "../Utilities";
 import {CreatureSubtype} from "./CreatureSubtype";
 import {Permanent} from "./Permanent";
+import {CardRecipe} from "../examples/SampleLoader";
 
 export class Card {
     name : string;
@@ -11,30 +12,10 @@ export class Card {
     toughness : number;
     typeline : Typeline = new Typeline();
     abilities: Ability[] = [];
+    recipe : CardRecipe = null;
 
     cssColor() : string {
         return getCssColor(this.color);
-    }
-
-    static createBear() : Card {
-        let c = new Card();
-        c.name = "Runeclaw Bear";
-        c.power = 2;
-        c.toughness = 2;
-        c.typeline = Typeline.creature(CreatureSubtype.Bear);
-        c.abilities = [ ];
-        c.color = [ Color.Green ];
-        return c;
-    }
-
-    static createArtifact() {
-        let c = new Card();
-        c.name = "Thing";
-        c.typeline = new Typeline();
-        c.typeline.types.push(Type.Artifact);
-        c.abilities = [ ];
-        c.color = [];
-        return c;
     }
 
     asPermanent() : Permanent {

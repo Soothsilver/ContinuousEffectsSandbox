@@ -5,8 +5,11 @@ import {Color, Type} from "../structures/Typeline";
 import {CreatureSubtype} from "../structures/CreatureSubtype";
 import {OrderOfOperationsScenarios} from "./OrderOfOperationsScenarios";
 import {LandType} from "../enumerations/LandType";
+import {OrderOfOperationsScenariosL6} from "./OrderOfOperationsL6";
+import {ComprehensiveRulesScenarios} from "./ComprehensiveRulesScenarios";
 
-export const Scenarios : Scenario[] = [
+export const Scenarios : Scenario[] =
+    ComprehensiveRulesScenarios.getThem().concat([
     new Scenario("Smoke test")
         .addCard(Recipes.TrainedArmodon)
         .addCard({
@@ -195,4 +198,5 @@ export const Scenarios : Scenario[] = [
         })
     // TODO (elsewhere) scenario with a permanent that becomes just "blue"
 
-].concat(OrderOfOperationsScenarios.getThem());
+]).concat(OrderOfOperationsScenarios.getThem())
+.concat(OrderOfOperationsScenariosL6.getThem());
