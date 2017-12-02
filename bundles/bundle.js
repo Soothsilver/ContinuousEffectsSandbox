@@ -4623,6 +4623,30 @@ const OrderOfOperationsScenarios_1 = __webpack_require__(69);
 const LandType_1 = __webpack_require__(3);
 const OrderOfOperationsL6_1 = __webpack_require__(70);
 const ComprehensiveRulesScenarios_1 = __webpack_require__(71);
+function getConversionScenarioBase(name) {
+    return new Scenario_1.Scenario(name)
+        .addCard({
+        name: "C1",
+        card: "artifact",
+        abilities: [["Advisor", "setsubtype:Bear"]]
+    }).addCard({
+        name: "C2",
+        card: "artifact",
+        abilities: [["Bear", "setsubtype:Construct"]]
+    }).addCard({
+        name: "C3",
+        card: "artifact",
+        abilities: [["Construct", "setsubtype:Dragon"]]
+    }).addCard({
+        name: "C4",
+        card: "artifact",
+        abilities: [["Dragon", "setsubtype:Elf"]]
+    }).addCard({
+        name: "C5",
+        card: "artifact",
+        abilities: [["Elf", "setsubtype:Advisor"]]
+    });
+}
 exports.Scenarios = ComprehensiveRulesScenarios_1.ComprehensiveRulesScenarios.getThem().concat([
     new Scenario_1.Scenario("Smoke test")
         .addCard(Recipes_1.Recipes.TrainedArmodon)
@@ -4879,7 +4903,60 @@ exports.Scenarios = ComprehensiveRulesScenarios_1.ComprehensiveRulesScenarios.ge
             chai_1.expect(f[0].typeline.types).to.be.empty;
             chai_1.expect(f[0].color).to.eql([Typeline_1.Color.Blue]);
         });
+    }),
+    getConversionScenarioBase("Conversion 1")
+        .addCard({
+        name: "Construct",
+        card: "1/1 white Construct",
+        abilities: []
     })
+        .withVerification((f, s) => {
+        it("An Advisor.", () => {
+            chai_1.expect(f[0].typeline.creatureSubtypes).eql([CreatureSubtype_1.CreatureSubtype.Advisor]);
+        });
+    }),
+    getConversionScenarioBase("Conversion 2")
+        .addCard({
+        name: "Advisor Bear",
+        card: "1/1 white Advisor Bear",
+        abilities: []
+    })
+        .withVerification((f, s) => {
+        it("Just an advisor.", () => {
+            chai_1.expect(f[0].typeline.creatureSubtypes).eql([CreatureSubtype_1.CreatureSubtype.Advisor]);
+        });
+    }),
+    getConversionScenarioBase("Conversion dependency loop")
+        .addCard({
+        name: "A",
+        card: "1/1 white Advisor",
+        abilities: []
+    }).addCard({
+        name: "A",
+        card: "1/1 green Bear",
+        abilities: []
+    }).addCard({
+        name: "A",
+        card: "1/1 Construct",
+        abilities: []
+    }).addCard({
+        name: "A",
+        card: "1/1 red Dragon",
+        abilities: []
+    }).addCard({
+        name: "A",
+        card: "1/1 green Elf",
+        abilities: []
+    })
+        .withVerification((f, s) => {
+        it("Just an advisor.", () => {
+            for (let perm of f) {
+                if (perm.name == "A") {
+                    chai_1.expect(perm.typeline.creatureSubtypes).eql([CreatureSubtype_1.CreatureSubtype.Advisor]);
+                }
+            }
+        });
+    }),
 ]).concat(OrderOfOperationsScenarios_1.OrderOfOperationsScenarios.getThem())
     .concat(OrderOfOperationsL6_1.OrderOfOperationsScenariosL6.getThem());
 
@@ -14345,7 +14422,6 @@ const Typeline_1 = __webpack_require__(0);
  * Scenarios from
  * http://www.cranialinsertion.com/order-of-operations
  */
-//TODO allow query string to contain a battlefield
 class OrderOfOperationsScenariosL6 {
     static getThem() {
         return [
